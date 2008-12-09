@@ -1,0 +1,89 @@
+=head1 IO
+
+Functions for reading and printing
+
+=head2 Functions
+
+=over 4
+
+=cut
+
+.namespace
+
+
+=item '.'
+
+The dot. This is the only function that is not delay-loaded into the stack. When a '.' is hit in your program, the stack will execute down and functions will be ran as they are hit. The remaining value left on the stack once execution is halted will be popped off and printed to stdout.
+
+In the future, the result behaviour of the dot may be customizable.
+
+=cut
+
+.sub '.'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	
+	$I0 = isnull $P0
+	if $I0 == 1 goto finish
+	'!@print_rec'($P0)
+	print "\n"
+finish:
+.end
+
+
+=item say
+
+ X ->  
+
+Prints C<X> to stdout. Uses the same format as '.' does.
+
+=cut
+
+.sub 'say'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	#Use the same print '.' does
+	'!@print_rec'($P0)
+	print "\n"
+.end
+
+.sub '!@print_rec'
+	.param pmc value
+	.local string type
+	type = typeof value
+	if type == 'Boolean' goto print_bool
+	if type == 'ResizablePMCArray' goto print_array
+	
+	print value
+	goto finish
+	
+print_bool:
+	if value == 1 goto print_true
+	print "false"
+	goto finish
+print_true:
+	print "true"
+	goto finish
+	
+print_array:
+	.local pmc it
+	it = iter value
+	print "["
+	unless it goto iter_end
+iter_loop:
+	$P0 = shift it
+	'!@print_rec'($P0) #Recursive way to follow lists
+	unless it goto iter_end
+	print " "
+	goto iter_loop
+
+iter_end:
+	print "]"
+
+finish:
+.end
+
+=back
+

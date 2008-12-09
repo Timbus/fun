@@ -1,0 +1,283 @@
+# $Id$
+
+#=begin overview
+
+#This is the grammar for fun written as a sequence of Perl 6 rules.
+
+#=end overview
+
+grammar fun::Grammar is PCT::Grammar;
+
+rule TOP {
+	[<func>|<expr>]*
+	[ $ || <panic: 'Syntax error'> ]
+	{*}
+}
+
+##  this <ws> rule treats # as "comment to eol"
+##  you may want to replace it with something appropriate
+token ws {
+    <!ww>
+    [ '#' \N* \n? | \s+ ]*
+}
+
+##'ident' sucks i want hyphens dammit.
+token funcname { 
+	[ \w | '-' | '?' | '=' ]+ {*} 
+}
+
+token print {
+	'.'	{*}
+}
+
+#These arent really expressions but whatever.
+rule expr {
+##Fundamental stuff
+	| <list>	{*} #= list
+	| <value>	{*} #= value
+	| <print>	{*} #= print
+
+##Built in functions
+	| <builtins> {*} #= builtins
+	
+##Possibly a user function call (this is the 'last resort' match)
+	|| <userfunccall>	{*} #= userfunccall
+}
+
+##The function is trechnically a list, but "<ident> == <list>" adds an extra (unnecessary) layer,
+##because I have to dig <expr> out of the <list>
+rule func {
+	<funcname> '==' '[' <expr>* ']' {*} 
+}
+
+rule list { 
+	'[' <expr>* ']' {*} 
+}
+
+token value {
+	| <float> 	{*} #= float
+	| <integer>	{*} #= integer
+	| <string> 	{*} #= string
+	| <bool> 	{*} #= bool
+}
+
+token integer { '-'? \d+ {*} }
+token float { '-'? \d+ '.' \d+ {*} }
+token bool { ['true' | 'false'] {*} }
+token string {
+    [ \' <string_literal: '\'' > \' | \" <string_literal: '"' > \" ]
+    {*}
+}
+
+token builtins {
+	| '++' {*}
+	| '--' {*}
+	
+	| '+' {*}
+	| '-' {*}
+	| '*' {*}
+	| '/' {*}
+
+	| '<=' {*}
+	| '>=' {*}
+	| '!=' {*}
+	| '=' {*}
+	| '<' {*}
+	| '>' {*}
+	| 'or' {*}
+	| 'and' {*}
+	| 'xor' {*}
+	| 'div' {*}
+	| 'rem' {*}
+	| 'mod' {*}
+	| 'cmp' {*}
+
+	| 'setundeferror' {*}
+	| 'undeferror' {*}
+	| 'fputstring' {*}
+	| 'condlinrec' {*}
+	| 'treegenrec' {*}
+	| 'helpdetail' {*}
+	| 'setautoput' {*}
+	| 'rolldownd' {*}
+	| 'localtime' {*}
+	| 'fputchars' {*}
+	| 'construct' {*}
+	| 'ifinteger' {*}
+	| 'iflogical' {*}
+	| 'rolldown' {*}
+	| 'strftime' {*}
+	| 'enconcat' {*}
+	| 'ifstring' {*}
+	| 'tostring' {*}
+	| 'treestep' {*}
+	| 'putchars' {*}
+	| 'setsize' {*}
+	| 'autoput' {*}
+	| 'rollupd' {*}
+	| 'rotated' {*}
+	| 'formatf' {*}
+	| 'fremove' {*}
+	| 'frename' {*}
+	| 'unstack' {*}
+	| 'unswons' {*}
+	| 'integer' {*}
+	| 'logical' {*}
+	| 'nullary' {*}
+	| 'ternary' {*}
+	| 'iffloat' {*}
+	| 'tailrec' {*}
+	| 'primrec' {*}
+	| 'treerec' {*}
+	| 'setecho' {*}
+	| 'include' {*}
+	| 'reverse'	{*}
+	| 'maxint' {*}
+	| 'undefs' {*}
+	| 'stdout' {*}
+	| 'stderr' {*}
+	| 'rollup' {*}
+	| 'rotate' {*}
+	| 'choice' {*}
+	| 'gmtime' {*}
+	| 'mktime' {*}
+	| 'strtol' {*}
+	| 'strtod' {*}
+	| 'format' {*}
+	| 'fclose' {*}
+	| 'ferror' {*}
+	| 'fflush' {*}
+	| 'fgetch' {*}
+	| 'fwrite' {*}
+	| 'fputch' {*}
+	| 'opcase' {*}
+	| 'uncons' {*}
+	| 'concat' {*}
+	| 'intern' {*}
+	| 'string' {*}
+	| 'unary2' {*}
+	| 'unary3' {*}
+	| 'unary4' {*}
+	| 'binary' {*}
+	| 'cleave' {*}
+	| 'branch' {*}
+	| 'ifchar' {*}
+	| 'iflist' {*}
+	| 'iffile' {*}
+	| 'linrec' {*}
+	| 'binrec' {*}
+	| 'genrec' {*}
+	| 'filter' {*}
+	| 'manual' {*}
+	| 'system' {*}
+	| 'getenv' {*}
+	| 'print' {*}
+	| 'stack' {*}
+	| 'conts' {*}
+	| 'clock' {*}
+	| 'stdin' {*}
+	| 'swapd' {*}
+	| 'atan2' {*}
+	| 'floor' {*}
+	| 'frexp' {*}
+	| 'ldexp' {*}
+	| 'log10' {*}
+	| 'trunc' {*}
+	| 'srand' {*}
+	| 'fgets' {*}
+	| 'fopen' {*}
+	| 'fread' {*}
+	| 'fseek' {*}
+	| 'ftell' {*}
+	| 'swons' {*}
+	| 'first' {*}
+	| 'small' {*}
+	| 'equal' {*}
+	| 'float' {*}
+	| 'app11' {*}
+	| 'app12' {*}
+	| 'unary' {*}
+	| 'ifset' {*}
+	| 'while' {*}
+	| 'times' {*}
+	| 'infra' {*}
+	| 'split' {*}
+	| 'putch' {*}
+	| 'abort' {*}
+	| 'echo' {*}
+	| 'time' {*}
+	| 'rand' {*}
+	| 'swap' {*}
+	| 'popd' {*}
+	| 'dupd' {*}
+	| 'sign' {*}
+	| 'acos' {*}
+	| 'asin' {*}
+	| 'atan' {*}
+	| 'ceil' {*}
+	| 'cosh' {*}
+	| 'modf' {*}
+	| 'sinh' {*}
+	| 'sqrt' {*}
+	| 'tanh' {*}
+	| 'pred' {*}
+	| 'succ' {*}
+	| 'feof' {*}
+	| 'fput' {*}
+	| 'cons' {*}
+	| 'rest' {*}
+	| 'size' {*}
+	| 'case' {*}
+	| 'drop' {*}
+	| 'take' {*}
+	| 'name' {*}
+	| 'body' {*}
+	| 'null' {*}
+	| 'char' {*}
+	| 'list' {*}
+	| 'leaf' {*}
+	| 'user' {*}
+	| 'file' {*}
+	| 'app1' {*}
+	| 'ifte' {*}
+	| 'cond' {*}
+	| 'step' {*}
+	| 'fold' {*}
+	| 'some' {*}
+	| 'help' {*}
+	| 'argv' {*}
+	| 'argc' {*}
+	| 'quit' {*}
+	| 'dup' {*}
+	| 'pop' {*}
+	| 'not' {*}
+	| 'neg' {*}
+	| 'ord' {*}
+	| 'chr' {*}
+	| 'abs' {*}
+	| 'cos' {*}
+	| 'exp' {*}
+	| 'log' {*}
+	| 'pow' {*}
+	| 'sin' {*}
+	| 'tan' {*}
+	| 'max' {*}
+	| 'min' {*}
+	| 'has' {*}
+	| 'set' {*}
+	| 'dip' {*}
+	| 'map' {*}
+	| 'all' {*}
+	| 'get' {*}
+	| 'put' {*}
+	| 'id' {*}
+	| 'at' {*}
+	| 'of' {*}
+	| 'in' {*}
+	| 'i' {*}
+	| 'x' {*}
+}
+
+token userfunccall {
+	<funcname> {*}
+}

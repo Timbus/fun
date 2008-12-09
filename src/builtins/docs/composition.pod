@@ -1,0 +1,96 @@
+=head1 Composers
+
+Composition functions primaraly affect the shape of the stack. They are mostly 'padding' functions, in the sense that they tend to be placed inbetween other functions so as to properly prepare the stack for the next operation.
+
+=head2 Functions
+
+=over 4
+
+=cut
+
+
+=item dup
+
+ X  ->   X X
+
+Pushes an extra copy of X onto stack.
+
+=cut
+
+.sub 'dup'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$P1 = 'deepcopy'($P0)
+	stack.'push'($P1, $P0)
+.end
+
+=item dupd
+
+ Y Z  ->  Y Y Z
+
+As if defined by:   dupd  ==  [dup] dip
+
+=cut
+
+.sub 'dupd'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$P1 = stack.'pop'()
+	$P2 = 'deepcopy'($P1)
+	stack.'push'($P1, $P2, $P0)
+.end
+
+
+=item swap
+
+ X Y  ->   Y X
+
+Interchanges X and Y on top of the stack.
+
+=cut
+
+.sub 'swap'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$P1 = stack.'pop'()
+	
+	stack.'push'($P0, $P1)
+	.return ()
+.end
+
+
+=item pop
+
+ X  ->
+
+Removes X from top of the stack.
+
+=cut
+
+.sub 'pop'
+	.local pmc stack
+	stack = get_global 'funstack'
+	stack.'pop'()
+.end
+
+=item popd
+
+ Y Z  ->  Z
+
+As if defined by: popd  ==  [ [pop] dip ] 
+
+=cut
+
+.sub 'popd'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	stack.'pop'()
+	stack.'push'($P0)
+.end
+
+=back
+

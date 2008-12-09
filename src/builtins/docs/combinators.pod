@@ -1,0 +1,175 @@
+=head1 Combinators
+
+These functions are designed to manipulate the way functions are composed and executed.
+They are similar to code flow functions, except they focus more on execution style, rather than choices.
+
+=head2 Functions
+
+=over 4
+
+=cut
+
+.sub 'i'
+	.local pmc list, stack
+	.local string type
+	
+	stack = get_global 'funstack'
+	list = stack.'pop'('ResizablePMCArray')
+	stack.'push'(list :flat)
+
+	.return ()
+.end
+
+.sub 'x' #Could probably be written as 'dup i'. In fact...
+	'dup'()
+	'i'()
+	#If I hit any problems I can change it later I guess
+	.return()
+.end
+
+.sub 'dip'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('ResizablePMCArray')
+	$P1 = stack.'pop'()
+	
+	stack.'push'($P0)
+	'i'()
+	stack.'push'($P1)
+.end
+
+.sub 'stack'
+	.local pmc stack, stacklist
+	stack = get_global 'funstack'
+	stacklist = stack.'getstack'()
+	stacklist = 'deepcopy'(stacklist)
+	stack.'push'(stacklist)
+	'reverse'()
+.end
+
+.sub 'unstack'
+	.local pmc stack, stacklist, newstack
+	stack = get_global 'funstack'
+	
+	'reverse'()
+	newstack = stack.'pop'('ResizablePMCArray')
+	
+	##May as well manipulate the stack directly.
+	stacklist = stack.'getstack'()
+	assign stacklist, newstack
+.end
+
+=item times
+
+ N [P]  ->  ...
+
+Executes C<P>, C<N> times
+
+=cut
+
+.sub 'times'
+	.local pmc stack
+	.local pmc p
+	.local int n
+	stack = get_global 'funstack'
+	p = stack.'pop'('ResizablePMCArray')
+	n = stack.'pop'('Integer')
+	
+	$I0 = 0
+times_loop:
+	if $I0 >= n goto loop_end
+	$P0 = 'deepcopy'(p)
+	stack.'push'($P0)
+	'i'()
+	inc $I0
+	goto times_loop
+loop_end:
+.end
+
+=item linrec
+
+ [P] [T] [R1] [R2]  ->  ...
+
+Executes C<P>. If that yields true, executes C<T>.
+Else executes C<R1>, recurses, executes C<R2>.
+
+=cut
+
+.sub 'linrec'
+	.local pmc stack
+	.local pmc p, t, r1, r2
+	stack = get_global 'funstack'
+	r2 = stack.'pop'('ResizablePMCArray')
+	r1 = stack.'pop'('ResizablePMCArray')
+	t = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('ResizablePMCArray')
+	
+	stack.'push'(p)
+	'i'()
+	$I0 = stack.'pop'('Boolean')
+	if $I0 goto do_true
+	stack.'push'(r1)
+	'i'()
+	stack.'push'(p, t, r1, r2)
+	'linrec'()
+	stack.'push'(r2)
+	'i'()
+	.return()
+	
+do_true:
+	stack.'push'(t)
+	'i'()
+.end
+
+=item binrec
+
+ [P] [T] [R1] [R2]  ->  ...
+
+Executes P. If that yields true, executes T.
+Else uses R1 to produce two intermediates, recurses twice,
+then executes R2 (usually to combine their results).
+
+=cut
+
+.sub 'binrec'
+	.local pmc stack
+	.local pmc p, t, r1, r2
+	stack = get_global 'funstack'
+	r2 = stack.'pop'('ResizablePMCArray')
+	r1 = stack.'pop'('ResizablePMCArray')
+	t = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('ResizablePMCArray')
+	
+	stack.'push'(p)
+	'i'()
+	$I0 = stack.'pop'('Boolean')
+	if $I0 goto do_true
+	stack.'push'(r1)
+	'i'()
+	
+	##TODO: Is this required? Find out! 
+	#Get the two results off the stack so the first recursion does not gobble the second.
+	#~ $P0 = stack.'pop'()
+	#~ $P1 = stack.'pop'()
+	
+	#~ stack.'push'($P1, p, t, r1, r2)
+	#~ 'binrec'()
+	#~ stack.'push'($P0, p, t, r1, r2)
+	#~ 'binrec'()
+	
+	stack.'push'(p, t, r1, r2)
+	'binrec'()
+	stack.'push'(p, t, r1, r2)
+	'binrec'()
+	
+	stack.'push'(r2)
+	'i'()
+	.return()
+	
+do_true:
+	stack.'push'(t)
+	'i'()
+.end
+
+=back
+=cut

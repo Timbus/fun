@@ -1,0 +1,15 @@
+=head1 Builtins
+
+General purpose functions
+
+=head2 Functions
+
+=over 4
+
+=cut
+
+.namespace
+
+
+=back
+
