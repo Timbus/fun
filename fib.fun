@@ -6,7 +6,7 @@
 
 #12 fib .
 
-fib == [
+[
 	0 1
 	[200 <]
 	[
@@ -14,6 +14,4 @@ fib == [
 		dup tostring "Fibonacci number: " swap concat putchars
 	] while
 	pop pop
-]
-
-fib .
+] fib ==

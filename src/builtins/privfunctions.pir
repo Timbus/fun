@@ -11,7 +11,7 @@ Contains useful private functions
     .return (fields)
 .end
 
-.sub 'deepcopy'
+.sub '!@deepcopy'
 	.param pmc val
 	.local pmc valcpy
 	
@@ -37,7 +37,7 @@ iter_loop:
 	goto push_val
 
 follow_down:
-	$P0 = deepcopy($P0)
+	$P0 = '!@deepcopy'($P0)
 	goto push_val
 
 push_val:

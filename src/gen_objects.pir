@@ -264,6 +264,7 @@ run_down:
 just_run:
 	.local pmc value
 	value = stack[-1]
+	if null value goto undefined_func
 	$S0 = typeof value
 	if $S0 == 'Sub' goto pre_runval
 	if $S0 == 'Closure' goto pre_runval
@@ -282,16 +283,28 @@ runval:
 stack_empty:
 	.return(1)
 	
+undefined_func:
+	$P0 = new 'Exception'
+	$S0 = "Undefined symbol hit.\nPerhaps you misspelled a function name?"
+	$P0['message'] = $S0
+	throw $P0
+	.return()
+	
 run_error:
 	.local pmc exception
 	.get_results (exception) 
+	$I0 = exception['type']
+	if $I0 == -1 goto error_exit
 	
 	.local string errstr
 	errstr = "Error in function '"
 	$S0 = value
-	errstr = concat $S0
-	errstr = concat "': "
+	errstr .= $S0
+	errstr .= "': "
 	printerr errstr
+	exception['type'] = -1
+	
+error_exit:
 	rethrow exception
 	#die errstr
 .end
@@ -307,7 +320,7 @@ run_error:
 	$P0 = getattribute self, 'stack'
 	pos -= $I0
 	$P0 = $P0[pos]
-	.tailcall 'deepcopy'($P0)
+	.tailcall '!@deepcopy'($P0)
 	
 walk_down:
 	$P0 = getattribute self, 'parent'

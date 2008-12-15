@@ -31,6 +31,110 @@ In the future, the result behaviour of the dot may be customizable, which is why
 finish:
 .end
 
+.sub 'evalfile'
+    .param pmc options         :slurpy :named
+
+    .local string filename
+	filename = options['filename']
+    .local string lang
+    lang = options['lang']
+    if lang == 'Parrot' goto lang_parrot
+    if lang goto lang_compile
+    lang = 'fun'
+  lang_compile:
+    .local pmc compiler
+    compiler = compreg lang
+    .tailcall compiler.'evalfiles'(filename)
+
+  lang_parrot:
+    load_bytecode filename
+    .return (1)
+.end
+
+
+.sub 'include'
+	.local pmc stack
+	stack = get_global 'funstack'
+
+	.local int iscompiled, noext
+	iscompiled = 1
+	noext = 0
+	
+	.local string name
+	name = stack.'pop'('String')
+	$I0 = length name
+	if $I0 <= 5 goto no_ext
+	
+	substr $S0, name, -4
+	if $S0 == '.pbc' goto already_compiled
+	if $S0 == '.pir' goto already_compiled
+	if $S0 == '.fun' goto has_ext
+
+  no_ext:
+	noext = 1
+  has_ext:
+	iscompiled = 0
+  already_compiled:
+ 	##  loop through inc
+#	.local pmc inc_it
+#	$P0 = get_hll_global '@INC'
+#	inc_it = iter $P0
+#  inc_loop:
+#	unless inc_it goto inc_end
+	.local string basename, realfilename
+#	$S0 = shift inc_it
+#	basename = concat $S0, '/'
+#	basename .= name
+	basename = name
+
+	if noext goto check_noext
+
+  check_withext:
+	realfilename = basename
+	$I0 = stat realfilename, 0
+#	unless $I0 goto inc_loop
+	unless $I0 goto inc_end
+	if iscompiled goto eval_parrot
+	goto eval_fun
+
+  check_noext:
+	realfilename = concat basename, '.pbc'
+	$I0 = stat realfilename, 0
+	if $I0 goto eval_parrot
+	realfilename = concat basename, '.pir'
+	$I0 = stat realfilename, 0
+	if $I0 goto eval_parrot
+	realfilename = concat basename, '.fun'
+	$I0 = stat realfilename, 0
+	if $I0 goto eval_fun
+#	goto inc_loop
+  inc_end:
+	$S0 = concat "Can't find ", basename
+	concat $S0, ' in $:'
+	'die'($S0)
+	.return (0)
+
+  eval_parrot:
+    .local pmc result
+    result = 'evalfile'('filename' => realfilename, 'lang'=>'Parrot')
+    goto done
+
+  eval_fun:
+    result = 'evalfile'('filename' => realfilename, 'lang'=>'fun')
+
+  done:
+    .return (result)
+.end
+
+
+.sub 'ban-space-kimchi'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = new 'String'
+	$P0 = "He sucks."
+	stack.'push'($P0)
+.end
+
 =back
 
 =head1 Private Functions
@@ -46,7 +150,7 @@ Contains useful private functions
     .return (fields)
 .end
 
-.sub 'deepcopy'
+.sub '!@deepcopy'
 	.param pmc val
 	.local pmc valcpy
 	
@@ -72,7 +176,7 @@ iter_loop:
 	goto push_val
 
 follow_down:
-	$P0 = deepcopy($P0)
+	$P0 = '!@deepcopy'($P0)
 	goto push_val
 
 push_val:
@@ -127,7 +231,7 @@ Executes the list C<P> without removing it from the stack
 	
 	stack = get_global 'funstack'
 	list = stack.'pop'('ResizablePMCArray')
-	listcpy = 'deepcopy'(list)
+	listcpy = '!@deepcopy'(list)
 	stack.'push'(list, listcpy :flat)
 	stack.'run'()
 .end
@@ -162,7 +266,7 @@ Pushes the stack as a list.
 	.local pmc stack, stacklist
 	stack = get_global 'funstack'
 	stacklist = stack.'getstack'()
-	stacklist = 'deepcopy'(stacklist)
+	stacklist = '!@deepcopy'(stacklist)
 	stack.'push'(stacklist)
 	'reverse'()
 .end
@@ -205,7 +309,7 @@ Executes C<P>, C<N> times
 	$I0 = 0
 times_loop:
 	if $I0 >= n goto loop_end
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	inc $I0
@@ -234,20 +338,20 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	p = stack.'pop'('ResizablePMCArray')
 	
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	
 	stack.'push'(p, t, r1, r2)
 	'linrec'()
 	
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	.return()
@@ -278,13 +382,13 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	t = stack.'pop'('ResizablePMCArray')
 	p = stack.'pop'('ResizablePMCArray')
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 
@@ -293,13 +397,13 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	stack.'push'(p, t, r1, r2)
 	'binrec'()
 
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	.return()
 	
 do_true:
-	$P0 = 'deepcopy'(t)
+	$P0 = '!@deepcopy'(t)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 .end
@@ -324,13 +428,13 @@ Else executes R1, recurses.
 
 rec_loop:
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	goto rec_loop
@@ -360,13 +464,13 @@ Else executes R1 and then [[P] [T] [R1] [R2] genrec] R2.
 	p = stack.'pop'('ResizablePMCArray')
 	
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 
@@ -375,7 +479,7 @@ Else executes R1 and then [[P] [T] [R1] [R2] genrec] R2.
 	stack.'push'($P1)
 
 
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	.tailcall stack.'run'()
 	
@@ -496,13 +600,13 @@ While executing B yields true executes D.
 
 loop:
 	stack.'makecc'()
-	$P0 = 'deepcopy'(b)
+	$P0 = '!@deepcopy'(b)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 == 0 goto finish
 	
-	$P0 = 'deepcopy'(d)
+	$P0 = '!@deepcopy'(d)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	goto loop
@@ -536,7 +640,7 @@ Pushes an extra copy of X onto stack.
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'push'($P0, $P1)
 .end
 
@@ -553,7 +657,7 @@ As if defined by:   dupd  ==  [dup] dip
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
-	$P2 = 'deepcopy'($P1)
+	$P2 = '!@deepcopy'($P1)
 	stack.'push'($P1, $P2, $P0)
 .end
 
@@ -1523,7 +1627,7 @@ and executes P for each member of A pushed.
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = deepcopy(p)
+	$P1 = '!@deepcopy'(p)
 	stack.'push'($P0, $P1 :flat)
 	goto loop_agg
 loop_end:
@@ -1550,7 +1654,7 @@ collects results in sametype aggregate B.
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = deepcopy(p)
+	$P1 = '!@deepcopy'(p)
 	stack.'makecc'()
 	stack.'push'($P0, $P1 :flat)
 	$P0 = stack.'pop'()
@@ -1583,9 +1687,9 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'makecc'()
-	$P2 = 'deepcopy'(p)
+	$P2 = '!@deepcopy'(p)
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
 	unless $I0 goto add_false
@@ -1621,9 +1725,9 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'makecc'()
-	$P2 = 'deepcopy'(p)
+	$P2 = '!@deepcopy'(p)
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()

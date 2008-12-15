@@ -159,7 +159,7 @@ and executes P for each member of A pushed.
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = deepcopy(p)
+	$P1 = '!@deepcopy'(p)
 	stack.'push'($P0, $P1 :flat)
 	goto loop_agg
 loop_end:
@@ -186,7 +186,7 @@ collects results in sametype aggregate B.
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = deepcopy(p)
+	$P1 = '!@deepcopy'(p)
 	stack.'makecc'()
 	stack.'push'($P0, $P1 :flat)
 	$P0 = stack.'pop'()
@@ -219,9 +219,9 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'makecc'()
-	$P2 = 'deepcopy'(p)
+	$P2 = '!@deepcopy'(p)
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
 	unless $I0 goto add_false
@@ -257,9 +257,9 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'makecc'()
-	$P2 = 'deepcopy'(p)
+	$P2 = '!@deepcopy'(p)
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()

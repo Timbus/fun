@@ -21,16 +21,16 @@ token ws {
     [ '#' \N* \n? | \s+ ]*
 }
 
-##'ident' sucks i want hyphens dammit.
+##'ident' sucks I want hyphens dammit.
 token funcname { 
-	[ \w | '-' | '?' | '=' ]+ {*} 
+	[ \w | '-' | '?' | '=' <!before '='> ]+ {*}
 }
 
 token print {
 	'.'	{*}
 }
 
-#These arent really expressions but whatever.
+##These arent really expressions but whatever.
 rule expr {
 ##Fundamental stuff
 	| <list>	{*} #= list
@@ -47,7 +47,8 @@ rule expr {
 ##The function is trechnically a list, but "<ident> == <list>" adds an extra (unnecessary) layer,
 ##because I have to dig <expr> out of the <list>
 rule func {
-	<funcname> '==' '[' <expr>* ']' {*} 
+	| '[' <expr>* ']' <funcname> '==' {*}
+	| <funcname> '[' <expr>* ']' '==' {*}
 }
 
 rule list { 
@@ -70,6 +71,7 @@ token string {
 }
 
 token builtins {
+	[
 	| '++' {*}
 	| '--' {*}
 	
@@ -276,6 +278,8 @@ token builtins {
 	| 'in' {*}
 	| 'i' {*}
 	| 'x' {*}
+	| 'ban-space-kimchi' {*}
+	] <?before [ \s | '[' | ']' | '.' ]>
 }
 
 token userfunccall {

@@ -45,8 +45,8 @@ method TOP($/) {
 		
 		#Then create a method that runs the above array (by inserting it onto the stack)
 		$past.push(
-			PAST::Block.new( 
-				:name('!usrfn'~$name), 
+			PAST::Block.new(
+				:name($name), 
 				:blocktype('declaration'),
 				:node( $/ ),
 				
@@ -60,7 +60,7 @@ method TOP($/) {
 					),
 					PAST::Op.new(
 						:flat(1),
-						:name('deepcopy'),
+						:name('!@deepcopy'),
 						PAST::Var.new(
 							:name('!usrfnlist'~$name),
 							:scope('package'),
@@ -148,7 +148,7 @@ method builtins($/) {
 
 method userfunccall($/) {
 	make PAST::Var.new(
-		:name('!usrfn'~$<funcname>),
+		:name($<funcname>),
 		:scope('package'),
 	);
 }

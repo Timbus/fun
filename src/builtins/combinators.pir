@@ -42,7 +42,7 @@ Executes the list C<P> without removing it from the stack
 	
 	stack = get_global 'funstack'
 	list = stack.'pop'('ResizablePMCArray')
-	listcpy = 'deepcopy'(list)
+	listcpy = '!@deepcopy'(list)
 	stack.'push'(list, listcpy :flat)
 	stack.'run'()
 .end
@@ -77,7 +77,7 @@ Pushes the stack as a list.
 	.local pmc stack, stacklist
 	stack = get_global 'funstack'
 	stacklist = stack.'getstack'()
-	stacklist = 'deepcopy'(stacklist)
+	stacklist = '!@deepcopy'(stacklist)
 	stack.'push'(stacklist)
 	'reverse'()
 .end
@@ -120,7 +120,7 @@ Executes C<P>, C<N> times
 	$I0 = 0
 times_loop:
 	if $I0 >= n goto loop_end
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	inc $I0
@@ -149,20 +149,20 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	p = stack.'pop'('ResizablePMCArray')
 	
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	
 	stack.'push'(p, t, r1, r2)
 	'linrec'()
 	
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	.return()
@@ -193,13 +193,13 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	t = stack.'pop'('ResizablePMCArray')
 	p = stack.'pop'('ResizablePMCArray')
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 
@@ -208,13 +208,13 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	stack.'push'(p, t, r1, r2)
 	'binrec'()
 
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	.return()
 	
 do_true:
-	$P0 = 'deepcopy'(t)
+	$P0 = '!@deepcopy'(t)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 .end
@@ -239,13 +239,13 @@ Else executes R1, recurses.
 
 rec_loop:
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	goto rec_loop
@@ -275,13 +275,13 @@ Else executes R1 and then [[P] [T] [R1] [R2] genrec] R2.
 	p = stack.'pop'('ResizablePMCArray')
 	
 	stack.'makecc'()
-	$P0 = 'deepcopy'(p)
+	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 goto do_true
 	
-	$P0 = 'deepcopy'(r1)
+	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 
@@ -290,7 +290,7 @@ Else executes R1 and then [[P] [T] [R1] [R2] genrec] R2.
 	stack.'push'($P1)
 
 
-	$P0 = 'deepcopy'(r2)
+	$P0 = '!@deepcopy'(r2)
 	stack.'push'($P0 :flat)
 	.tailcall stack.'run'()
 	
@@ -411,13 +411,13 @@ While executing B yields true executes D.
 
 loop:
 	stack.'makecc'()
-	$P0 = 'deepcopy'(b)
+	$P0 = '!@deepcopy'(b)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 == 0 goto finish
 	
-	$P0 = 'deepcopy'(d)
+	$P0 = '!@deepcopy'(d)
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	goto loop

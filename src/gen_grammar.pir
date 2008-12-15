@@ -1,18 +1,18 @@
       .sub '__onload' :load :init
           .local pmc optable
           ## namespace fun::Grammar
-          push_eh onload_1203
+          push_eh onload_1232
           .local pmc p6meta
           p6meta = get_hll_global 'P6metaclass'
           p6meta.'new_class'('fun::Grammar', 'parent'=>'PCT::Grammar')
-        onload_1203:
+        onload_1232:
           pop_eh
           .return ()
       .end
 
 ## <fun::Grammar::TOP>
 .namespace ["fun";"Grammar"]
-      .sub "TOP" :method
+      .sub "TOP" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -401,7 +401,7 @@
 
 ## <fun::Grammar::ws>
 .namespace ["fun";"Grammar"]
-      .sub "ws" :method
+      .sub "ws" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -557,7 +557,7 @@
 
 ## <fun::Grammar::funcname>
 .namespace ["fun";"Grammar"]
-      .sub "funcname" :method
+      .sub "funcname" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -574,6 +574,8 @@
           ustack = new 'ResizablePMCArray'
           .local pmc gpad :unique_reg
           gpad = new 'ResizablePMCArray'
+          .local pmc captscope, captob :unique_reg
+          captscope = mob
           .local int pos, rep, cutmark :unique_reg
         try_match:
           if cpos > lastpos goto fail_rule
@@ -595,6 +597,9 @@
           .return (mob)
         fail:
           local_return cstack
+        fail_match:
+          cutmark = -3
+          goto fail_cut
         R: # concat
         R272:  # quant 1..2147483647 (3) greedy/none
           push gpad, 0
@@ -671,15 +676,37 @@
           pos += 1
           goto R272_repeat
 
-        R277: # literal
+        R277: # concat
+        R282: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "=" goto fail
           pos += 1
-          goto R272_repeat
+          goto R283
 
+        R283: # subrule before
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'before'
+          if $I0 == 0 goto R283_1
+          $P0 = find_method mob, 'before'
+          goto R283_2
+        R283_1:
+          $P0 = find_name 'before'
+          unless null $P0 goto R283_2
+          say "Unable to find regex 'before'"
+        R283_2:
+          captob = $P0(captob, "'='")
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          unless $P1 < 0 goto fail
+          $P1 = pos
+          $P1 = getattribute captob, '$.from'
+          $P1 = pos
+          goto R272_repeat
         R273: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
@@ -692,7 +719,7 @@
 
 ## <fun::Grammar::print>
 .namespace ["fun";"Grammar"]
-      .sub "print" :method
+      .sub "print" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -727,16 +754,16 @@
         fail:
           local_return cstack
         R: # concat
-        R282: # literal
+        R284: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "." goto fail
           pos += 1
-          goto R283
+          goto R285
 
-        R283: # action
+        R285: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "print"
@@ -748,7 +775,7 @@
 
 ## <fun::Grammar::expr>
 .namespace ["fun";"Grammar"]
-      .sub "expr" :method
+      .sub "expr" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -789,14 +816,7 @@
         fail_match:
           cutmark = -3
           goto fail_cut
-        R:  # alt R284, R285
-          push ustack, pos
-          local_branch cstack, R284
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R285
-
-        R284:  # alt R286, R287
+        R:  # alt R286, R287
           push ustack, pos
           local_branch cstack, R286
           pos = pop ustack
@@ -817,57 +837,14 @@
           if cutmark != 0 goto fail
           goto R291
 
-        R290: # concat
-        R292: # subrule ws
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'ws'
-          if $I0 == 0 goto R292_1
-          $P0 = find_method mob, 'ws'
-          goto R292_2
-        R292_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R292_2
-          say "Unable to find regex 'ws'"
-        R292_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R293
-          
-          goto fail
-        R293: # subrule list
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'list'
-          if $I0 == 0 goto R293_1
-          $P0 = find_method mob, 'list'
-          goto R293_2
-        R293_1:
-          $P0 = find_name 'list'
-          unless null $P0 goto R293_2
-          say "Unable to find regex 'list'"
-        R293_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          captscope["list"] = captob
+        R290:  # alt R292, R293
+          push ustack, pos
+          local_branch cstack, R292
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R293
 
-          pos = $P1
-          local_branch cstack, R294
-          delete captscope["list"]
-
-          goto fail
+        R292: # concat
         R294: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -892,14 +869,32 @@
           local_branch cstack, R295
           
           goto fail
-        R295: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R296
-          $I1 = can $P1, "expr"
-          if $I1 == 0 goto R296
-          mpos = pos
-          $P1."expr"(mob, "list")
-          goto R296
+        R295: # subrule list
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'list'
+          if $I0 == 0 goto R295_1
+          $P0 = find_method mob, 'list'
+          goto R295_2
+        R295_1:
+          $P0 = find_name 'list'
+          unless null $P0 goto R295_2
+          say "Unable to find regex 'list'"
+        R295_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["list"] = captob
+
+          pos = $P1
+          local_branch cstack, R296
+          delete captscope["list"]
+
+          goto fail
         R296: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -921,46 +916,29 @@
           
           
           pos = $P1
-          local_branch cstack, succeed
+          local_branch cstack, R297
           
           goto fail
-        R291: # concat
-        R297: # subrule ws
+        R297: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R298
+          $I1 = can $P1, "expr"
+          if $I1 == 0 goto R298
+          mpos = pos
+          $P1."expr"(mob, "list")
+          goto R298
+        R298: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'ws'
-          if $I0 == 0 goto R297_1
-          $P0 = find_method mob, 'ws'
-          goto R297_2
-        R297_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R297_2
-          say "Unable to find regex 'ws'"
-        R297_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R298
-          
-          goto fail
-        R298: # subrule value
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'value'
           if $I0 == 0 goto R298_1
-          $P0 = find_method mob, 'value'
+          $P0 = find_method mob, 'ws'
           goto R298_2
         R298_1:
-          $P0 = find_name 'value'
+          $P0 = find_name 'ws'
           unless null $P0 goto R298_2
-          say "Unable to find regex 'value'"
+          say "Unable to find regex 'ws'"
         R298_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
@@ -968,13 +946,12 @@
           if $P1 <= -3 goto fail_match
           if $P1 < 0 goto fail
           
-          captscope["value"] = captob
-
+          
           pos = $P1
-          local_branch cstack, R299
-          delete captscope["value"]
-
+          local_branch cstack, succeed
+          
           goto fail
+        R293: # concat
         R299: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -999,14 +976,32 @@
           local_branch cstack, R300
           
           goto fail
-        R300: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R301
-          $I1 = can $P1, "expr"
-          if $I1 == 0 goto R301
-          mpos = pos
-          $P1."expr"(mob, "value")
-          goto R301
+        R300: # subrule value
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'value'
+          if $I0 == 0 goto R300_1
+          $P0 = find_method mob, 'value'
+          goto R300_2
+        R300_1:
+          $P0 = find_name 'value'
+          unless null $P0 goto R300_2
+          say "Unable to find regex 'value'"
+        R300_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["value"] = captob
+
+          pos = $P1
+          local_branch cstack, R301
+          delete captscope["value"]
+
+          goto fail
         R301: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1028,46 +1023,29 @@
           
           
           pos = $P1
-          local_branch cstack, succeed
+          local_branch cstack, R302
           
           goto fail
-        R289: # concat
-        R302: # subrule ws
+        R302: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R303
+          $I1 = can $P1, "expr"
+          if $I1 == 0 goto R303
+          mpos = pos
+          $P1."expr"(mob, "value")
+          goto R303
+        R303: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'ws'
-          if $I0 == 0 goto R302_1
-          $P0 = find_method mob, 'ws'
-          goto R302_2
-        R302_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R302_2
-          say "Unable to find regex 'ws'"
-        R302_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R303
-          
-          goto fail
-        R303: # subrule print
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'print'
           if $I0 == 0 goto R303_1
-          $P0 = find_method mob, 'print'
+          $P0 = find_method mob, 'ws'
           goto R303_2
         R303_1:
-          $P0 = find_name 'print'
+          $P0 = find_name 'ws'
           unless null $P0 goto R303_2
-          say "Unable to find regex 'print'"
+          say "Unable to find regex 'ws'"
         R303_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
@@ -1075,13 +1053,12 @@
           if $P1 <= -3 goto fail_match
           if $P1 < 0 goto fail
           
-          captscope["print"] = captob
-
+          
           pos = $P1
-          local_branch cstack, R304
-          delete captscope["print"]
-
+          local_branch cstack, succeed
+          
           goto fail
+        R291: # concat
         R304: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1106,14 +1083,32 @@
           local_branch cstack, R305
           
           goto fail
-        R305: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R306
-          $I1 = can $P1, "expr"
-          if $I1 == 0 goto R306
-          mpos = pos
-          $P1."expr"(mob, "print")
-          goto R306
+        R305: # subrule print
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'print'
+          if $I0 == 0 goto R305_1
+          $P0 = find_method mob, 'print'
+          goto R305_2
+        R305_1:
+          $P0 = find_name 'print'
+          unless null $P0 goto R305_2
+          say "Unable to find regex 'print'"
+        R305_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["print"] = captob
+
+          pos = $P1
+          local_branch cstack, R306
+          delete captscope["print"]
+
+          goto fail
         R306: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1135,46 +1130,29 @@
           
           
           pos = $P1
-          local_branch cstack, succeed
+          local_branch cstack, R307
           
           goto fail
-        R287: # concat
-        R307: # subrule ws
+        R307: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R308
+          $I1 = can $P1, "expr"
+          if $I1 == 0 goto R308
+          mpos = pos
+          $P1."expr"(mob, "print")
+          goto R308
+        R308: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'ws'
-          if $I0 == 0 goto R307_1
-          $P0 = find_method mob, 'ws'
-          goto R307_2
-        R307_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R307_2
-          say "Unable to find regex 'ws'"
-        R307_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R308
-          
-          goto fail
-        R308: # subrule builtins
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'builtins'
           if $I0 == 0 goto R308_1
-          $P0 = find_method mob, 'builtins'
+          $P0 = find_method mob, 'ws'
           goto R308_2
         R308_1:
-          $P0 = find_name 'builtins'
+          $P0 = find_name 'ws'
           unless null $P0 goto R308_2
-          say "Unable to find regex 'builtins'"
+          say "Unable to find regex 'ws'"
         R308_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
@@ -1182,13 +1160,12 @@
           if $P1 <= -3 goto fail_match
           if $P1 < 0 goto fail
           
-          captscope["builtins"] = captob
-
+          
           pos = $P1
-          local_branch cstack, R309
-          delete captscope["builtins"]
-
+          local_branch cstack, succeed
+          
           goto fail
+        R289: # concat
         R309: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1213,14 +1190,32 @@
           local_branch cstack, R310
           
           goto fail
-        R310: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R311
-          $I1 = can $P1, "expr"
-          if $I1 == 0 goto R311
-          mpos = pos
-          $P1."expr"(mob, "builtins")
-          goto R311
+        R310: # subrule builtins
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'builtins'
+          if $I0 == 0 goto R310_1
+          $P0 = find_method mob, 'builtins'
+          goto R310_2
+        R310_1:
+          $P0 = find_name 'builtins'
+          unless null $P0 goto R310_2
+          say "Unable to find regex 'builtins'"
+        R310_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["builtins"] = captob
+
+          pos = $P1
+          local_branch cstack, R311
+          delete captscope["builtins"]
+
+          goto fail
         R311: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1242,46 +1237,29 @@
           
           
           pos = $P1
-          local_branch cstack, succeed
+          local_branch cstack, R312
           
           goto fail
-        R285: # concat
-        R312: # subrule ws
+        R312: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R313
+          $I1 = can $P1, "expr"
+          if $I1 == 0 goto R313
+          mpos = pos
+          $P1."expr"(mob, "builtins")
+          goto R313
+        R313: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'ws'
-          if $I0 == 0 goto R312_1
-          $P0 = find_method mob, 'ws'
-          goto R312_2
-        R312_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R312_2
-          say "Unable to find regex 'ws'"
-        R312_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R313
-          
-          goto fail
-        R313: # subrule userfunccall
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'userfunccall'
           if $I0 == 0 goto R313_1
-          $P0 = find_method mob, 'userfunccall'
+          $P0 = find_method mob, 'ws'
           goto R313_2
         R313_1:
-          $P0 = find_name 'userfunccall'
+          $P0 = find_name 'ws'
           unless null $P0 goto R313_2
-          say "Unable to find regex 'userfunccall'"
+          say "Unable to find regex 'ws'"
         R313_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
@@ -1289,13 +1267,12 @@
           if $P1 <= -3 goto fail_match
           if $P1 < 0 goto fail
           
-          captscope["userfunccall"] = captob
-
+          
           pos = $P1
-          local_branch cstack, R314
-          delete captscope["userfunccall"]
-
+          local_branch cstack, succeed
+          
           goto fail
+        R287: # concat
         R314: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1320,14 +1297,32 @@
           local_branch cstack, R315
           
           goto fail
-        R315: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R316
-          $I1 = can $P1, "expr"
-          if $I1 == 0 goto R316
-          mpos = pos
-          $P1."expr"(mob, "userfunccall")
-          goto R316
+        R315: # subrule userfunccall
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'userfunccall'
+          if $I0 == 0 goto R315_1
+          $P0 = find_method mob, 'userfunccall'
+          goto R315_2
+        R315_1:
+          $P0 = find_name 'userfunccall'
+          unless null $P0 goto R315_2
+          say "Unable to find regex 'userfunccall'"
+        R315_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["userfunccall"] = captob
+
+          pos = $P1
+          local_branch cstack, R316
+          delete captscope["userfunccall"]
+
+          goto fail
         R316: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1349,6 +1344,38 @@
           
           
           pos = $P1
+          local_branch cstack, R317
+          
+          goto fail
+        R317: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R318
+          $I1 = can $P1, "expr"
+          if $I1 == 0 goto R318
+          mpos = pos
+          $P1."expr"(mob, "userfunccall")
+          goto R318
+        R318: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R318_1
+          $P0 = find_method mob, 'ws'
+          goto R318_2
+        R318_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R318_2
+          say "Unable to find regex 'ws'"
+        R318_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
           local_branch cstack, succeed
           
           goto fail
@@ -1356,7 +1383,7 @@
 
 ## <fun::Grammar::func>
 .namespace ["fun";"Grammar"]
-      .sub "func" :method
+      .sub "func" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -1397,90 +1424,14 @@
         fail_match:
           cutmark = -3
           goto fail_cut
-        R: # concat
-        R317: # subrule ws
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'ws'
-          if $I0 == 0 goto R317_1
-          $P0 = find_method mob, 'ws'
-          goto R317_2
-        R317_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R317_2
-          say "Unable to find regex 'ws'"
-        R317_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R318
-          
-          goto fail
-        R318: # subrule funcname
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'funcname'
-          if $I0 == 0 goto R318_1
-          $P0 = find_method mob, 'funcname'
-          goto R318_2
-        R318_1:
-          $P0 = find_name 'funcname'
-          unless null $P0 goto R318_2
-          say "Unable to find regex 'funcname'"
-        R318_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          captscope["funcname"] = captob
-
-          pos = $P1
+        R:  # alt R319, R320
+          push ustack, pos
           local_branch cstack, R319
-          delete captscope["funcname"]
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R320
 
-          goto fail
-        R319: # subrule ws
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'ws'
-          if $I0 == 0 goto R319_1
-          $P0 = find_method mob, 'ws'
-          goto R319_2
-        R319_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R319_2
-          say "Unable to find regex 'ws'"
-        R319_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R320
-          
-          goto fail
-        R320: # literal
-          $I0 = pos + 2
-          if $I0 > lastpos goto fail
-          $S0 = substr target, pos, 2
-          
-          if $S0 != "==" goto fail
-          pos += 2
-          goto R321
-
+        R319: # concat
         R321: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1659,14 +1610,32 @@
           local_branch cstack, R330
           
           goto fail
-        R330: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R331
-          $I1 = can $P1, "func"
-          if $I1 == 0 goto R331
-          mpos = pos
-          $P1."func"(mob)
-          goto R331
+        R330: # subrule funcname
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'funcname'
+          if $I0 == 0 goto R330_1
+          $P0 = find_method mob, 'funcname'
+          goto R330_2
+        R330_1:
+          $P0 = find_name 'funcname'
+          unless null $P0 goto R330_2
+          say "Unable to find regex 'funcname'"
+        R330_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["funcname"] = captob
+
+          pos = $P1
+          local_branch cstack, R331
+          delete captscope["funcname"]
+
+          goto fail
         R331: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1688,176 +1657,75 @@
           
           
           pos = $P1
+          local_branch cstack, R332
+          
+          goto fail
+        R332: # literal
+          $I0 = pos + 2
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 2
+          
+          if $S0 != "==" goto fail
+          pos += 2
+          goto R333
+
+        R333: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R333_1
+          $P0 = find_method mob, 'ws'
+          goto R333_2
+        R333_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R333_2
+          say "Unable to find regex 'ws'"
+        R333_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R334
+          
+          goto fail
+        R334: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R335
+          $I1 = can $P1, "func"
+          if $I1 == 0 goto R335
+          mpos = pos
+          $P1."func"(mob)
+          goto R335
+        R335: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R335_1
+          $P0 = find_method mob, 'ws'
+          goto R335_2
+        R335_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R335_2
+          say "Unable to find regex 'ws'"
+        R335_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
           local_branch cstack, succeed
           
           goto fail
-      .end
-
-## <fun::Grammar::list>
-.namespace ["fun";"Grammar"]
-      .sub "list" :method
-          .param pmc adverbs      :unique_reg :slurpy :named
-          .local pmc mob
-          .local string target    :unique_reg
-          .local pmc mfrom, mpos  :unique_reg
-          .local int cpos, iscont :unique_reg
-          $P0 = get_hll_global ['PGE'], 'Match'
-          (mob, cpos, target, mfrom, mpos, iscont) = $P0.'new'(self, adverbs :flat :named)
-          .local int lastpos
-          lastpos = length target
-          if cpos > lastpos goto fail_rule
-          .local pmc cstack :unique_reg
-          cstack = new 'ResizableIntegerArray'
-          .local pmc ustack :unique_reg
-          ustack = new 'ResizablePMCArray'
-          .local pmc captscope, captob :unique_reg
-          captscope = mob
-          .local int pos, rep, cutmark :unique_reg
-        try_match:
-          if cpos > lastpos goto fail_rule
-          mfrom = cpos
-          pos = cpos
-          cutmark = 0
-          local_branch cstack, R
-          if cutmark <= -2 goto fail_cut
-          inc cpos
-          if iscont goto try_match
-        fail_rule:
-          cutmark = -2
-        fail_cut:
-          mob.'_failcut'(cutmark)
-          .return (mob)
-          goto fail_cut
-        succeed:
-          mpos = pos
-          .return (mob)
-        fail:
-          local_return cstack
-        fail_match:
-          cutmark = -3
-          goto fail_cut
-        R: # concat
-        R332: # subrule ws
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'ws'
-          if $I0 == 0 goto R332_1
-          $P0 = find_method mob, 'ws'
-          goto R332_2
-        R332_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R332_2
-          say "Unable to find regex 'ws'"
-        R332_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R333
-          
-          goto fail
-        R333: # literal
-          $I0 = pos + 1
-          if $I0 > lastpos goto fail
-          $S0 = substr target, pos, 1
-          
-          if $S0 != "[" goto fail
-          pos += 1
-          goto R334
-
-        R334: # subrule ws
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'ws'
-          if $I0 == 0 goto R334_1
-          $P0 = find_method mob, 'ws'
-          goto R334_2
-        R334_1:
-          $P0 = find_name 'ws'
-          unless null $P0 goto R334_2
-          say "Unable to find regex 'ws'"
-        R334_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-          
-          
-          pos = $P1
-          local_branch cstack, R335
-          
-          goto fail
-        R335:  # quant 0..Inf none
-          local_branch cstack, R335_repeat
-          if cutmark != 338 goto fail
-          cutmark = 0
-          goto fail
-        R335_repeat:
-          push ustack, pos
-          local_branch cstack, R337
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          local_branch cstack, R336
-          if cutmark != 0 goto fail
-          cutmark = 338
-          goto fail
-        R337: # subrule expr
-          captob = captscope
-          $P0 = getattribute captob, '$.pos'
-          $P0 = pos
-          $I0 = can mob, 'expr'
-          if $I0 == 0 goto R337_1
-          $P0 = find_method mob, 'expr'
-          goto R337_2
-        R337_1:
-          $P0 = find_name 'expr'
-          unless null $P0 goto R337_2
-          say "Unable to find regex 'expr'"
-        R337_2:
-          $P2 = adverbs['action']
-          captob = $P0(captob, 'action'=>$P2)
-          $P1 = getattribute captob, '$.pos'
-          if $P1 <= -3 goto fail_match
-          if $P1 < 0 goto fail
-                    $I0 = defined captscope["expr"]
-          if $I0 goto R337_cgen
-          $P0 = new 'ResizablePMCArray'
-          captscope["expr"] = $P0
-          local_branch cstack, R337_cgen
-          delete captscope["expr"]
-          goto fail
-        R337_cgen:
-
-          $P2 = captscope["expr"]
-          push $P2, captob
-
-          pos = $P1
-          local_branch cstack, R337_3
-          $P2 = captscope["expr"]
-          $P2 = pop $P2
-
-          goto fail
-        R337_3:
-          pos = $P1
-          $P1 = getattribute captob, '&!corou'
-          if null $P1 goto R335_repeat
-          push ustack, captob
-          local_branch cstack, R335_repeat
-          captob = pop ustack
-          if cutmark != 0 goto fail
-          captob.'next'()
-          $P1 = getattribute captob, '$.pos'
-          if $P1 >= 0 goto R337_3
-          if $P1 <= -3 goto fail_match
-          goto fail
-
+        R320: # concat
         R336: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1879,6 +1747,56 @@
           
           
           pos = $P1
+          local_branch cstack, R337
+          
+          goto fail
+        R337: # subrule funcname
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'funcname'
+          if $I0 == 0 goto R337_1
+          $P0 = find_method mob, 'funcname'
+          goto R337_2
+        R337_1:
+          $P0 = find_name 'funcname'
+          unless null $P0 goto R337_2
+          say "Unable to find regex 'funcname'"
+        R337_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          captscope["funcname"] = captob
+
+          pos = $P1
+          local_branch cstack, R338
+          delete captscope["funcname"]
+
+          goto fail
+        R338: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R338_1
+          $P0 = find_method mob, 'ws'
+          goto R338_2
+        R338_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R338_2
+          say "Unable to find regex 'ws'"
+        R338_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
           local_branch cstack, R339
           
           goto fail
@@ -1887,7 +1805,7 @@
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
-          if $S0 != "]" goto fail
+          if $S0 != "[" goto fail
           pos += 1
           goto R340
 
@@ -1915,14 +1833,70 @@
           local_branch cstack, R341
           
           goto fail
-        R341: # action
-          $P1 = adverbs['action']
-          if null $P1 goto R342
-          $I1 = can $P1, "list"
-          if $I1 == 0 goto R342
-          mpos = pos
-          $P1."list"(mob)
-          goto R342
+        R341:  # quant 0..Inf none
+          local_branch cstack, R341_repeat
+          if cutmark != 344 goto fail
+          cutmark = 0
+          goto fail
+        R341_repeat:
+          push ustack, pos
+          local_branch cstack, R343
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          local_branch cstack, R342
+          if cutmark != 0 goto fail
+          cutmark = 344
+          goto fail
+        R343: # subrule expr
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'expr'
+          if $I0 == 0 goto R343_1
+          $P0 = find_method mob, 'expr'
+          goto R343_2
+        R343_1:
+          $P0 = find_name 'expr'
+          unless null $P0 goto R343_2
+          say "Unable to find regex 'expr'"
+        R343_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+                    $I0 = defined captscope["expr"]
+          if $I0 goto R343_cgen
+          $P0 = new 'ResizablePMCArray'
+          captscope["expr"] = $P0
+          local_branch cstack, R343_cgen
+          delete captscope["expr"]
+          goto fail
+        R343_cgen:
+
+          $P2 = captscope["expr"]
+          push $P2, captob
+
+          pos = $P1
+          local_branch cstack, R343_3
+          $P2 = captscope["expr"]
+          $P2 = pop $P2
+
+          goto fail
+        R343_3:
+          pos = $P1
+          $P1 = getattribute captob, '&!corou'
+          if null $P1 goto R341_repeat
+          push ustack, captob
+          local_branch cstack, R341_repeat
+          captob = pop ustack
+          if cutmark != 0 goto fail
+          captob.'next'()
+          $P1 = getattribute captob, '$.pos'
+          if $P1 >= 0 goto R343_3
+          if $P1 <= -3 goto fail_match
+          goto fail
+
         R342: # subrule ws
           captob = captscope
           $P0 = getattribute captob, '$.pos'
@@ -1944,14 +1918,112 @@
           
           
           pos = $P1
+          local_branch cstack, R345
+          
+          goto fail
+        R345: # literal
+          $I0 = pos + 1
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 1
+          
+          if $S0 != "]" goto fail
+          pos += 1
+          goto R346
+
+        R346: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R346_1
+          $P0 = find_method mob, 'ws'
+          goto R346_2
+        R346_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R346_2
+          say "Unable to find regex 'ws'"
+        R346_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R347
+          
+          goto fail
+        R347: # literal
+          $I0 = pos + 2
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 2
+          
+          if $S0 != "==" goto fail
+          pos += 2
+          goto R348
+
+        R348: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R348_1
+          $P0 = find_method mob, 'ws'
+          goto R348_2
+        R348_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R348_2
+          say "Unable to find regex 'ws'"
+        R348_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R349
+          
+          goto fail
+        R349: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R350
+          $I1 = can $P1, "func"
+          if $I1 == 0 goto R350
+          mpos = pos
+          $P1."func"(mob)
+          goto R350
+        R350: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R350_1
+          $P0 = find_method mob, 'ws'
+          goto R350_2
+        R350_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R350_2
+          say "Unable to find regex 'ws'"
+        R350_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
           local_branch cstack, succeed
           
           goto fail
       .end
 
-## <fun::Grammar::value>
+## <fun::Grammar::list>
 .namespace ["fun";"Grammar"]
-      .sub "value" :method
+      .sub "list" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -1992,41 +2064,297 @@
         fail_match:
           cutmark = -3
           goto fail_cut
-        R:  # alt R343, R344
+        R: # concat
+        R351: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R351_1
+          $P0 = find_method mob, 'ws'
+          goto R351_2
+        R351_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R351_2
+          say "Unable to find regex 'ws'"
+        R351_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R352
+          
+          goto fail
+        R352: # literal
+          $I0 = pos + 1
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 1
+          
+          if $S0 != "[" goto fail
+          pos += 1
+          goto R353
+
+        R353: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R353_1
+          $P0 = find_method mob, 'ws'
+          goto R353_2
+        R353_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R353_2
+          say "Unable to find regex 'ws'"
+        R353_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R354
+          
+          goto fail
+        R354:  # quant 0..Inf none
+          local_branch cstack, R354_repeat
+          if cutmark != 357 goto fail
+          cutmark = 0
+          goto fail
+        R354_repeat:
           push ustack, pos
-          local_branch cstack, R343
+          local_branch cstack, R356
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R344
+          local_branch cstack, R355
+          if cutmark != 0 goto fail
+          cutmark = 357
+          goto fail
+        R356: # subrule expr
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'expr'
+          if $I0 == 0 goto R356_1
+          $P0 = find_method mob, 'expr'
+          goto R356_2
+        R356_1:
+          $P0 = find_name 'expr'
+          unless null $P0 goto R356_2
+          say "Unable to find regex 'expr'"
+        R356_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+                    $I0 = defined captscope["expr"]
+          if $I0 goto R356_cgen
+          $P0 = new 'ResizablePMCArray'
+          captscope["expr"] = $P0
+          local_branch cstack, R356_cgen
+          delete captscope["expr"]
+          goto fail
+        R356_cgen:
 
-        R343:  # alt R345, R346
+          $P2 = captscope["expr"]
+          push $P2, captob
+
+          pos = $P1
+          local_branch cstack, R356_3
+          $P2 = captscope["expr"]
+          $P2 = pop $P2
+
+          goto fail
+        R356_3:
+          pos = $P1
+          $P1 = getattribute captob, '&!corou'
+          if null $P1 goto R354_repeat
+          push ustack, captob
+          local_branch cstack, R354_repeat
+          captob = pop ustack
+          if cutmark != 0 goto fail
+          captob.'next'()
+          $P1 = getattribute captob, '$.pos'
+          if $P1 >= 0 goto R356_3
+          if $P1 <= -3 goto fail_match
+          goto fail
+
+        R355: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R355_1
+          $P0 = find_method mob, 'ws'
+          goto R355_2
+        R355_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R355_2
+          say "Unable to find regex 'ws'"
+        R355_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R358
+          
+          goto fail
+        R358: # literal
+          $I0 = pos + 1
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 1
+          
+          if $S0 != "]" goto fail
+          pos += 1
+          goto R359
+
+        R359: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R359_1
+          $P0 = find_method mob, 'ws'
+          goto R359_2
+        R359_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R359_2
+          say "Unable to find regex 'ws'"
+        R359_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, R360
+          
+          goto fail
+        R360: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R361
+          $I1 = can $P1, "list"
+          if $I1 == 0 goto R361
+          mpos = pos
+          $P1."list"(mob)
+          goto R361
+        R361: # subrule ws
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'ws'
+          if $I0 == 0 goto R361_1
+          $P0 = find_method mob, 'ws'
+          goto R361_2
+        R361_1:
+          $P0 = find_name 'ws'
+          unless null $P0 goto R361_2
+          say "Unable to find regex 'ws'"
+        R361_2:
+          $P2 = adverbs['action']
+          captob = $P0(captob, 'action'=>$P2)
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          
+          
+          pos = $P1
+          local_branch cstack, succeed
+          
+          goto fail
+      .end
+
+## <fun::Grammar::value>
+.namespace ["fun";"Grammar"]
+      .sub "value" :method 
+          .param pmc adverbs      :unique_reg :slurpy :named
+          .local pmc mob
+          .local string target    :unique_reg
+          .local pmc mfrom, mpos  :unique_reg
+          .local int cpos, iscont :unique_reg
+          $P0 = get_hll_global ['PGE'], 'Match'
+          (mob, cpos, target, mfrom, mpos, iscont) = $P0.'new'(self, adverbs :flat :named)
+          .local int lastpos
+          lastpos = length target
+          if cpos > lastpos goto fail_rule
+          .local pmc cstack :unique_reg
+          cstack = new 'ResizableIntegerArray'
+          .local pmc ustack :unique_reg
+          ustack = new 'ResizablePMCArray'
+          .local pmc captscope, captob :unique_reg
+          captscope = mob
+          .local int pos, rep, cutmark :unique_reg
+        try_match:
+          if cpos > lastpos goto fail_rule
+          mfrom = cpos
+          pos = cpos
+          cutmark = 0
+          local_branch cstack, R
+          if cutmark <= -2 goto fail_cut
+          inc cpos
+          if iscont goto try_match
+        fail_rule:
+          cutmark = -2
+        fail_cut:
+          mob.'_failcut'(cutmark)
+          .return (mob)
+          goto fail_cut
+        succeed:
+          mpos = pos
+          .return (mob)
+        fail:
+          local_return cstack
+        fail_match:
+          cutmark = -3
+          goto fail_cut
+        R:  # alt R362, R363
           push ustack, pos
-          local_branch cstack, R345
+          local_branch cstack, R362
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R346
+          goto R363
 
-        R345:  # alt R347, R348
+        R362:  # alt R364, R365
           push ustack, pos
-          local_branch cstack, R347
+          local_branch cstack, R364
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R348
+          goto R365
 
-        R347: # concat
-        R349: # subrule float
+        R364:  # alt R366, R367
+          push ustack, pos
+          local_branch cstack, R366
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R367
+
+        R366: # concat
+        R368: # subrule float
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'float'
-          if $I0 == 0 goto R349_1
+          if $I0 == 0 goto R368_1
           $P0 = find_method mob, 'float'
-          goto R349_2
-        R349_1:
+          goto R368_2
+        R368_1:
           $P0 = find_name 'float'
-          unless null $P0 goto R349_2
+          unless null $P0 goto R368_2
           say "Unable to find regex 'float'"
-        R349_2:
+        R368_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2036,11 +2364,11 @@
           captscope["float"] = captob
 
           pos = $P1
-          local_branch cstack, R350
+          local_branch cstack, R369
           delete captscope["float"]
 
           goto fail
-        R350: # action
+        R369: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "value"
@@ -2048,20 +2376,20 @@
           mpos = pos
           $P1."value"(mob, "float")
           goto succeed
-        R348: # concat
-        R351: # subrule integer
+        R367: # concat
+        R370: # subrule integer
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'integer'
-          if $I0 == 0 goto R351_1
+          if $I0 == 0 goto R370_1
           $P0 = find_method mob, 'integer'
-          goto R351_2
-        R351_1:
+          goto R370_2
+        R370_1:
           $P0 = find_name 'integer'
-          unless null $P0 goto R351_2
+          unless null $P0 goto R370_2
           say "Unable to find regex 'integer'"
-        R351_2:
+        R370_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2071,11 +2399,11 @@
           captscope["integer"] = captob
 
           pos = $P1
-          local_branch cstack, R352
+          local_branch cstack, R371
           delete captscope["integer"]
 
           goto fail
-        R352: # action
+        R371: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "value"
@@ -2083,20 +2411,20 @@
           mpos = pos
           $P1."value"(mob, "integer")
           goto succeed
-        R346: # concat
-        R353: # subrule string
+        R365: # concat
+        R372: # subrule string
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'string'
-          if $I0 == 0 goto R353_1
+          if $I0 == 0 goto R372_1
           $P0 = find_method mob, 'string'
-          goto R353_2
-        R353_1:
+          goto R372_2
+        R372_1:
           $P0 = find_name 'string'
-          unless null $P0 goto R353_2
+          unless null $P0 goto R372_2
           say "Unable to find regex 'string'"
-        R353_2:
+        R372_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2106,11 +2434,11 @@
           captscope["string"] = captob
 
           pos = $P1
-          local_branch cstack, R354
+          local_branch cstack, R373
           delete captscope["string"]
 
           goto fail
-        R354: # action
+        R373: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "value"
@@ -2118,20 +2446,20 @@
           mpos = pos
           $P1."value"(mob, "string")
           goto succeed
-        R344: # concat
-        R355: # subrule bool
+        R363: # concat
+        R374: # subrule bool
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'bool'
-          if $I0 == 0 goto R355_1
+          if $I0 == 0 goto R374_1
           $P0 = find_method mob, 'bool'
-          goto R355_2
-        R355_1:
+          goto R374_2
+        R374_1:
           $P0 = find_name 'bool'
-          unless null $P0 goto R355_2
+          unless null $P0 goto R374_2
           say "Unable to find regex 'bool'"
-        R355_2:
+        R374_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2141,11 +2469,11 @@
           captscope["bool"] = captob
 
           pos = $P1
-          local_branch cstack, R356
+          local_branch cstack, R375
           delete captscope["bool"]
 
           goto fail
-        R356: # action
+        R375: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "value"
@@ -2157,7 +2485,7 @@
 
 ## <fun::Grammar::integer>
 .namespace ["fun";"Grammar"]
-      .sub "integer" :method
+      .sub "integer" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -2196,55 +2524,55 @@
         fail:
           local_return cstack
         R: # concat
-        R357:  # quant 0..1 (3) greedy/none
+        R376:  # quant 0..1 (3) greedy/none
           push gpad, 0
-          local_branch cstack, R357_repeat
+          local_branch cstack, R376_repeat
           $I0 = pop gpad
-          if cutmark != 360 goto fail
+          if cutmark != 379 goto fail
           cutmark = 0
           goto fail
-        R357_repeat:
+        R376_repeat:
           rep = gpad[-1]
-          if rep >= 1 goto R357_1
+          if rep >= 1 goto R376_1
           inc rep
           gpad[-1] = rep
           push ustack, pos
           push ustack, rep
-          local_branch cstack, R359
+          local_branch cstack, R378
           rep = pop ustack
           pos = pop ustack
           if cutmark != 0 goto fail
           dec rep
-        R357_1:
+        R376_1:
           ### if rep < 0 goto fail
           $I0 = pop gpad
           push ustack, rep
-          local_branch cstack, R358
+          local_branch cstack, R377
           rep = pop ustack
           push gpad, rep
           if cutmark != 0 goto fail
-          cutmark = 360
+          cutmark = 379
           goto fail
 
-        R359: # literal
+        R378: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "-" goto fail
           pos += 1
-          goto R357_repeat
+          goto R376_repeat
 
-        R358: # cclass \d 1..2147483647 (3)
+        R377: # cclass \d 1..2147483647 (3)
           $I0 = find_not_cclass 8, target, pos, lastpos
           rep = $I0 - pos
           if rep < 1 goto fail
-          ### if rep <= 2147483647 goto R358_1
+          ### if rep <= 2147483647 goto R377_1
           ### rep = 2147483647
-        R358_1:
+        R377_1:
           pos += rep
-          goto R361
-        R361: # action
+          goto R380
+        R380: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "integer"
@@ -2256,7 +2584,7 @@
 
 ## <fun::Grammar::float>
 .namespace ["fun";"Grammar"]
-      .sub "float" :method
+      .sub "float" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -2295,73 +2623,73 @@
         fail:
           local_return cstack
         R: # concat
-        R362:  # quant 0..1 (3) greedy/none
+        R381:  # quant 0..1 (3) greedy/none
           push gpad, 0
-          local_branch cstack, R362_repeat
+          local_branch cstack, R381_repeat
           $I0 = pop gpad
-          if cutmark != 365 goto fail
+          if cutmark != 384 goto fail
           cutmark = 0
           goto fail
-        R362_repeat:
+        R381_repeat:
           rep = gpad[-1]
-          if rep >= 1 goto R362_1
+          if rep >= 1 goto R381_1
           inc rep
           gpad[-1] = rep
           push ustack, pos
           push ustack, rep
-          local_branch cstack, R364
+          local_branch cstack, R383
           rep = pop ustack
           pos = pop ustack
           if cutmark != 0 goto fail
           dec rep
-        R362_1:
+        R381_1:
           ### if rep < 0 goto fail
           $I0 = pop gpad
           push ustack, rep
-          local_branch cstack, R363
+          local_branch cstack, R382
           rep = pop ustack
           push gpad, rep
           if cutmark != 0 goto fail
-          cutmark = 365
+          cutmark = 384
           goto fail
 
-        R364: # literal
+        R383: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "-" goto fail
           pos += 1
-          goto R362_repeat
+          goto R381_repeat
 
-        R363: # cclass \d 1..2147483647 (3)
+        R382: # cclass \d 1..2147483647 (3)
           $I0 = find_not_cclass 8, target, pos, lastpos
           rep = $I0 - pos
           if rep < 1 goto fail
-          ### if rep <= 2147483647 goto R363_1
+          ### if rep <= 2147483647 goto R382_1
           ### rep = 2147483647
-        R363_1:
+        R382_1:
           pos += rep
-          goto R366
-        R366: # literal
+          goto R385
+        R385: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "." goto fail
           pos += 1
-          goto R367
+          goto R386
 
-        R367: # cclass \d 1..2147483647 (3)
+        R386: # cclass \d 1..2147483647 (3)
           $I0 = find_not_cclass 8, target, pos, lastpos
           rep = $I0 - pos
           if rep < 1 goto fail
-          ### if rep <= 2147483647 goto R367_1
+          ### if rep <= 2147483647 goto R386_1
           ### rep = 2147483647
-        R367_1:
+        R386_1:
           pos += rep
-          goto R368
-        R368: # action
+          goto R387
+        R387: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "float"
@@ -2373,7 +2701,7 @@
 
 ## <fun::Grammar::bool>
 .namespace ["fun";"Grammar"]
-      .sub "bool" :method
+      .sub "bool" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -2410,44 +2738,44 @@
         fail:
           local_return cstack
         R: # concat
-        R370:  # group 369
-          local_branch cstack, R372
-          if cutmark != 369 goto fail
+        R389:  # group 388
+          local_branch cstack, R391
+          if cutmark != 388 goto fail
           cutmark = 0
           goto fail
 
-        R372: # concat
-        R373:  # alt R375, R376
+        R391: # concat
+        R392:  # alt R394, R395
           push ustack, pos
-          local_branch cstack, R375
+          local_branch cstack, R394
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R376
+          goto R395
 
-        R375: # literal
+        R394: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "true" goto fail
           pos += 4
-          goto R374
+          goto R393
 
-        R376: # literal
+        R395: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "false" goto fail
           pos += 5
-          goto R374
+          goto R393
 
-        R374: # cut 369
-          local_branch cstack, R371
-          cutmark = 369
+        R393: # cut 388
+          local_branch cstack, R390
+          cutmark = 388
           goto fail
 
-        R371: # action
+        R390: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "bool"
@@ -2459,7 +2787,7 @@
 
 ## <fun::Grammar::string>
 .namespace ["fun";"Grammar"]
-      .sub "string" :method
+      .sub "string" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -2501,43 +2829,43 @@
           cutmark = -3
           goto fail_cut
         R: # concat
-        R378:  # group 377
-          local_branch cstack, R380
-          if cutmark != 377 goto fail
+        R397:  # group 396
+          local_branch cstack, R399
+          if cutmark != 396 goto fail
           cutmark = 0
           goto fail
 
-        R380: # concat
-        R381:  # alt R383, R384
+        R399: # concat
+        R400:  # alt R402, R403
           push ustack, pos
-          local_branch cstack, R383
+          local_branch cstack, R402
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R384
+          goto R403
 
-        R383: # concat
-        R385: # literal
+        R402: # concat
+        R404: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "'" goto fail
           pos += 1
-          goto R386
+          goto R405
 
-        R386: # subrule string_literal
+        R405: # subrule string_literal
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'string_literal'
-          if $I0 == 0 goto R386_1
+          if $I0 == 0 goto R405_1
           $P0 = find_method mob, 'string_literal'
-          goto R386_2
-        R386_1:
+          goto R405_2
+        R405_1:
           $P0 = find_name 'string_literal'
-          unless null $P0 goto R386_2
+          unless null $P0 goto R405_2
           say "Unable to find regex 'string_literal'"
-        R386_2:
+        R405_2:
           $P2 = adverbs['action']
           captob = $P0(captob, "'", 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2547,42 +2875,42 @@
           captscope["string_literal"] = captob
 
           pos = $P1
-          local_branch cstack, R387
+          local_branch cstack, R406
           delete captscope["string_literal"]
 
           goto fail
-        R387: # literal
+        R406: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "'" goto fail
           pos += 1
-          goto R382
+          goto R401
 
-        R384: # concat
-        R388: # literal
+        R403: # concat
+        R407: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "\"" goto fail
           pos += 1
-          goto R389
+          goto R408
 
-        R389: # subrule string_literal
+        R408: # subrule string_literal
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'string_literal'
-          if $I0 == 0 goto R389_1
+          if $I0 == 0 goto R408_1
           $P0 = find_method mob, 'string_literal'
-          goto R389_2
-        R389_1:
+          goto R408_2
+        R408_1:
           $P0 = find_name 'string_literal'
-          unless null $P0 goto R389_2
+          unless null $P0 goto R408_2
           say "Unable to find regex 'string_literal'"
-        R389_2:
+        R408_2:
           $P2 = adverbs['action']
           captob = $P0(captob, "\"", 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -2592,25 +2920,25 @@
           captscope["string_literal"] = captob
 
           pos = $P1
-          local_branch cstack, R390
+          local_branch cstack, R409
           delete captscope["string_literal"]
 
           goto fail
-        R390: # literal
+        R409: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "\"" goto fail
           pos += 1
-          goto R382
+          goto R401
 
-        R382: # cut 377
-          local_branch cstack, R379
-          cutmark = 377
+        R401: # cut 396
+          local_branch cstack, R398
+          cutmark = 396
           goto fail
 
-        R379: # action
+        R398: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "string"
@@ -2622,7 +2950,7 @@
 
 ## <fun::Grammar::builtins>
 .namespace ["fun";"Grammar"]
-      .sub "builtins" :method
+      .sub "builtins" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -2637,6 +2965,8 @@
           cstack = new 'ResizableIntegerArray'
           .local pmc ustack :unique_reg
           ustack = new 'ResizablePMCArray'
+          .local pmc captscope, captob :unique_reg
+          captscope = mob
           .local int pos, rep, cutmark :unique_reg
         try_match:
           if cpos > lastpos goto fail_rule
@@ -2658,5079 +2988,5141 @@
           .return (mob)
         fail:
           local_return cstack
-        R:  # alt R391, R392
-          push ustack, pos
-          local_branch cstack, R391
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R392
-
-        R391:  # alt R393, R394
-          push ustack, pos
-          local_branch cstack, R393
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R394
-
-        R393:  # alt R395, R396
-          push ustack, pos
-          local_branch cstack, R395
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R396
-
-        R395:  # alt R397, R398
-          push ustack, pos
-          local_branch cstack, R397
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R398
-
-        R397:  # alt R399, R400
-          push ustack, pos
-          local_branch cstack, R399
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R400
-
-        R399:  # alt R401, R402
-          push ustack, pos
-          local_branch cstack, R401
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R402
-
-        R401:  # alt R403, R404
-          push ustack, pos
-          local_branch cstack, R403
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R404
-
-        R403:  # alt R405, R406
-          push ustack, pos
-          local_branch cstack, R405
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R406
-
-        R405:  # alt R407, R408
-          push ustack, pos
-          local_branch cstack, R407
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R408
-
-        R407:  # alt R409, R410
-          push ustack, pos
-          local_branch cstack, R409
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R410
-
-        R409:  # alt R411, R412
-          push ustack, pos
-          local_branch cstack, R411
-          pos = pop ustack
-          if cutmark != 0 goto fail
-          goto R412
-
-        R411:  # alt R413, R414
-          push ustack, pos
+        fail_match:
+          cutmark = -3
+          goto fail_cut
+        R: # concat
+        R411:  # group 410
           local_branch cstack, R413
+          if cutmark != 410 goto fail
+          cutmark = 0
+          goto fail
+
+        R413: # concat
+        R414:  # alt R416, R417
+          push ustack, pos
+          local_branch cstack, R416
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R417
+
+        R416:  # alt R418, R419
+          push ustack, pos
+          local_branch cstack, R418
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R419
+
+        R418:  # alt R420, R421
+          push ustack, pos
+          local_branch cstack, R420
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R421
+
+        R420:  # alt R422, R423
+          push ustack, pos
+          local_branch cstack, R422
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R423
+
+        R422:  # alt R424, R425
+          push ustack, pos
+          local_branch cstack, R424
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R425
+
+        R424:  # alt R426, R427
+          push ustack, pos
+          local_branch cstack, R426
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R427
+
+        R426:  # alt R428, R429
+          push ustack, pos
+          local_branch cstack, R428
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R429
+
+        R428:  # alt R430, R431
+          push ustack, pos
+          local_branch cstack, R430
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R431
+
+        R430:  # alt R432, R433
+          push ustack, pos
+          local_branch cstack, R432
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R433
+
+        R432:  # alt R434, R435
+          push ustack, pos
+          local_branch cstack, R434
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R435
+
+        R434:  # alt R436, R437
+          push ustack, pos
+          local_branch cstack, R436
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R437
+
+        R436:  # alt R438, R439
+          push ustack, pos
+          local_branch cstack, R438
+          pos = pop ustack
+          if cutmark != 0 goto fail
+          goto R439
+
+        R438:  # alt R440, R441
+          push ustack, pos
+          local_branch cstack, R440
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R414
+          goto R441
 
-        R413:  # alt R415, R416
+        R440:  # alt R442, R443
           push ustack, pos
-          local_branch cstack, R415
+          local_branch cstack, R442
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R416
+          goto R443
 
-        R415:  # alt R417, R418
+        R442:  # alt R444, R445
           push ustack, pos
-          local_branch cstack, R417
+          local_branch cstack, R444
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R418
+          goto R445
 
-        R417:  # alt R419, R420
+        R444:  # alt R446, R447
           push ustack, pos
-          local_branch cstack, R419
+          local_branch cstack, R446
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R420
+          goto R447
 
-        R419:  # alt R421, R422
+        R446:  # alt R448, R449
           push ustack, pos
-          local_branch cstack, R421
+          local_branch cstack, R448
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R422
+          goto R449
 
-        R421:  # alt R423, R424
+        R448:  # alt R450, R451
           push ustack, pos
-          local_branch cstack, R423
+          local_branch cstack, R450
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R424
+          goto R451
 
-        R423:  # alt R425, R426
+        R450:  # alt R452, R453
           push ustack, pos
-          local_branch cstack, R425
+          local_branch cstack, R452
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R426
+          goto R453
 
-        R425:  # alt R427, R428
+        R452:  # alt R454, R455
           push ustack, pos
-          local_branch cstack, R427
+          local_branch cstack, R454
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R428
+          goto R455
 
-        R427:  # alt R429, R430
+        R454:  # alt R456, R457
           push ustack, pos
-          local_branch cstack, R429
+          local_branch cstack, R456
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R430
+          goto R457
 
-        R429:  # alt R431, R432
+        R456:  # alt R458, R459
           push ustack, pos
-          local_branch cstack, R431
+          local_branch cstack, R458
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R432
+          goto R459
 
-        R431:  # alt R433, R434
+        R458:  # alt R460, R461
           push ustack, pos
-          local_branch cstack, R433
+          local_branch cstack, R460
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R434
+          goto R461
 
-        R433:  # alt R435, R436
+        R460:  # alt R462, R463
           push ustack, pos
-          local_branch cstack, R435
+          local_branch cstack, R462
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R436
+          goto R463
 
-        R435:  # alt R437, R438
+        R462:  # alt R464, R465
           push ustack, pos
-          local_branch cstack, R437
+          local_branch cstack, R464
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R438
+          goto R465
 
-        R437:  # alt R439, R440
+        R464:  # alt R466, R467
           push ustack, pos
-          local_branch cstack, R439
+          local_branch cstack, R466
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R440
+          goto R467
 
-        R439:  # alt R441, R442
+        R466:  # alt R468, R469
           push ustack, pos
-          local_branch cstack, R441
+          local_branch cstack, R468
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R442
+          goto R469
 
-        R441:  # alt R443, R444
+        R468:  # alt R470, R471
           push ustack, pos
-          local_branch cstack, R443
+          local_branch cstack, R470
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R444
+          goto R471
 
-        R443:  # alt R445, R446
+        R470:  # alt R472, R473
           push ustack, pos
-          local_branch cstack, R445
+          local_branch cstack, R472
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R446
+          goto R473
 
-        R445:  # alt R447, R448
+        R472:  # alt R474, R475
           push ustack, pos
-          local_branch cstack, R447
+          local_branch cstack, R474
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R448
+          goto R475
 
-        R447:  # alt R449, R450
+        R474:  # alt R476, R477
           push ustack, pos
-          local_branch cstack, R449
+          local_branch cstack, R476
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R450
+          goto R477
 
-        R449:  # alt R451, R452
+        R476:  # alt R478, R479
           push ustack, pos
-          local_branch cstack, R451
+          local_branch cstack, R478
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R452
+          goto R479
 
-        R451:  # alt R453, R454
+        R478:  # alt R480, R481
           push ustack, pos
-          local_branch cstack, R453
+          local_branch cstack, R480
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R454
+          goto R481
 
-        R453:  # alt R455, R456
+        R480:  # alt R482, R483
           push ustack, pos
-          local_branch cstack, R455
+          local_branch cstack, R482
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R456
+          goto R483
 
-        R455:  # alt R457, R458
+        R482:  # alt R484, R485
           push ustack, pos
-          local_branch cstack, R457
+          local_branch cstack, R484
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R458
+          goto R485
 
-        R457:  # alt R459, R460
+        R484:  # alt R486, R487
           push ustack, pos
-          local_branch cstack, R459
+          local_branch cstack, R486
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R460
+          goto R487
 
-        R459:  # alt R461, R462
+        R486:  # alt R488, R489
           push ustack, pos
-          local_branch cstack, R461
+          local_branch cstack, R488
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R462
+          goto R489
 
-        R461:  # alt R463, R464
+        R488:  # alt R490, R491
           push ustack, pos
-          local_branch cstack, R463
+          local_branch cstack, R490
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R464
+          goto R491
 
-        R463:  # alt R465, R466
+        R490:  # alt R492, R493
           push ustack, pos
-          local_branch cstack, R465
+          local_branch cstack, R492
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R466
+          goto R493
 
-        R465:  # alt R467, R468
+        R492:  # alt R494, R495
           push ustack, pos
-          local_branch cstack, R467
+          local_branch cstack, R494
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R468
+          goto R495
 
-        R467:  # alt R469, R470
+        R494:  # alt R496, R497
           push ustack, pos
-          local_branch cstack, R469
+          local_branch cstack, R496
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R470
+          goto R497
 
-        R469:  # alt R471, R472
+        R496:  # alt R498, R499
           push ustack, pos
-          local_branch cstack, R471
+          local_branch cstack, R498
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R472
+          goto R499
 
-        R471:  # alt R473, R474
+        R498:  # alt R500, R501
           push ustack, pos
-          local_branch cstack, R473
+          local_branch cstack, R500
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R474
+          goto R501
 
-        R473:  # alt R475, R476
+        R500:  # alt R502, R503
           push ustack, pos
-          local_branch cstack, R475
+          local_branch cstack, R502
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R476
+          goto R503
 
-        R475:  # alt R477, R478
+        R502:  # alt R504, R505
           push ustack, pos
-          local_branch cstack, R477
+          local_branch cstack, R504
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R478
+          goto R505
 
-        R477:  # alt R479, R480
+        R504:  # alt R506, R507
           push ustack, pos
-          local_branch cstack, R479
+          local_branch cstack, R506
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R480
+          goto R507
 
-        R479:  # alt R481, R482
+        R506:  # alt R508, R509
           push ustack, pos
-          local_branch cstack, R481
+          local_branch cstack, R508
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R482
+          goto R509
 
-        R481:  # alt R483, R484
+        R508:  # alt R510, R511
           push ustack, pos
-          local_branch cstack, R483
+          local_branch cstack, R510
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R484
+          goto R511
 
-        R483:  # alt R485, R486
+        R510:  # alt R512, R513
           push ustack, pos
-          local_branch cstack, R485
+          local_branch cstack, R512
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R486
+          goto R513
 
-        R485:  # alt R487, R488
+        R512:  # alt R514, R515
           push ustack, pos
-          local_branch cstack, R487
+          local_branch cstack, R514
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R488
+          goto R515
 
-        R487:  # alt R489, R490
+        R514:  # alt R516, R517
           push ustack, pos
-          local_branch cstack, R489
+          local_branch cstack, R516
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R490
+          goto R517
 
-        R489:  # alt R491, R492
+        R516:  # alt R518, R519
           push ustack, pos
-          local_branch cstack, R491
+          local_branch cstack, R518
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R492
+          goto R519
 
-        R491:  # alt R493, R494
+        R518:  # alt R520, R521
           push ustack, pos
-          local_branch cstack, R493
+          local_branch cstack, R520
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R494
+          goto R521
 
-        R493:  # alt R495, R496
+        R520:  # alt R522, R523
           push ustack, pos
-          local_branch cstack, R495
+          local_branch cstack, R522
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R496
+          goto R523
 
-        R495:  # alt R497, R498
+        R522:  # alt R524, R525
           push ustack, pos
-          local_branch cstack, R497
+          local_branch cstack, R524
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R498
+          goto R525
 
-        R497:  # alt R499, R500
+        R524:  # alt R526, R527
           push ustack, pos
-          local_branch cstack, R499
+          local_branch cstack, R526
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R500
+          goto R527
 
-        R499:  # alt R501, R502
+        R526:  # alt R528, R529
           push ustack, pos
-          local_branch cstack, R501
+          local_branch cstack, R528
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R502
+          goto R529
 
-        R501:  # alt R503, R504
+        R528:  # alt R530, R531
           push ustack, pos
-          local_branch cstack, R503
+          local_branch cstack, R530
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R504
+          goto R531
 
-        R503:  # alt R505, R506
+        R530:  # alt R532, R533
           push ustack, pos
-          local_branch cstack, R505
+          local_branch cstack, R532
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R506
+          goto R533
 
-        R505:  # alt R507, R508
+        R532:  # alt R534, R535
           push ustack, pos
-          local_branch cstack, R507
+          local_branch cstack, R534
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R508
+          goto R535
 
-        R507:  # alt R509, R510
+        R534:  # alt R536, R537
           push ustack, pos
-          local_branch cstack, R509
+          local_branch cstack, R536
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R510
+          goto R537
 
-        R509:  # alt R511, R512
+        R536:  # alt R538, R539
           push ustack, pos
-          local_branch cstack, R511
+          local_branch cstack, R538
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R512
+          goto R539
 
-        R511:  # alt R513, R514
+        R538:  # alt R540, R541
           push ustack, pos
-          local_branch cstack, R513
+          local_branch cstack, R540
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R514
+          goto R541
 
-        R513:  # alt R515, R516
+        R540:  # alt R542, R543
           push ustack, pos
-          local_branch cstack, R515
+          local_branch cstack, R542
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R516
+          goto R543
 
-        R515:  # alt R517, R518
+        R542:  # alt R544, R545
           push ustack, pos
-          local_branch cstack, R517
+          local_branch cstack, R544
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R518
+          goto R545
 
-        R517:  # alt R519, R520
+        R544:  # alt R546, R547
           push ustack, pos
-          local_branch cstack, R519
+          local_branch cstack, R546
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R520
+          goto R547
 
-        R519:  # alt R521, R522
+        R546:  # alt R548, R549
           push ustack, pos
-          local_branch cstack, R521
+          local_branch cstack, R548
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R522
+          goto R549
 
-        R521:  # alt R523, R524
+        R548:  # alt R550, R551
           push ustack, pos
-          local_branch cstack, R523
+          local_branch cstack, R550
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R524
+          goto R551
 
-        R523:  # alt R525, R526
+        R550:  # alt R552, R553
           push ustack, pos
-          local_branch cstack, R525
+          local_branch cstack, R552
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R526
+          goto R553
 
-        R525:  # alt R527, R528
+        R552:  # alt R554, R555
           push ustack, pos
-          local_branch cstack, R527
+          local_branch cstack, R554
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R528
+          goto R555
 
-        R527:  # alt R529, R530
+        R554:  # alt R556, R557
           push ustack, pos
-          local_branch cstack, R529
+          local_branch cstack, R556
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R530
+          goto R557
 
-        R529:  # alt R531, R532
+        R556:  # alt R558, R559
           push ustack, pos
-          local_branch cstack, R531
+          local_branch cstack, R558
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R532
+          goto R559
 
-        R531:  # alt R533, R534
+        R558:  # alt R560, R561
           push ustack, pos
-          local_branch cstack, R533
+          local_branch cstack, R560
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R534
+          goto R561
 
-        R533:  # alt R535, R536
+        R560:  # alt R562, R563
           push ustack, pos
-          local_branch cstack, R535
+          local_branch cstack, R562
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R536
+          goto R563
 
-        R535:  # alt R537, R538
+        R562:  # alt R564, R565
           push ustack, pos
-          local_branch cstack, R537
+          local_branch cstack, R564
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R538
+          goto R565
 
-        R537:  # alt R539, R540
+        R564:  # alt R566, R567
           push ustack, pos
-          local_branch cstack, R539
+          local_branch cstack, R566
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R540
+          goto R567
 
-        R539:  # alt R541, R542
+        R566:  # alt R568, R569
           push ustack, pos
-          local_branch cstack, R541
+          local_branch cstack, R568
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R542
+          goto R569
 
-        R541:  # alt R543, R544
+        R568:  # alt R570, R571
           push ustack, pos
-          local_branch cstack, R543
+          local_branch cstack, R570
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R544
+          goto R571
 
-        R543:  # alt R545, R546
+        R570:  # alt R572, R573
           push ustack, pos
-          local_branch cstack, R545
+          local_branch cstack, R572
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R546
+          goto R573
 
-        R545:  # alt R547, R548
+        R572:  # alt R574, R575
           push ustack, pos
-          local_branch cstack, R547
+          local_branch cstack, R574
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R548
+          goto R575
 
-        R547:  # alt R549, R550
+        R574:  # alt R576, R577
           push ustack, pos
-          local_branch cstack, R549
+          local_branch cstack, R576
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R550
+          goto R577
 
-        R549:  # alt R551, R552
+        R576:  # alt R578, R579
           push ustack, pos
-          local_branch cstack, R551
+          local_branch cstack, R578
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R552
+          goto R579
 
-        R551:  # alt R553, R554
+        R578:  # alt R580, R581
           push ustack, pos
-          local_branch cstack, R553
+          local_branch cstack, R580
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R554
+          goto R581
 
-        R553:  # alt R555, R556
+        R580:  # alt R582, R583
           push ustack, pos
-          local_branch cstack, R555
+          local_branch cstack, R582
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R556
+          goto R583
 
-        R555:  # alt R557, R558
+        R582:  # alt R584, R585
           push ustack, pos
-          local_branch cstack, R557
+          local_branch cstack, R584
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R558
+          goto R585
 
-        R557:  # alt R559, R560
+        R584:  # alt R586, R587
           push ustack, pos
-          local_branch cstack, R559
+          local_branch cstack, R586
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R560
+          goto R587
 
-        R559:  # alt R561, R562
+        R586:  # alt R588, R589
           push ustack, pos
-          local_branch cstack, R561
+          local_branch cstack, R588
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R562
+          goto R589
 
-        R561:  # alt R563, R564
+        R588:  # alt R590, R591
           push ustack, pos
-          local_branch cstack, R563
+          local_branch cstack, R590
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R564
+          goto R591
 
-        R563:  # alt R565, R566
+        R590:  # alt R592, R593
           push ustack, pos
-          local_branch cstack, R565
+          local_branch cstack, R592
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R566
+          goto R593
 
-        R565:  # alt R567, R568
+        R592:  # alt R594, R595
           push ustack, pos
-          local_branch cstack, R567
+          local_branch cstack, R594
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R568
+          goto R595
 
-        R567:  # alt R569, R570
+        R594:  # alt R596, R597
           push ustack, pos
-          local_branch cstack, R569
+          local_branch cstack, R596
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R570
+          goto R597
 
-        R569:  # alt R571, R572
+        R596:  # alt R598, R599
           push ustack, pos
-          local_branch cstack, R571
+          local_branch cstack, R598
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R572
+          goto R599
 
-        R571:  # alt R573, R574
+        R598:  # alt R600, R601
           push ustack, pos
-          local_branch cstack, R573
+          local_branch cstack, R600
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R574
+          goto R601
 
-        R573:  # alt R575, R576
+        R600:  # alt R602, R603
           push ustack, pos
-          local_branch cstack, R575
+          local_branch cstack, R602
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R576
+          goto R603
 
-        R575:  # alt R577, R578
+        R602:  # alt R604, R605
           push ustack, pos
-          local_branch cstack, R577
+          local_branch cstack, R604
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R578
+          goto R605
 
-        R577:  # alt R579, R580
+        R604:  # alt R606, R607
           push ustack, pos
-          local_branch cstack, R579
+          local_branch cstack, R606
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R580
+          goto R607
 
-        R579:  # alt R581, R582
+        R606:  # alt R608, R609
           push ustack, pos
-          local_branch cstack, R581
+          local_branch cstack, R608
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R582
+          goto R609
 
-        R581:  # alt R583, R584
+        R608:  # alt R610, R611
           push ustack, pos
-          local_branch cstack, R583
+          local_branch cstack, R610
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R584
+          goto R611
 
-        R583:  # alt R585, R586
+        R610:  # alt R612, R613
           push ustack, pos
-          local_branch cstack, R585
+          local_branch cstack, R612
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R586
+          goto R613
 
-        R585:  # alt R587, R588
+        R612:  # alt R614, R615
           push ustack, pos
-          local_branch cstack, R587
+          local_branch cstack, R614
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R588
+          goto R615
 
-        R587:  # alt R589, R590
+        R614:  # alt R616, R617
           push ustack, pos
-          local_branch cstack, R589
+          local_branch cstack, R616
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R590
+          goto R617
 
-        R589:  # alt R591, R592
+        R616:  # alt R618, R619
           push ustack, pos
-          local_branch cstack, R591
+          local_branch cstack, R618
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R592
+          goto R619
 
-        R591:  # alt R593, R594
+        R618:  # alt R620, R621
           push ustack, pos
-          local_branch cstack, R593
+          local_branch cstack, R620
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R594
+          goto R621
 
-        R593:  # alt R595, R596
+        R620:  # alt R622, R623
           push ustack, pos
-          local_branch cstack, R595
+          local_branch cstack, R622
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R596
+          goto R623
 
-        R595:  # alt R597, R598
+        R622:  # alt R624, R625
           push ustack, pos
-          local_branch cstack, R597
+          local_branch cstack, R624
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R598
+          goto R625
 
-        R597:  # alt R599, R600
+        R624:  # alt R626, R627
           push ustack, pos
-          local_branch cstack, R599
+          local_branch cstack, R626
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R600
+          goto R627
 
-        R599:  # alt R601, R602
+        R626:  # alt R628, R629
           push ustack, pos
-          local_branch cstack, R601
+          local_branch cstack, R628
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R602
+          goto R629
 
-        R601:  # alt R603, R604
+        R628:  # alt R630, R631
           push ustack, pos
-          local_branch cstack, R603
+          local_branch cstack, R630
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R604
+          goto R631
 
-        R603:  # alt R605, R606
+        R630:  # alt R632, R633
           push ustack, pos
-          local_branch cstack, R605
+          local_branch cstack, R632
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R606
+          goto R633
 
-        R605:  # alt R607, R608
+        R632:  # alt R634, R635
           push ustack, pos
-          local_branch cstack, R607
+          local_branch cstack, R634
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R608
+          goto R635
 
-        R607:  # alt R609, R610
+        R634:  # alt R636, R637
           push ustack, pos
-          local_branch cstack, R609
+          local_branch cstack, R636
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R610
+          goto R637
 
-        R609:  # alt R611, R612
+        R636:  # alt R638, R639
           push ustack, pos
-          local_branch cstack, R611
+          local_branch cstack, R638
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R612
+          goto R639
 
-        R611:  # alt R613, R614
+        R638:  # alt R640, R641
           push ustack, pos
-          local_branch cstack, R613
+          local_branch cstack, R640
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R614
+          goto R641
 
-        R613:  # alt R615, R616
+        R640:  # alt R642, R643
           push ustack, pos
-          local_branch cstack, R615
+          local_branch cstack, R642
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R616
+          goto R643
 
-        R615:  # alt R617, R618
+        R642:  # alt R644, R645
           push ustack, pos
-          local_branch cstack, R617
+          local_branch cstack, R644
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R618
+          goto R645
 
-        R617:  # alt R619, R620
+        R644:  # alt R646, R647
           push ustack, pos
-          local_branch cstack, R619
+          local_branch cstack, R646
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R620
+          goto R647
 
-        R619:  # alt R621, R622
+        R646:  # alt R648, R649
           push ustack, pos
-          local_branch cstack, R621
+          local_branch cstack, R648
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R622
+          goto R649
 
-        R621:  # alt R623, R624
+        R648:  # alt R650, R651
           push ustack, pos
-          local_branch cstack, R623
+          local_branch cstack, R650
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R624
+          goto R651
 
-        R623:  # alt R625, R626
+        R650:  # alt R652, R653
           push ustack, pos
-          local_branch cstack, R625
+          local_branch cstack, R652
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R626
+          goto R653
 
-        R625:  # alt R627, R628
+        R652:  # alt R654, R655
           push ustack, pos
-          local_branch cstack, R627
+          local_branch cstack, R654
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R628
+          goto R655
 
-        R627:  # alt R629, R630
+        R654:  # alt R656, R657
           push ustack, pos
-          local_branch cstack, R629
+          local_branch cstack, R656
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R630
+          goto R657
 
-        R629:  # alt R631, R632
+        R656:  # alt R658, R659
           push ustack, pos
-          local_branch cstack, R631
+          local_branch cstack, R658
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R632
+          goto R659
 
-        R631:  # alt R633, R634
+        R658:  # alt R660, R661
           push ustack, pos
-          local_branch cstack, R633
+          local_branch cstack, R660
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R634
+          goto R661
 
-        R633:  # alt R635, R636
+        R660:  # alt R662, R663
           push ustack, pos
-          local_branch cstack, R635
+          local_branch cstack, R662
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R636
+          goto R663
 
-        R635:  # alt R637, R638
+        R662:  # alt R664, R665
           push ustack, pos
-          local_branch cstack, R637
+          local_branch cstack, R664
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R638
+          goto R665
 
-        R637:  # alt R639, R640
+        R664:  # alt R666, R667
           push ustack, pos
-          local_branch cstack, R639
+          local_branch cstack, R666
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R640
+          goto R667
 
-        R639:  # alt R641, R642
+        R666:  # alt R668, R669
           push ustack, pos
-          local_branch cstack, R641
+          local_branch cstack, R668
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R642
+          goto R669
 
-        R641:  # alt R643, R644
+        R668:  # alt R670, R671
           push ustack, pos
-          local_branch cstack, R643
+          local_branch cstack, R670
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R644
+          goto R671
 
-        R643:  # alt R645, R646
+        R670:  # alt R672, R673
           push ustack, pos
-          local_branch cstack, R645
+          local_branch cstack, R672
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R646
+          goto R673
 
-        R645:  # alt R647, R648
+        R672:  # alt R674, R675
           push ustack, pos
-          local_branch cstack, R647
+          local_branch cstack, R674
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R648
+          goto R675
 
-        R647:  # alt R649, R650
+        R674:  # alt R676, R677
           push ustack, pos
-          local_branch cstack, R649
+          local_branch cstack, R676
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R650
+          goto R677
 
-        R649:  # alt R651, R652
+        R676:  # alt R678, R679
           push ustack, pos
-          local_branch cstack, R651
+          local_branch cstack, R678
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R652
+          goto R679
 
-        R651:  # alt R653, R654
+        R678:  # alt R680, R681
           push ustack, pos
-          local_branch cstack, R653
+          local_branch cstack, R680
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R654
+          goto R681
 
-        R653:  # alt R655, R656
+        R680:  # alt R682, R683
           push ustack, pos
-          local_branch cstack, R655
+          local_branch cstack, R682
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R656
+          goto R683
 
-        R655:  # alt R657, R658
+        R682:  # alt R684, R685
           push ustack, pos
-          local_branch cstack, R657
+          local_branch cstack, R684
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R658
+          goto R685
 
-        R657:  # alt R659, R660
+        R684:  # alt R686, R687
           push ustack, pos
-          local_branch cstack, R659
+          local_branch cstack, R686
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R660
+          goto R687
 
-        R659:  # alt R661, R662
+        R686:  # alt R688, R689
           push ustack, pos
-          local_branch cstack, R661
+          local_branch cstack, R688
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R662
+          goto R689
 
-        R661:  # alt R663, R664
+        R688:  # alt R690, R691
           push ustack, pos
-          local_branch cstack, R663
+          local_branch cstack, R690
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R664
+          goto R691
 
-        R663:  # alt R665, R666
+        R690:  # alt R692, R693
           push ustack, pos
-          local_branch cstack, R665
+          local_branch cstack, R692
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R666
+          goto R693
 
-        R665:  # alt R667, R668
+        R692:  # alt R694, R695
           push ustack, pos
-          local_branch cstack, R667
+          local_branch cstack, R694
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R668
+          goto R695
 
-        R667:  # alt R669, R670
+        R694:  # alt R696, R697
           push ustack, pos
-          local_branch cstack, R669
+          local_branch cstack, R696
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R670
+          goto R697
 
-        R669:  # alt R671, R672
+        R696:  # alt R698, R699
           push ustack, pos
-          local_branch cstack, R671
+          local_branch cstack, R698
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R672
+          goto R699
 
-        R671:  # alt R673, R674
+        R698:  # alt R700, R701
           push ustack, pos
-          local_branch cstack, R673
+          local_branch cstack, R700
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R674
+          goto R701
 
-        R673:  # alt R675, R676
+        R700:  # alt R702, R703
           push ustack, pos
-          local_branch cstack, R675
+          local_branch cstack, R702
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R676
+          goto R703
 
-        R675:  # alt R677, R678
+        R702:  # alt R704, R705
           push ustack, pos
-          local_branch cstack, R677
+          local_branch cstack, R704
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R678
+          goto R705
 
-        R677:  # alt R679, R680
+        R704:  # alt R706, R707
           push ustack, pos
-          local_branch cstack, R679
+          local_branch cstack, R706
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R680
+          goto R707
 
-        R679:  # alt R681, R682
+        R706:  # alt R708, R709
           push ustack, pos
-          local_branch cstack, R681
+          local_branch cstack, R708
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R682
+          goto R709
 
-        R681:  # alt R683, R684
+        R708:  # alt R710, R711
           push ustack, pos
-          local_branch cstack, R683
+          local_branch cstack, R710
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R684
+          goto R711
 
-        R683:  # alt R685, R686
+        R710:  # alt R712, R713
           push ustack, pos
-          local_branch cstack, R685
+          local_branch cstack, R712
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R686
+          goto R713
 
-        R685:  # alt R687, R688
+        R712:  # alt R714, R715
           push ustack, pos
-          local_branch cstack, R687
+          local_branch cstack, R714
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R688
+          goto R715
 
-        R687:  # alt R689, R690
+        R714:  # alt R716, R717
           push ustack, pos
-          local_branch cstack, R689
+          local_branch cstack, R716
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R690
+          goto R717
 
-        R689:  # alt R691, R692
+        R716:  # alt R718, R719
           push ustack, pos
-          local_branch cstack, R691
+          local_branch cstack, R718
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R692
+          goto R719
 
-        R691:  # alt R693, R694
+        R718:  # alt R720, R721
           push ustack, pos
-          local_branch cstack, R693
+          local_branch cstack, R720
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R694
+          goto R721
 
-        R693:  # alt R695, R696
+        R720:  # alt R722, R723
           push ustack, pos
-          local_branch cstack, R695
+          local_branch cstack, R722
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R696
+          goto R723
 
-        R695:  # alt R697, R698
+        R722:  # alt R724, R725
           push ustack, pos
-          local_branch cstack, R697
+          local_branch cstack, R724
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R698
+          goto R725
 
-        R697:  # alt R699, R700
+        R724:  # alt R726, R727
           push ustack, pos
-          local_branch cstack, R699
+          local_branch cstack, R726
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R700
+          goto R727
 
-        R699:  # alt R701, R702
+        R726:  # alt R728, R729
           push ustack, pos
-          local_branch cstack, R701
+          local_branch cstack, R728
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R702
+          goto R729
 
-        R701:  # alt R703, R704
+        R728:  # alt R730, R731
           push ustack, pos
-          local_branch cstack, R703
+          local_branch cstack, R730
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R704
+          goto R731
 
-        R703:  # alt R705, R706
+        R730:  # alt R732, R733
           push ustack, pos
-          local_branch cstack, R705
+          local_branch cstack, R732
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R706
+          goto R733
 
-        R705:  # alt R707, R708
+        R732:  # alt R734, R735
           push ustack, pos
-          local_branch cstack, R707
+          local_branch cstack, R734
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R708
+          goto R735
 
-        R707:  # alt R709, R710
+        R734:  # alt R736, R737
           push ustack, pos
-          local_branch cstack, R709
+          local_branch cstack, R736
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R710
+          goto R737
 
-        R709:  # alt R711, R712
+        R736:  # alt R738, R739
           push ustack, pos
-          local_branch cstack, R711
+          local_branch cstack, R738
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R712
+          goto R739
 
-        R711:  # alt R713, R714
+        R738:  # alt R740, R741
           push ustack, pos
-          local_branch cstack, R713
+          local_branch cstack, R740
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R714
+          goto R741
 
-        R713:  # alt R715, R716
+        R740:  # alt R742, R743
           push ustack, pos
-          local_branch cstack, R715
+          local_branch cstack, R742
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R716
+          goto R743
 
-        R715:  # alt R717, R718
+        R742:  # alt R744, R745
           push ustack, pos
-          local_branch cstack, R717
+          local_branch cstack, R744
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R718
+          goto R745
 
-        R717:  # alt R719, R720
+        R744:  # alt R746, R747
           push ustack, pos
-          local_branch cstack, R719
+          local_branch cstack, R746
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R720
+          goto R747
 
-        R719:  # alt R721, R722
+        R746:  # alt R748, R749
           push ustack, pos
-          local_branch cstack, R721
+          local_branch cstack, R748
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R722
+          goto R749
 
-        R721:  # alt R723, R724
+        R748:  # alt R750, R751
           push ustack, pos
-          local_branch cstack, R723
+          local_branch cstack, R750
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R724
+          goto R751
 
-        R723:  # alt R725, R726
+        R750:  # alt R752, R753
           push ustack, pos
-          local_branch cstack, R725
+          local_branch cstack, R752
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R726
+          goto R753
 
-        R725:  # alt R727, R728
+        R752:  # alt R754, R755
           push ustack, pos
-          local_branch cstack, R727
+          local_branch cstack, R754
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R728
+          goto R755
 
-        R727:  # alt R729, R730
+        R754:  # alt R756, R757
           push ustack, pos
-          local_branch cstack, R729
+          local_branch cstack, R756
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R730
+          goto R757
 
-        R729:  # alt R731, R732
+        R756:  # alt R758, R759
           push ustack, pos
-          local_branch cstack, R731
+          local_branch cstack, R758
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R732
+          goto R759
 
-        R731:  # alt R733, R734
+        R758:  # alt R760, R761
           push ustack, pos
-          local_branch cstack, R733
+          local_branch cstack, R760
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R734
+          goto R761
 
-        R733:  # alt R735, R736
+        R760:  # alt R762, R763
           push ustack, pos
-          local_branch cstack, R735
+          local_branch cstack, R762
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R736
+          goto R763
 
-        R735:  # alt R737, R738
+        R762:  # alt R764, R765
           push ustack, pos
-          local_branch cstack, R737
+          local_branch cstack, R764
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R738
+          goto R765
 
-        R737:  # alt R739, R740
+        R764:  # alt R766, R767
           push ustack, pos
-          local_branch cstack, R739
+          local_branch cstack, R766
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R740
+          goto R767
 
-        R739:  # alt R741, R742
+        R766:  # alt R768, R769
           push ustack, pos
-          local_branch cstack, R741
+          local_branch cstack, R768
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R742
+          goto R769
 
-        R741:  # alt R743, R744
+        R768:  # alt R770, R771
           push ustack, pos
-          local_branch cstack, R743
+          local_branch cstack, R770
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R744
+          goto R771
 
-        R743:  # alt R745, R746
+        R770:  # alt R772, R773
           push ustack, pos
-          local_branch cstack, R745
+          local_branch cstack, R772
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R746
+          goto R773
 
-        R745:  # alt R747, R748
+        R772:  # alt R774, R775
           push ustack, pos
-          local_branch cstack, R747
+          local_branch cstack, R774
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R748
+          goto R775
 
-        R747:  # alt R749, R750
+        R774:  # alt R776, R777
           push ustack, pos
-          local_branch cstack, R749
+          local_branch cstack, R776
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R750
+          goto R777
 
-        R749:  # alt R751, R752
+        R776:  # alt R778, R779
           push ustack, pos
-          local_branch cstack, R751
+          local_branch cstack, R778
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R752
+          goto R779
 
-        R751:  # alt R753, R754
+        R778:  # alt R780, R781
           push ustack, pos
-          local_branch cstack, R753
+          local_branch cstack, R780
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R754
+          goto R781
 
-        R753:  # alt R755, R756
+        R780:  # alt R782, R783
           push ustack, pos
-          local_branch cstack, R755
+          local_branch cstack, R782
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R756
+          goto R783
 
-        R755:  # alt R757, R758
+        R782:  # alt R784, R785
           push ustack, pos
-          local_branch cstack, R757
+          local_branch cstack, R784
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R758
+          goto R785
 
-        R757:  # alt R759, R760
+        R784:  # alt R786, R787
           push ustack, pos
-          local_branch cstack, R759
+          local_branch cstack, R786
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R760
+          goto R787
 
-        R759:  # alt R761, R762
+        R786:  # alt R788, R789
           push ustack, pos
-          local_branch cstack, R761
+          local_branch cstack, R788
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R762
+          goto R789
 
-        R761:  # alt R763, R764
+        R788:  # alt R790, R791
           push ustack, pos
-          local_branch cstack, R763
+          local_branch cstack, R790
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R764
+          goto R791
 
-        R763:  # alt R765, R766
+        R790:  # alt R792, R793
           push ustack, pos
-          local_branch cstack, R765
+          local_branch cstack, R792
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R766
+          goto R793
 
-        R765:  # alt R767, R768
+        R792:  # alt R794, R795
           push ustack, pos
-          local_branch cstack, R767
+          local_branch cstack, R794
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R768
+          goto R795
 
-        R767:  # alt R769, R770
+        R794:  # alt R796, R797
           push ustack, pos
-          local_branch cstack, R769
+          local_branch cstack, R796
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R770
+          goto R797
 
-        R769:  # alt R771, R772
+        R796:  # alt R798, R799
           push ustack, pos
-          local_branch cstack, R771
+          local_branch cstack, R798
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R772
+          goto R799
 
-        R771:  # alt R773, R774
+        R798:  # alt R800, R801
           push ustack, pos
-          local_branch cstack, R773
+          local_branch cstack, R800
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R774
+          goto R801
 
-        R773:  # alt R775, R776
+        R800:  # alt R802, R803
           push ustack, pos
-          local_branch cstack, R775
+          local_branch cstack, R802
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R776
+          goto R803
 
-        R775:  # alt R777, R778
+        R802:  # alt R804, R805
           push ustack, pos
-          local_branch cstack, R777
+          local_branch cstack, R804
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R778
+          goto R805
 
-        R777:  # alt R779, R780
+        R804:  # alt R806, R807
           push ustack, pos
-          local_branch cstack, R779
+          local_branch cstack, R806
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R780
+          goto R807
 
-        R779:  # alt R781, R782
+        R806:  # alt R808, R809
           push ustack, pos
-          local_branch cstack, R781
+          local_branch cstack, R808
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R782
+          goto R809
 
-        R781:  # alt R783, R784
+        R808:  # alt R810, R811
           push ustack, pos
-          local_branch cstack, R783
+          local_branch cstack, R810
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R784
+          goto R811
 
-        R783:  # alt R785, R786
+        R810:  # alt R812, R813
           push ustack, pos
-          local_branch cstack, R785
+          local_branch cstack, R812
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R786
+          goto R813
 
-        R785:  # alt R787, R788
+        R812:  # alt R814, R815
           push ustack, pos
-          local_branch cstack, R787
+          local_branch cstack, R814
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R788
+          goto R815
 
-        R787:  # alt R789, R790
+        R814:  # alt R816, R817
           push ustack, pos
-          local_branch cstack, R789
+          local_branch cstack, R816
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R790
+          goto R817
 
-        R789:  # alt R791, R792
+        R816:  # alt R818, R819
           push ustack, pos
-          local_branch cstack, R791
+          local_branch cstack, R818
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R792
+          goto R819
 
-        R791:  # alt R793, R794
+        R818:  # alt R820, R821
           push ustack, pos
-          local_branch cstack, R793
+          local_branch cstack, R820
           pos = pop ustack
           if cutmark != 0 goto fail
-          goto R794
+          goto R821
 
-        R793: # concat
-        R795: # literal
+        R820: # concat
+        R822: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "++" goto fail
           pos += 2
-          goto R796
+          goto R823
 
-        R796: # action
+        R823: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R794: # concat
-        R797: # literal
+          goto R415
+        R821: # concat
+        R824: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "--" goto fail
           pos += 2
-          goto R798
+          goto R825
 
-        R798: # action
+        R825: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R792: # concat
-        R799: # literal
+          goto R415
+        R819: # concat
+        R826: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "+" goto fail
           pos += 1
-          goto R800
+          goto R827
 
-        R800: # action
+        R827: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R790: # concat
-        R801: # literal
+          goto R415
+        R817: # concat
+        R828: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "-" goto fail
           pos += 1
-          goto R802
+          goto R829
 
-        R802: # action
+        R829: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R788: # concat
-        R803: # literal
+          goto R415
+        R815: # concat
+        R830: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "*" goto fail
           pos += 1
-          goto R804
+          goto R831
 
-        R804: # action
+        R831: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R786: # concat
-        R805: # literal
+          goto R415
+        R813: # concat
+        R832: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "/" goto fail
           pos += 1
-          goto R806
+          goto R833
 
-        R806: # action
+        R833: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R784: # concat
-        R807: # literal
+          goto R415
+        R811: # concat
+        R834: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "<=" goto fail
           pos += 2
-          goto R808
+          goto R835
 
-        R808: # action
+        R835: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R782: # concat
-        R809: # literal
+          goto R415
+        R809: # concat
+        R836: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != ">=" goto fail
           pos += 2
-          goto R810
+          goto R837
 
-        R810: # action
+        R837: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R780: # concat
-        R811: # literal
+          goto R415
+        R807: # concat
+        R838: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "!=" goto fail
           pos += 2
-          goto R812
+          goto R839
 
-        R812: # action
+        R839: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R778: # concat
-        R813: # literal
+          goto R415
+        R805: # concat
+        R840: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "=" goto fail
           pos += 1
-          goto R814
+          goto R841
 
-        R814: # action
+        R841: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R776: # concat
-        R815: # literal
+          goto R415
+        R803: # concat
+        R842: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "<" goto fail
           pos += 1
-          goto R816
+          goto R843
 
-        R816: # action
+        R843: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R774: # concat
-        R817: # literal
+          goto R415
+        R801: # concat
+        R844: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != ">" goto fail
           pos += 1
-          goto R818
+          goto R845
 
-        R818: # action
+        R845: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R772: # concat
-        R819: # literal
+          goto R415
+        R799: # concat
+        R846: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "or" goto fail
           pos += 2
-          goto R820
+          goto R847
 
-        R820: # action
+        R847: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R770: # concat
-        R821: # literal
+          goto R415
+        R797: # concat
+        R848: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "and" goto fail
           pos += 3
-          goto R822
+          goto R849
 
-        R822: # action
+        R849: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R768: # concat
-        R823: # literal
+          goto R415
+        R795: # concat
+        R850: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "xor" goto fail
           pos += 3
-          goto R824
+          goto R851
 
-        R824: # action
+        R851: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R766: # concat
-        R825: # literal
+          goto R415
+        R793: # concat
+        R852: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "div" goto fail
           pos += 3
-          goto R826
+          goto R853
 
-        R826: # action
+        R853: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R764: # concat
-        R827: # literal
+          goto R415
+        R791: # concat
+        R854: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "rem" goto fail
           pos += 3
-          goto R828
+          goto R855
 
-        R828: # action
+        R855: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R762: # concat
-        R829: # literal
+          goto R415
+        R789: # concat
+        R856: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "mod" goto fail
           pos += 3
-          goto R830
+          goto R857
 
-        R830: # action
+        R857: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R760: # concat
-        R831: # literal
+          goto R415
+        R787: # concat
+        R858: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "cmp" goto fail
           pos += 3
-          goto R832
+          goto R859
 
-        R832: # action
+        R859: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R758: # concat
-        R833: # literal
+          goto R415
+        R785: # concat
+        R860: # literal
           $I0 = pos + 13
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 13
           
           if $S0 != "setundeferror" goto fail
           pos += 13
-          goto R834
+          goto R861
 
-        R834: # action
+        R861: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R756: # concat
-        R835: # literal
+          goto R415
+        R783: # concat
+        R862: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "undeferror" goto fail
           pos += 10
-          goto R836
+          goto R863
 
-        R836: # action
+        R863: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R754: # concat
-        R837: # literal
+          goto R415
+        R781: # concat
+        R864: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "fputstring" goto fail
           pos += 10
-          goto R838
+          goto R865
 
-        R838: # action
+        R865: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R752: # concat
-        R839: # literal
+          goto R415
+        R779: # concat
+        R866: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "condlinrec" goto fail
           pos += 10
-          goto R840
+          goto R867
 
-        R840: # action
+        R867: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R750: # concat
-        R841: # literal
+          goto R415
+        R777: # concat
+        R868: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "treegenrec" goto fail
           pos += 10
-          goto R842
+          goto R869
 
-        R842: # action
+        R869: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R748: # concat
-        R843: # literal
+          goto R415
+        R775: # concat
+        R870: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "helpdetail" goto fail
           pos += 10
-          goto R844
+          goto R871
 
-        R844: # action
+        R871: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R746: # concat
-        R845: # literal
+          goto R415
+        R773: # concat
+        R872: # literal
           $I0 = pos + 10
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 10
           
           if $S0 != "setautoput" goto fail
           pos += 10
-          goto R846
+          goto R873
 
-        R846: # action
+        R873: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R744: # concat
-        R847: # literal
+          goto R415
+        R771: # concat
+        R874: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "rolldownd" goto fail
           pos += 9
-          goto R848
+          goto R875
 
-        R848: # action
+        R875: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R742: # concat
-        R849: # literal
+          goto R415
+        R769: # concat
+        R876: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "localtime" goto fail
           pos += 9
-          goto R850
+          goto R877
 
-        R850: # action
+        R877: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R740: # concat
-        R851: # literal
+          goto R415
+        R767: # concat
+        R878: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "fputchars" goto fail
           pos += 9
-          goto R852
+          goto R879
 
-        R852: # action
+        R879: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R738: # concat
-        R853: # literal
+          goto R415
+        R765: # concat
+        R880: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "construct" goto fail
           pos += 9
-          goto R854
+          goto R881
 
-        R854: # action
+        R881: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R736: # concat
-        R855: # literal
+          goto R415
+        R763: # concat
+        R882: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "ifinteger" goto fail
           pos += 9
-          goto R856
+          goto R883
 
-        R856: # action
+        R883: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R734: # concat
-        R857: # literal
+          goto R415
+        R761: # concat
+        R884: # literal
           $I0 = pos + 9
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 9
           
           if $S0 != "iflogical" goto fail
           pos += 9
-          goto R858
+          goto R885
 
-        R858: # action
+        R885: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R732: # concat
-        R859: # literal
+          goto R415
+        R759: # concat
+        R886: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "rolldown" goto fail
           pos += 8
-          goto R860
+          goto R887
 
-        R860: # action
+        R887: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R730: # concat
-        R861: # literal
+          goto R415
+        R757: # concat
+        R888: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "strftime" goto fail
           pos += 8
-          goto R862
+          goto R889
 
-        R862: # action
+        R889: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R728: # concat
-        R863: # literal
+          goto R415
+        R755: # concat
+        R890: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "enconcat" goto fail
           pos += 8
-          goto R864
+          goto R891
 
-        R864: # action
+        R891: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R726: # concat
-        R865: # literal
+          goto R415
+        R753: # concat
+        R892: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "ifstring" goto fail
           pos += 8
-          goto R866
+          goto R893
 
-        R866: # action
+        R893: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R724: # concat
-        R867: # literal
+          goto R415
+        R751: # concat
+        R894: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "tostring" goto fail
           pos += 8
-          goto R868
+          goto R895
 
-        R868: # action
+        R895: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R722: # concat
-        R869: # literal
+          goto R415
+        R749: # concat
+        R896: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "treestep" goto fail
           pos += 8
-          goto R870
+          goto R897
 
-        R870: # action
+        R897: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R720: # concat
-        R871: # literal
+          goto R415
+        R747: # concat
+        R898: # literal
           $I0 = pos + 8
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 8
           
           if $S0 != "putchars" goto fail
           pos += 8
-          goto R872
+          goto R899
 
-        R872: # action
+        R899: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R718: # concat
-        R873: # literal
+          goto R415
+        R745: # concat
+        R900: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "setsize" goto fail
           pos += 7
-          goto R874
+          goto R901
 
-        R874: # action
+        R901: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R716: # concat
-        R875: # literal
+          goto R415
+        R743: # concat
+        R902: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "autoput" goto fail
           pos += 7
-          goto R876
+          goto R903
 
-        R876: # action
+        R903: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R714: # concat
-        R877: # literal
+          goto R415
+        R741: # concat
+        R904: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "rollupd" goto fail
           pos += 7
-          goto R878
+          goto R905
 
-        R878: # action
+        R905: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R712: # concat
-        R879: # literal
+          goto R415
+        R739: # concat
+        R906: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "rotated" goto fail
           pos += 7
-          goto R880
+          goto R907
 
-        R880: # action
+        R907: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R710: # concat
-        R881: # literal
+          goto R415
+        R737: # concat
+        R908: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "formatf" goto fail
           pos += 7
-          goto R882
+          goto R909
 
-        R882: # action
+        R909: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R708: # concat
-        R883: # literal
+          goto R415
+        R735: # concat
+        R910: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "fremove" goto fail
           pos += 7
-          goto R884
+          goto R911
 
-        R884: # action
+        R911: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R706: # concat
-        R885: # literal
+          goto R415
+        R733: # concat
+        R912: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "frename" goto fail
           pos += 7
-          goto R886
+          goto R913
 
-        R886: # action
+        R913: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R704: # concat
-        R887: # literal
+          goto R415
+        R731: # concat
+        R914: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "unstack" goto fail
           pos += 7
-          goto R888
+          goto R915
 
-        R888: # action
+        R915: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R702: # concat
-        R889: # literal
+          goto R415
+        R729: # concat
+        R916: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "unswons" goto fail
           pos += 7
-          goto R890
+          goto R917
 
-        R890: # action
+        R917: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R700: # concat
-        R891: # literal
+          goto R415
+        R727: # concat
+        R918: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "integer" goto fail
           pos += 7
-          goto R892
+          goto R919
 
-        R892: # action
+        R919: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R698: # concat
-        R893: # literal
+          goto R415
+        R725: # concat
+        R920: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "logical" goto fail
           pos += 7
-          goto R894
+          goto R921
 
-        R894: # action
+        R921: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R696: # concat
-        R895: # literal
+          goto R415
+        R723: # concat
+        R922: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "nullary" goto fail
           pos += 7
-          goto R896
+          goto R923
 
-        R896: # action
+        R923: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R694: # concat
-        R897: # literal
+          goto R415
+        R721: # concat
+        R924: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "ternary" goto fail
           pos += 7
-          goto R898
+          goto R925
 
-        R898: # action
+        R925: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R692: # concat
-        R899: # literal
+          goto R415
+        R719: # concat
+        R926: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "iffloat" goto fail
           pos += 7
-          goto R900
+          goto R927
 
-        R900: # action
+        R927: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R690: # concat
-        R901: # literal
+          goto R415
+        R717: # concat
+        R928: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "tailrec" goto fail
           pos += 7
-          goto R902
+          goto R929
 
-        R902: # action
+        R929: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R688: # concat
-        R903: # literal
+          goto R415
+        R715: # concat
+        R930: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "primrec" goto fail
           pos += 7
-          goto R904
+          goto R931
 
-        R904: # action
+        R931: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R686: # concat
-        R905: # literal
+          goto R415
+        R713: # concat
+        R932: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "treerec" goto fail
           pos += 7
-          goto R906
+          goto R933
 
-        R906: # action
+        R933: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R684: # concat
-        R907: # literal
+          goto R415
+        R711: # concat
+        R934: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "setecho" goto fail
           pos += 7
-          goto R908
+          goto R935
 
-        R908: # action
+        R935: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R682: # concat
-        R909: # literal
+          goto R415
+        R709: # concat
+        R936: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "include" goto fail
           pos += 7
-          goto R910
+          goto R937
 
-        R910: # action
+        R937: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R680: # concat
-        R911: # literal
+          goto R415
+        R707: # concat
+        R938: # literal
           $I0 = pos + 7
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 7
           
           if $S0 != "reverse" goto fail
           pos += 7
-          goto R912
+          goto R939
 
-        R912: # action
+        R939: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R678: # concat
-        R913: # literal
+          goto R415
+        R705: # concat
+        R940: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "maxint" goto fail
           pos += 6
-          goto R914
+          goto R941
 
-        R914: # action
+        R941: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R676: # concat
-        R915: # literal
+          goto R415
+        R703: # concat
+        R942: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "undefs" goto fail
           pos += 6
-          goto R916
+          goto R943
 
-        R916: # action
+        R943: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R674: # concat
-        R917: # literal
+          goto R415
+        R701: # concat
+        R944: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "stdout" goto fail
           pos += 6
-          goto R918
+          goto R945
 
-        R918: # action
+        R945: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R672: # concat
-        R919: # literal
+          goto R415
+        R699: # concat
+        R946: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "stderr" goto fail
           pos += 6
-          goto R920
+          goto R947
 
-        R920: # action
+        R947: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R670: # concat
-        R921: # literal
+          goto R415
+        R697: # concat
+        R948: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "rollup" goto fail
           pos += 6
-          goto R922
+          goto R949
 
-        R922: # action
+        R949: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R668: # concat
-        R923: # literal
+          goto R415
+        R695: # concat
+        R950: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "rotate" goto fail
           pos += 6
-          goto R924
+          goto R951
 
-        R924: # action
+        R951: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R666: # concat
-        R925: # literal
+          goto R415
+        R693: # concat
+        R952: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "choice" goto fail
           pos += 6
-          goto R926
+          goto R953
 
-        R926: # action
+        R953: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R664: # concat
-        R927: # literal
+          goto R415
+        R691: # concat
+        R954: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "gmtime" goto fail
           pos += 6
-          goto R928
+          goto R955
 
-        R928: # action
+        R955: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R662: # concat
-        R929: # literal
+          goto R415
+        R689: # concat
+        R956: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "mktime" goto fail
           pos += 6
-          goto R930
+          goto R957
 
-        R930: # action
+        R957: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R660: # concat
-        R931: # literal
+          goto R415
+        R687: # concat
+        R958: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "strtol" goto fail
           pos += 6
-          goto R932
+          goto R959
 
-        R932: # action
+        R959: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R658: # concat
-        R933: # literal
+          goto R415
+        R685: # concat
+        R960: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "strtod" goto fail
           pos += 6
-          goto R934
+          goto R961
 
-        R934: # action
+        R961: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R656: # concat
-        R935: # literal
+          goto R415
+        R683: # concat
+        R962: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "format" goto fail
           pos += 6
-          goto R936
+          goto R963
 
-        R936: # action
+        R963: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R654: # concat
-        R937: # literal
+          goto R415
+        R681: # concat
+        R964: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "fclose" goto fail
           pos += 6
-          goto R938
+          goto R965
 
-        R938: # action
+        R965: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R652: # concat
-        R939: # literal
+          goto R415
+        R679: # concat
+        R966: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "ferror" goto fail
           pos += 6
-          goto R940
+          goto R967
 
-        R940: # action
+        R967: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R650: # concat
-        R941: # literal
+          goto R415
+        R677: # concat
+        R968: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "fflush" goto fail
           pos += 6
-          goto R942
+          goto R969
 
-        R942: # action
+        R969: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R648: # concat
-        R943: # literal
+          goto R415
+        R675: # concat
+        R970: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "fgetch" goto fail
           pos += 6
-          goto R944
+          goto R971
 
-        R944: # action
+        R971: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R646: # concat
-        R945: # literal
+          goto R415
+        R673: # concat
+        R972: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "fwrite" goto fail
           pos += 6
-          goto R946
+          goto R973
 
-        R946: # action
+        R973: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R644: # concat
-        R947: # literal
+          goto R415
+        R671: # concat
+        R974: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "fputch" goto fail
           pos += 6
-          goto R948
+          goto R975
 
-        R948: # action
+        R975: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R642: # concat
-        R949: # literal
+          goto R415
+        R669: # concat
+        R976: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "opcase" goto fail
           pos += 6
-          goto R950
+          goto R977
 
-        R950: # action
+        R977: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R640: # concat
-        R951: # literal
+          goto R415
+        R667: # concat
+        R978: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "uncons" goto fail
           pos += 6
-          goto R952
+          goto R979
 
-        R952: # action
+        R979: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R638: # concat
-        R953: # literal
+          goto R415
+        R665: # concat
+        R980: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "concat" goto fail
           pos += 6
-          goto R954
+          goto R981
 
-        R954: # action
+        R981: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R636: # concat
-        R955: # literal
+          goto R415
+        R663: # concat
+        R982: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "intern" goto fail
           pos += 6
-          goto R956
+          goto R983
 
-        R956: # action
+        R983: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R634: # concat
-        R957: # literal
+          goto R415
+        R661: # concat
+        R984: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "string" goto fail
           pos += 6
-          goto R958
+          goto R985
 
-        R958: # action
+        R985: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R632: # concat
-        R959: # literal
+          goto R415
+        R659: # concat
+        R986: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "unary2" goto fail
           pos += 6
-          goto R960
+          goto R987
 
-        R960: # action
+        R987: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R630: # concat
-        R961: # literal
+          goto R415
+        R657: # concat
+        R988: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "unary3" goto fail
           pos += 6
-          goto R962
+          goto R989
 
-        R962: # action
+        R989: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R628: # concat
-        R963: # literal
+          goto R415
+        R655: # concat
+        R990: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "unary4" goto fail
           pos += 6
-          goto R964
+          goto R991
 
-        R964: # action
+        R991: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R626: # concat
-        R965: # literal
+          goto R415
+        R653: # concat
+        R992: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "binary" goto fail
           pos += 6
-          goto R966
+          goto R993
 
-        R966: # action
+        R993: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R624: # concat
-        R967: # literal
+          goto R415
+        R651: # concat
+        R994: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "cleave" goto fail
           pos += 6
-          goto R968
+          goto R995
 
-        R968: # action
+        R995: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R622: # concat
-        R969: # literal
+          goto R415
+        R649: # concat
+        R996: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "branch" goto fail
           pos += 6
-          goto R970
+          goto R997
 
-        R970: # action
+        R997: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R620: # concat
-        R971: # literal
+          goto R415
+        R647: # concat
+        R998: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "ifchar" goto fail
           pos += 6
-          goto R972
+          goto R999
 
-        R972: # action
+        R999: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R618: # concat
-        R973: # literal
+          goto R415
+        R645: # concat
+        R1000: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "iflist" goto fail
           pos += 6
-          goto R974
+          goto R1001
 
-        R974: # action
+        R1001: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R616: # concat
-        R975: # literal
+          goto R415
+        R643: # concat
+        R1002: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "iffile" goto fail
           pos += 6
-          goto R976
+          goto R1003
 
-        R976: # action
+        R1003: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R614: # concat
-        R977: # literal
+          goto R415
+        R641: # concat
+        R1004: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "linrec" goto fail
           pos += 6
-          goto R978
+          goto R1005
 
-        R978: # action
+        R1005: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R612: # concat
-        R979: # literal
+          goto R415
+        R639: # concat
+        R1006: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "binrec" goto fail
           pos += 6
-          goto R980
+          goto R1007
 
-        R980: # action
+        R1007: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R610: # concat
-        R981: # literal
+          goto R415
+        R637: # concat
+        R1008: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "genrec" goto fail
           pos += 6
-          goto R982
+          goto R1009
 
-        R982: # action
+        R1009: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R608: # concat
-        R983: # literal
+          goto R415
+        R635: # concat
+        R1010: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "filter" goto fail
           pos += 6
-          goto R984
+          goto R1011
 
-        R984: # action
+        R1011: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R606: # concat
-        R985: # literal
+          goto R415
+        R633: # concat
+        R1012: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "manual" goto fail
           pos += 6
-          goto R986
+          goto R1013
 
-        R986: # action
+        R1013: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R604: # concat
-        R987: # literal
+          goto R415
+        R631: # concat
+        R1014: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "system" goto fail
           pos += 6
-          goto R988
+          goto R1015
 
-        R988: # action
+        R1015: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R602: # concat
-        R989: # literal
+          goto R415
+        R629: # concat
+        R1016: # literal
           $I0 = pos + 6
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 6
           
           if $S0 != "getenv" goto fail
           pos += 6
-          goto R990
+          goto R1017
 
-        R990: # action
+        R1017: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R600: # concat
-        R991: # literal
+          goto R415
+        R627: # concat
+        R1018: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "print" goto fail
           pos += 5
-          goto R992
+          goto R1019
 
-        R992: # action
+        R1019: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R598: # concat
-        R993: # literal
+          goto R415
+        R625: # concat
+        R1020: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "stack" goto fail
           pos += 5
-          goto R994
+          goto R1021
 
-        R994: # action
+        R1021: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R596: # concat
-        R995: # literal
+          goto R415
+        R623: # concat
+        R1022: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "conts" goto fail
           pos += 5
-          goto R996
+          goto R1023
 
-        R996: # action
+        R1023: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R594: # concat
-        R997: # literal
+          goto R415
+        R621: # concat
+        R1024: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "clock" goto fail
           pos += 5
-          goto R998
+          goto R1025
 
-        R998: # action
+        R1025: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R592: # concat
-        R999: # literal
+          goto R415
+        R619: # concat
+        R1026: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "stdin" goto fail
           pos += 5
-          goto R1000
+          goto R1027
 
-        R1000: # action
+        R1027: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R590: # concat
-        R1001: # literal
+          goto R415
+        R617: # concat
+        R1028: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "swapd" goto fail
           pos += 5
-          goto R1002
+          goto R1029
 
-        R1002: # action
+        R1029: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R588: # concat
-        R1003: # literal
+          goto R415
+        R615: # concat
+        R1030: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "atan2" goto fail
           pos += 5
-          goto R1004
+          goto R1031
 
-        R1004: # action
+        R1031: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R586: # concat
-        R1005: # literal
+          goto R415
+        R613: # concat
+        R1032: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "floor" goto fail
           pos += 5
-          goto R1006
+          goto R1033
 
-        R1006: # action
+        R1033: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R584: # concat
-        R1007: # literal
+          goto R415
+        R611: # concat
+        R1034: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "frexp" goto fail
           pos += 5
-          goto R1008
+          goto R1035
 
-        R1008: # action
+        R1035: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R582: # concat
-        R1009: # literal
+          goto R415
+        R609: # concat
+        R1036: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "ldexp" goto fail
           pos += 5
-          goto R1010
+          goto R1037
 
-        R1010: # action
+        R1037: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R580: # concat
-        R1011: # literal
+          goto R415
+        R607: # concat
+        R1038: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "log10" goto fail
           pos += 5
-          goto R1012
+          goto R1039
 
-        R1012: # action
+        R1039: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R578: # concat
-        R1013: # literal
+          goto R415
+        R605: # concat
+        R1040: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "trunc" goto fail
           pos += 5
-          goto R1014
+          goto R1041
 
-        R1014: # action
+        R1041: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R576: # concat
-        R1015: # literal
+          goto R415
+        R603: # concat
+        R1042: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "srand" goto fail
           pos += 5
-          goto R1016
+          goto R1043
 
-        R1016: # action
+        R1043: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R574: # concat
-        R1017: # literal
+          goto R415
+        R601: # concat
+        R1044: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "fgets" goto fail
           pos += 5
-          goto R1018
+          goto R1045
 
-        R1018: # action
+        R1045: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R572: # concat
-        R1019: # literal
+          goto R415
+        R599: # concat
+        R1046: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "fopen" goto fail
           pos += 5
-          goto R1020
+          goto R1047
 
-        R1020: # action
+        R1047: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R570: # concat
-        R1021: # literal
+          goto R415
+        R597: # concat
+        R1048: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "fread" goto fail
           pos += 5
-          goto R1022
+          goto R1049
 
-        R1022: # action
+        R1049: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R568: # concat
-        R1023: # literal
+          goto R415
+        R595: # concat
+        R1050: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "fseek" goto fail
           pos += 5
-          goto R1024
+          goto R1051
 
-        R1024: # action
+        R1051: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R566: # concat
-        R1025: # literal
+          goto R415
+        R593: # concat
+        R1052: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "ftell" goto fail
           pos += 5
-          goto R1026
+          goto R1053
 
-        R1026: # action
+        R1053: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R564: # concat
-        R1027: # literal
+          goto R415
+        R591: # concat
+        R1054: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "swons" goto fail
           pos += 5
-          goto R1028
+          goto R1055
 
-        R1028: # action
+        R1055: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R562: # concat
-        R1029: # literal
+          goto R415
+        R589: # concat
+        R1056: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "first" goto fail
           pos += 5
-          goto R1030
+          goto R1057
 
-        R1030: # action
+        R1057: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R560: # concat
-        R1031: # literal
+          goto R415
+        R587: # concat
+        R1058: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "small" goto fail
           pos += 5
-          goto R1032
+          goto R1059
 
-        R1032: # action
+        R1059: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R558: # concat
-        R1033: # literal
+          goto R415
+        R585: # concat
+        R1060: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "equal" goto fail
           pos += 5
-          goto R1034
+          goto R1061
 
-        R1034: # action
+        R1061: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R556: # concat
-        R1035: # literal
+          goto R415
+        R583: # concat
+        R1062: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "float" goto fail
           pos += 5
-          goto R1036
+          goto R1063
 
-        R1036: # action
+        R1063: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R554: # concat
-        R1037: # literal
+          goto R415
+        R581: # concat
+        R1064: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "app11" goto fail
           pos += 5
-          goto R1038
+          goto R1065
 
-        R1038: # action
+        R1065: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R552: # concat
-        R1039: # literal
+          goto R415
+        R579: # concat
+        R1066: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "app12" goto fail
           pos += 5
-          goto R1040
+          goto R1067
 
-        R1040: # action
+        R1067: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R550: # concat
-        R1041: # literal
+          goto R415
+        R577: # concat
+        R1068: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "unary" goto fail
           pos += 5
-          goto R1042
+          goto R1069
 
-        R1042: # action
+        R1069: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R548: # concat
-        R1043: # literal
+          goto R415
+        R575: # concat
+        R1070: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "ifset" goto fail
           pos += 5
-          goto R1044
+          goto R1071
 
-        R1044: # action
+        R1071: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R546: # concat
-        R1045: # literal
+          goto R415
+        R573: # concat
+        R1072: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "while" goto fail
           pos += 5
-          goto R1046
+          goto R1073
 
-        R1046: # action
+        R1073: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R544: # concat
-        R1047: # literal
+          goto R415
+        R571: # concat
+        R1074: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "times" goto fail
           pos += 5
-          goto R1048
+          goto R1075
 
-        R1048: # action
+        R1075: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R542: # concat
-        R1049: # literal
+          goto R415
+        R569: # concat
+        R1076: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "infra" goto fail
           pos += 5
-          goto R1050
+          goto R1077
 
-        R1050: # action
+        R1077: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R540: # concat
-        R1051: # literal
+          goto R415
+        R567: # concat
+        R1078: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "split" goto fail
           pos += 5
-          goto R1052
+          goto R1079
 
-        R1052: # action
+        R1079: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R538: # concat
-        R1053: # literal
+          goto R415
+        R565: # concat
+        R1080: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "putch" goto fail
           pos += 5
-          goto R1054
+          goto R1081
 
-        R1054: # action
+        R1081: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R536: # concat
-        R1055: # literal
+          goto R415
+        R563: # concat
+        R1082: # literal
           $I0 = pos + 5
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 5
           
           if $S0 != "abort" goto fail
           pos += 5
-          goto R1056
+          goto R1083
 
-        R1056: # action
+        R1083: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R534: # concat
-        R1057: # literal
+          goto R415
+        R561: # concat
+        R1084: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "echo" goto fail
           pos += 4
-          goto R1058
+          goto R1085
 
-        R1058: # action
+        R1085: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R532: # concat
-        R1059: # literal
+          goto R415
+        R559: # concat
+        R1086: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "time" goto fail
           pos += 4
-          goto R1060
+          goto R1087
 
-        R1060: # action
+        R1087: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R530: # concat
-        R1061: # literal
+          goto R415
+        R557: # concat
+        R1088: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "rand" goto fail
           pos += 4
-          goto R1062
+          goto R1089
 
-        R1062: # action
+        R1089: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R528: # concat
-        R1063: # literal
+          goto R415
+        R555: # concat
+        R1090: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "swap" goto fail
           pos += 4
-          goto R1064
+          goto R1091
 
-        R1064: # action
+        R1091: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R526: # concat
-        R1065: # literal
+          goto R415
+        R553: # concat
+        R1092: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "popd" goto fail
           pos += 4
-          goto R1066
+          goto R1093
 
-        R1066: # action
+        R1093: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R524: # concat
-        R1067: # literal
+          goto R415
+        R551: # concat
+        R1094: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "dupd" goto fail
           pos += 4
-          goto R1068
+          goto R1095
 
-        R1068: # action
+        R1095: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R522: # concat
-        R1069: # literal
+          goto R415
+        R549: # concat
+        R1096: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "sign" goto fail
           pos += 4
-          goto R1070
+          goto R1097
 
-        R1070: # action
+        R1097: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R520: # concat
-        R1071: # literal
+          goto R415
+        R547: # concat
+        R1098: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "acos" goto fail
           pos += 4
-          goto R1072
+          goto R1099
 
-        R1072: # action
+        R1099: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R518: # concat
-        R1073: # literal
+          goto R415
+        R545: # concat
+        R1100: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "asin" goto fail
           pos += 4
-          goto R1074
+          goto R1101
 
-        R1074: # action
+        R1101: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R516: # concat
-        R1075: # literal
+          goto R415
+        R543: # concat
+        R1102: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "atan" goto fail
           pos += 4
-          goto R1076
+          goto R1103
 
-        R1076: # action
+        R1103: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R514: # concat
-        R1077: # literal
+          goto R415
+        R541: # concat
+        R1104: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "ceil" goto fail
           pos += 4
-          goto R1078
+          goto R1105
 
-        R1078: # action
+        R1105: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R512: # concat
-        R1079: # literal
+          goto R415
+        R539: # concat
+        R1106: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "cosh" goto fail
           pos += 4
-          goto R1080
+          goto R1107
 
-        R1080: # action
+        R1107: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R510: # concat
-        R1081: # literal
+          goto R415
+        R537: # concat
+        R1108: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "modf" goto fail
           pos += 4
-          goto R1082
+          goto R1109
 
-        R1082: # action
+        R1109: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R508: # concat
-        R1083: # literal
+          goto R415
+        R535: # concat
+        R1110: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "sinh" goto fail
           pos += 4
-          goto R1084
+          goto R1111
 
-        R1084: # action
+        R1111: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R506: # concat
-        R1085: # literal
+          goto R415
+        R533: # concat
+        R1112: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "sqrt" goto fail
           pos += 4
-          goto R1086
+          goto R1113
 
-        R1086: # action
+        R1113: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R504: # concat
-        R1087: # literal
+          goto R415
+        R531: # concat
+        R1114: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "tanh" goto fail
           pos += 4
-          goto R1088
+          goto R1115
 
-        R1088: # action
+        R1115: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R502: # concat
-        R1089: # literal
+          goto R415
+        R529: # concat
+        R1116: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "pred" goto fail
           pos += 4
-          goto R1090
+          goto R1117
 
-        R1090: # action
+        R1117: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R500: # concat
-        R1091: # literal
+          goto R415
+        R527: # concat
+        R1118: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "succ" goto fail
           pos += 4
-          goto R1092
+          goto R1119
 
-        R1092: # action
+        R1119: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R498: # concat
-        R1093: # literal
+          goto R415
+        R525: # concat
+        R1120: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "feof" goto fail
           pos += 4
-          goto R1094
+          goto R1121
 
-        R1094: # action
+        R1121: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R496: # concat
-        R1095: # literal
+          goto R415
+        R523: # concat
+        R1122: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "fput" goto fail
           pos += 4
-          goto R1096
+          goto R1123
 
-        R1096: # action
+        R1123: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R494: # concat
-        R1097: # literal
+          goto R415
+        R521: # concat
+        R1124: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "cons" goto fail
           pos += 4
-          goto R1098
+          goto R1125
 
-        R1098: # action
+        R1125: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R492: # concat
-        R1099: # literal
+          goto R415
+        R519: # concat
+        R1126: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "rest" goto fail
           pos += 4
-          goto R1100
+          goto R1127
 
-        R1100: # action
+        R1127: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R490: # concat
-        R1101: # literal
+          goto R415
+        R517: # concat
+        R1128: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "size" goto fail
           pos += 4
-          goto R1102
+          goto R1129
 
-        R1102: # action
+        R1129: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R488: # concat
-        R1103: # literal
+          goto R415
+        R515: # concat
+        R1130: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "case" goto fail
           pos += 4
-          goto R1104
+          goto R1131
 
-        R1104: # action
+        R1131: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R486: # concat
-        R1105: # literal
+          goto R415
+        R513: # concat
+        R1132: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "drop" goto fail
           pos += 4
-          goto R1106
+          goto R1133
 
-        R1106: # action
+        R1133: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R484: # concat
-        R1107: # literal
+          goto R415
+        R511: # concat
+        R1134: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "take" goto fail
           pos += 4
-          goto R1108
+          goto R1135
 
-        R1108: # action
+        R1135: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R482: # concat
-        R1109: # literal
+          goto R415
+        R509: # concat
+        R1136: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "name" goto fail
           pos += 4
-          goto R1110
+          goto R1137
 
-        R1110: # action
+        R1137: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R480: # concat
-        R1111: # literal
+          goto R415
+        R507: # concat
+        R1138: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "body" goto fail
           pos += 4
-          goto R1112
+          goto R1139
 
-        R1112: # action
+        R1139: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R478: # concat
-        R1113: # literal
+          goto R415
+        R505: # concat
+        R1140: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "null" goto fail
           pos += 4
-          goto R1114
+          goto R1141
 
-        R1114: # action
+        R1141: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R476: # concat
-        R1115: # literal
+          goto R415
+        R503: # concat
+        R1142: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "char" goto fail
           pos += 4
-          goto R1116
+          goto R1143
 
-        R1116: # action
+        R1143: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R474: # concat
-        R1117: # literal
+          goto R415
+        R501: # concat
+        R1144: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "list" goto fail
           pos += 4
-          goto R1118
+          goto R1145
 
-        R1118: # action
+        R1145: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R472: # concat
-        R1119: # literal
+          goto R415
+        R499: # concat
+        R1146: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "leaf" goto fail
           pos += 4
-          goto R1120
+          goto R1147
 
-        R1120: # action
+        R1147: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R470: # concat
-        R1121: # literal
+          goto R415
+        R497: # concat
+        R1148: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "user" goto fail
           pos += 4
-          goto R1122
+          goto R1149
 
-        R1122: # action
+        R1149: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R468: # concat
-        R1123: # literal
+          goto R415
+        R495: # concat
+        R1150: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "file" goto fail
           pos += 4
-          goto R1124
+          goto R1151
 
-        R1124: # action
+        R1151: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R466: # concat
-        R1125: # literal
+          goto R415
+        R493: # concat
+        R1152: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "app1" goto fail
           pos += 4
-          goto R1126
+          goto R1153
 
-        R1126: # action
+        R1153: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R464: # concat
-        R1127: # literal
+          goto R415
+        R491: # concat
+        R1154: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "ifte" goto fail
           pos += 4
-          goto R1128
+          goto R1155
 
-        R1128: # action
+        R1155: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R462: # concat
-        R1129: # literal
+          goto R415
+        R489: # concat
+        R1156: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "cond" goto fail
           pos += 4
-          goto R1130
+          goto R1157
 
-        R1130: # action
+        R1157: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R460: # concat
-        R1131: # literal
+          goto R415
+        R487: # concat
+        R1158: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "step" goto fail
           pos += 4
-          goto R1132
+          goto R1159
 
-        R1132: # action
+        R1159: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R458: # concat
-        R1133: # literal
+          goto R415
+        R485: # concat
+        R1160: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "fold" goto fail
           pos += 4
-          goto R1134
+          goto R1161
 
-        R1134: # action
+        R1161: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R456: # concat
-        R1135: # literal
+          goto R415
+        R483: # concat
+        R1162: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "some" goto fail
           pos += 4
-          goto R1136
+          goto R1163
 
-        R1136: # action
+        R1163: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R454: # concat
-        R1137: # literal
+          goto R415
+        R481: # concat
+        R1164: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "help" goto fail
           pos += 4
-          goto R1138
+          goto R1165
 
-        R1138: # action
+        R1165: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R452: # concat
-        R1139: # literal
+          goto R415
+        R479: # concat
+        R1166: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "argv" goto fail
           pos += 4
-          goto R1140
+          goto R1167
 
-        R1140: # action
+        R1167: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R450: # concat
-        R1141: # literal
+          goto R415
+        R477: # concat
+        R1168: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "argc" goto fail
           pos += 4
-          goto R1142
+          goto R1169
 
-        R1142: # action
+        R1169: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R448: # concat
-        R1143: # literal
+          goto R415
+        R475: # concat
+        R1170: # literal
           $I0 = pos + 4
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 4
           
           if $S0 != "quit" goto fail
           pos += 4
-          goto R1144
+          goto R1171
 
-        R1144: # action
+        R1171: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R446: # concat
-        R1145: # literal
+          goto R415
+        R473: # concat
+        R1172: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "dup" goto fail
           pos += 3
-          goto R1146
+          goto R1173
 
-        R1146: # action
+        R1173: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R444: # concat
-        R1147: # literal
+          goto R415
+        R471: # concat
+        R1174: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "pop" goto fail
           pos += 3
-          goto R1148
+          goto R1175
 
-        R1148: # action
+        R1175: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R442: # concat
-        R1149: # literal
+          goto R415
+        R469: # concat
+        R1176: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "not" goto fail
           pos += 3
-          goto R1150
+          goto R1177
 
-        R1150: # action
+        R1177: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R440: # concat
-        R1151: # literal
+          goto R415
+        R467: # concat
+        R1178: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "neg" goto fail
           pos += 3
-          goto R1152
+          goto R1179
 
-        R1152: # action
+        R1179: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R438: # concat
-        R1153: # literal
+          goto R415
+        R465: # concat
+        R1180: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "ord" goto fail
           pos += 3
-          goto R1154
+          goto R1181
 
-        R1154: # action
+        R1181: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R436: # concat
-        R1155: # literal
+          goto R415
+        R463: # concat
+        R1182: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "chr" goto fail
           pos += 3
-          goto R1156
+          goto R1183
 
-        R1156: # action
+        R1183: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R434: # concat
-        R1157: # literal
+          goto R415
+        R461: # concat
+        R1184: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "abs" goto fail
           pos += 3
-          goto R1158
+          goto R1185
 
-        R1158: # action
+        R1185: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R432: # concat
-        R1159: # literal
+          goto R415
+        R459: # concat
+        R1186: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "cos" goto fail
           pos += 3
-          goto R1160
+          goto R1187
 
-        R1160: # action
+        R1187: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R430: # concat
-        R1161: # literal
+          goto R415
+        R457: # concat
+        R1188: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "exp" goto fail
           pos += 3
-          goto R1162
+          goto R1189
 
-        R1162: # action
+        R1189: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R428: # concat
-        R1163: # literal
+          goto R415
+        R455: # concat
+        R1190: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "log" goto fail
           pos += 3
-          goto R1164
+          goto R1191
 
-        R1164: # action
+        R1191: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R426: # concat
-        R1165: # literal
+          goto R415
+        R453: # concat
+        R1192: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "pow" goto fail
           pos += 3
-          goto R1166
+          goto R1193
 
-        R1166: # action
+        R1193: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R424: # concat
-        R1167: # literal
+          goto R415
+        R451: # concat
+        R1194: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "sin" goto fail
           pos += 3
-          goto R1168
+          goto R1195
 
-        R1168: # action
+        R1195: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R422: # concat
-        R1169: # literal
+          goto R415
+        R449: # concat
+        R1196: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "tan" goto fail
           pos += 3
-          goto R1170
+          goto R1197
 
-        R1170: # action
+        R1197: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R420: # concat
-        R1171: # literal
+          goto R415
+        R447: # concat
+        R1198: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "max" goto fail
           pos += 3
-          goto R1172
+          goto R1199
 
-        R1172: # action
+        R1199: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R418: # concat
-        R1173: # literal
+          goto R415
+        R445: # concat
+        R1200: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "min" goto fail
           pos += 3
-          goto R1174
+          goto R1201
 
-        R1174: # action
+        R1201: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R416: # concat
-        R1175: # literal
+          goto R415
+        R443: # concat
+        R1202: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "has" goto fail
           pos += 3
-          goto R1176
+          goto R1203
 
-        R1176: # action
+        R1203: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R414: # concat
-        R1177: # literal
+          goto R415
+        R441: # concat
+        R1204: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "set" goto fail
           pos += 3
-          goto R1178
+          goto R1205
 
-        R1178: # action
+        R1205: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R412: # concat
-        R1179: # literal
+          goto R415
+        R439: # concat
+        R1206: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "dip" goto fail
           pos += 3
-          goto R1180
+          goto R1207
 
-        R1180: # action
+        R1207: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R410: # concat
-        R1181: # literal
+          goto R415
+        R437: # concat
+        R1208: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "map" goto fail
           pos += 3
-          goto R1182
+          goto R1209
 
-        R1182: # action
+        R1209: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R408: # concat
-        R1183: # literal
+          goto R415
+        R435: # concat
+        R1210: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "all" goto fail
           pos += 3
-          goto R1184
+          goto R1211
 
-        R1184: # action
+        R1211: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R406: # concat
-        R1185: # literal
+          goto R415
+        R433: # concat
+        R1212: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "get" goto fail
           pos += 3
-          goto R1186
+          goto R1213
 
-        R1186: # action
+        R1213: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R404: # concat
-        R1187: # literal
+          goto R415
+        R431: # concat
+        R1214: # literal
           $I0 = pos + 3
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 3
           
           if $S0 != "put" goto fail
           pos += 3
-          goto R1188
+          goto R1215
 
-        R1188: # action
+        R1215: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R402: # concat
-        R1189: # literal
+          goto R415
+        R429: # concat
+        R1216: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "id" goto fail
           pos += 2
-          goto R1190
+          goto R1217
 
-        R1190: # action
+        R1217: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R400: # concat
-        R1191: # literal
+          goto R415
+        R427: # concat
+        R1218: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "at" goto fail
           pos += 2
-          goto R1192
+          goto R1219
 
-        R1192: # action
+        R1219: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R398: # concat
-        R1193: # literal
+          goto R415
+        R425: # concat
+        R1220: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "of" goto fail
           pos += 2
-          goto R1194
+          goto R1221
 
-        R1194: # action
+        R1221: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R396: # concat
-        R1195: # literal
+          goto R415
+        R423: # concat
+        R1222: # literal
           $I0 = pos + 2
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 2
           
           if $S0 != "in" goto fail
           pos += 2
-          goto R1196
+          goto R1223
 
-        R1196: # action
+        R1223: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R394: # concat
-        R1197: # literal
+          goto R415
+        R421: # concat
+        R1224: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "i" goto fail
           pos += 1
-          goto R1198
+          goto R1225
 
-        R1198: # action
+        R1225: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
-          goto succeed
-        R392: # concat
-        R1199: # literal
+          goto R415
+        R419: # concat
+        R1226: # literal
           $I0 = pos + 1
           if $I0 > lastpos goto fail
           $S0 = substr target, pos, 1
           
           if $S0 != "x" goto fail
           pos += 1
-          goto R1200
+          goto R1227
 
-        R1200: # action
+        R1227: # action
           $P1 = adverbs['action']
-          if null $P1 goto succeed
+          if null $P1 goto R415
           $I1 = can $P1, "builtins"
-          if $I1 == 0 goto succeed
+          if $I1 == 0 goto R415
           mpos = pos
           $P1."builtins"(mob)
+          goto R415
+        R417: # concat
+        R1228: # literal
+          $I0 = pos + 16
+          if $I0 > lastpos goto fail
+          $S0 = substr target, pos, 16
+          
+          if $S0 != "ban-space-kimchi" goto fail
+          pos += 16
+          goto R1229
+
+        R1229: # action
+          $P1 = adverbs['action']
+          if null $P1 goto R415
+          $I1 = can $P1, "builtins"
+          if $I1 == 0 goto R415
+          mpos = pos
+          $P1."builtins"(mob)
+          goto R415
+        R415: # cut 410
+          local_branch cstack, R412
+          cutmark = 410
+          goto fail
+
+        R412: # subrule before
+          captob = captscope
+          $P0 = getattribute captob, '$.pos'
+          $P0 = pos
+          $I0 = can mob, 'before'
+          if $I0 == 0 goto R412_1
+          $P0 = find_method mob, 'before'
+          goto R412_2
+        R412_1:
+          $P0 = find_name 'before'
+          unless null $P0 goto R412_2
+          say "Unable to find regex 'before'"
+        R412_2:
+          captob = $P0(captob, "[ \\s | '[' | ']' | '.' ]")
+          $P1 = getattribute captob, '$.pos'
+          if $P1 <= -3 goto fail_match
+          if $P1 < 0 goto fail
+          $P1 = pos
+          $P1 = getattribute captob, '$.from'
+          $P1 = pos
           goto succeed
       .end
 
 ## <fun::Grammar::userfunccall>
 .namespace ["fun";"Grammar"]
-      .sub "userfunccall" :method
+      .sub "userfunccall" :method 
           .param pmc adverbs      :unique_reg :slurpy :named
           .local pmc mob
           .local string target    :unique_reg
@@ -7770,19 +8162,19 @@
           cutmark = -3
           goto fail_cut
         R: # concat
-        R1201: # subrule funcname
+        R1230: # subrule funcname
           captob = captscope
           $P0 = getattribute captob, '$.pos'
           $P0 = pos
           $I0 = can mob, 'funcname'
-          if $I0 == 0 goto R1201_1
+          if $I0 == 0 goto R1230_1
           $P0 = find_method mob, 'funcname'
-          goto R1201_2
-        R1201_1:
+          goto R1230_2
+        R1230_1:
           $P0 = find_name 'funcname'
-          unless null $P0 goto R1201_2
+          unless null $P0 goto R1230_2
           say "Unable to find regex 'funcname'"
-        R1201_2:
+        R1230_2:
           $P2 = adverbs['action']
           captob = $P0(captob, 'action'=>$P2)
           $P1 = getattribute captob, '$.pos'
@@ -7792,11 +8184,11 @@
           captscope["funcname"] = captob
 
           pos = $P1
-          local_branch cstack, R1202
+          local_branch cstack, R1231
           delete captscope["funcname"]
 
           goto fail
-        R1202: # action
+        R1231: # action
           $P1 = adverbs['action']
           if null $P1 goto succeed
           $I1 = can $P1, "userfunccall"

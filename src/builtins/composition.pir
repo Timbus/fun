@@ -21,7 +21,7 @@ Pushes an extra copy of X onto stack.
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
-	$P1 = 'deepcopy'($P0)
+	$P1 = '!@deepcopy'($P0)
 	stack.'push'($P0, $P1)
 .end
 
@@ -38,7 +38,7 @@ As if defined by:   dupd  ==  [dup] dip
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
-	$P2 = 'deepcopy'($P1)
+	$P2 = '!@deepcopy'($P1)
 	stack.'push'($P1, $P2, $P0)
 .end
 
