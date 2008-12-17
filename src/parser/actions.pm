@@ -147,8 +147,30 @@ method builtins($/) {
 }
 
 method userfunccall($/) {
-	make PAST::Var.new(
-		:name($<funcname>),
-		:scope('package'),
-	);
+	make PAST::Op.new(
+		:pasttype('if'),
+		:node($/),
+		PAST::Op.new(
+			:pirop('isnull'),
+			:node($/),
+			PAST::Var.new(
+				:name($<funcname>),
+				:scope('package'),
+				:node($/),
+			),
+		),
+		PAST::Op.new(
+			:pirop('throw'),
+			PAST::Val.new(
+				:value( "\"Error: The function '"~$<funcname>~"' is not defined. Perhaps you misspelled it?\"" ), 
+				:returns('Exception'), 
+				:node($/),
+			),
+		),
+		PAST::Var.new(
+			:name($<funcname>),
+			:scope('package'),
+			:node($/),
+		),
+	)
 }

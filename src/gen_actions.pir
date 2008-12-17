@@ -717,20 +717,53 @@
     push_eh $P267
     .lex "$/", param_268
     find_lex $P269, "$/"
-    get_hll_global $P270, ["PAST"], "Var"
+    get_hll_global $P270, ["PAST"], "Op"
     find_lex $P271, "$/"
-    set $P272, $P271["funcname"]
-    unless_null $P272, vivify_86
-    new $P272, "Undef"
+    unless_null $P271, vivify_86
+    new $P271, "Undef"
   vivify_86:
-    $P273 = $P270."new"($P272 :named("name"), "package" :named("scope"))
-    $P274 = $P269."result_object"($P273)
-    .return ($P274)
+    get_hll_global $P272, ["PAST"], "Op"
+    find_lex $P273, "$/"
+    unless_null $P273, vivify_87
+    new $P273, "Undef"
+  vivify_87:
+    get_hll_global $P274, ["PAST"], "Var"
+    find_lex $P275, "$/"
+    set $P276, $P275["funcname"]
+    unless_null $P276, vivify_88
+    new $P276, "Undef"
+  vivify_88:
+    find_lex $P277, "$/"
+    unless_null $P277, vivify_89
+    new $P277, "Undef"
+  vivify_89:
+    $P278 = $P274."new"($P276 :named("name"), "package" :named("scope"), $P277 :named("node"))
+    $P279 = $P272."new"($P278, "isnull" :named("pirop"), $P273 :named("node"))
+    get_hll_global $P280, ["PAST"], "Op"
+    get_hll_global $P281, ["PAST"], "Val"
+    new $P282, "String"
+    assign $P282, "\"Error: The function '"
+    find_lex $P283, "$/"
+    set $P284, $P283["funcname"]
+    unless_null $P284, vivify_90
+    new $P284, "Undef"
+  vivify_90:
+    concat $P285, $P282, $P284
+    concat $P286, $P285, "' is not defined. Perhaps you misspelled it?\""
+    find_lex $P287, "$/"
+    unless_null $P287, vivify_91
+    new $P287, "Undef"
+  vivify_91:
+    $P288 = $P281."new"($P286 :named("value"), "Exception" :named("returns"), $P287 :named("node"))
+    $P289 = $P280."new"($P288, "throw" :named("pirop"))
+    $P290 = $P270."new"($P279, $P289, "if" :named("pasttype"), $P271 :named("node"))
+    $P291 = $P269."result_object"($P290)
+    .return ($P291)
   control_266:
     .local pmc exception 
     .get_results (exception) 
-    getattribute $P275, exception, "payload"
-    .return ($P275)
+    getattribute $P292, exception, "payload"
+    .return ($P292)
     rethrow exception
 .end
 
