@@ -27,29 +27,40 @@ method TOP($/) {
 			$fnlist.push( $($_) );
 		}
 		
-		$past.push(
-			PAST::Op.new(
-				:pasttype('bind'),
-				:node($/),
-				
-				PAST::Var.new(
-					:name('!usrfnlist'~$name),
-					:viviself('ResizablePMCArray'),
-					:scope('package'),
-					:isdecl(1),
-					:lvalue(1),
-				),
-				$fnlist,
-			)
-		);
-		
-		#Then create a method that runs the above array (by inserting it onto the stack)
+		#Then create a method that creates and runs the function list (by inserting it onto the stack)
 		$past.push(
 			PAST::Block.new(
 				:name($name), 
 				:blocktype('declaration'),
 				:node( $/ ),
-				
+				#Test to see if the list exists.
+				PAST::Op.new(
+					:pasttype('if'),
+					:node($/),
+					PAST::Op.new(
+						:pirop('isnull'),
+						:node($/),
+						PAST::Var.new(
+							:name('!usrfnlist'~$name),
+							:scope('package'),
+							:node($/),
+						),
+					),
+					#If the list in null, create it.
+					PAST::Op.new(
+						:pasttype('bind'),
+						:node($/),
+						
+						PAST::Var.new(
+							:name('!usrfnlist'~$name),
+							:viviself('ResizablePMCArray'),
+							:scope('package'),
+							:isdecl(1),
+							:lvalue(1),
+						),
+						$fnlist,
+					),
+				),
 				#Clone the function list
 				#Then push the func on the stack
 				PAST::Op.new(
@@ -146,6 +157,7 @@ method builtins($/) {
 	);
 }
 
+#Change this, probably make it use inline pir for the ifnull bit
 method userfunccall($/) {
 	make PAST::Op.new(
 		:pasttype('if'),
