@@ -31,25 +31,24 @@ In the future, the result behaviour of the dot may be customizable, which is why
 finish:
 .end
 
-.sub 'evalfile'
-    .param pmc options         :slurpy :named
+=item 'rand'
 
-    .local string filename
-	filename = options['filename']
-    .local string lang
-    lang = options['lang']
-    if lang == 'Parrot' goto lang_parrot
-    if lang goto lang_compile
-    lang = 'fun'
-  lang_compile:
-    .local pmc compiler
-    compiler = compreg lang
-    .tailcall compiler.'evalfiles'(filename)
+ ->  I
 
-  lang_parrot:
-    load_bytecode filename
-    .return (1)
+Pushes a random integer.
+
+=cut
+
+.sub 'rand'
+	.local pmc stack
+	stack = get_global 'funstack'
+	
+	$P0 = new 'Random'
+	$I0 = $P0
+
+	.tailcall stack.'push'($I0)
 .end
+
 
 
 .sub 'include'
@@ -109,23 +108,21 @@ finish:
 	if $I0 goto eval_fun
 #	goto inc_loop
   inc_end:
-	$S0 = concat "Can't find ", basename
-	concat $S0, ' in $:'
-	'die'($S0)
-	.return (0)
+	$S0 = concat "Can't find module or file '", basename
+	$S0 .= "'"
+	$P0 = new 'Exception'
+	$P0 = $S0
+	throw $P0
+	.return ()
 
   eval_parrot:
-    .local pmc result
-    result = 'evalfile'('filename' => realfilename, 'lang'=>'Parrot')
-    goto done
-
+	load_bytecode realfilename
+	.return (1)
   eval_fun:
-    result = 'evalfile'('filename' => realfilename, 'lang'=>'fun')
-
-  done:
-    .return (result)
+	.local pmc compiler
+	compiler = compreg 'fun'
+	.tailcall compiler.'evalfiles'(realfilename)
 .end
-
 
 .sub 'ban-space-kimchi'
 	.local pmc stack

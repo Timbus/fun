@@ -61,8 +61,7 @@ method TOP($/) {
 						$fnlist,
 					),
 				),
-				#Clone the function list
-				#Then push the func on the stack
+				#Now, clone the function list then push the func on the stack
 				PAST::Op.new(
 					:name('push'), :pasttype('callmethod'), :node($/),
 					PAST::Var.new(
