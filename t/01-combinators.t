@@ -7,4 +7,4 @@
 #Now for continuation combinators
 "ok 6" "fail 6" [pop] nullary .
 
-"ok 9" 6 2 ["ok " print ++ dup putchars] times pop .
+"ok 9" 6 2 ["ok " print ++ dup put] times pop .

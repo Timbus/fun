@@ -10,19 +10,35 @@ Functions for reading and printing
 
 .namespace[]
 
-=item say
+=item put
 
  X ->  
 
-Prints C<X> to stdout. Uses the same format as '.' does.
+Prints C<X> to stdout.
+
+=cut
+
+.sub 'put'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	'!@print_rec'($P0)
+	print "\n"
+.end
+
+=item putchars
+
+ S ->  
+
+Prints the string C<S> to stdout.
 
 =cut
 
 .sub 'putchars'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'()
-	'!@print_rec'($P0)
+	$S0 = stack.'pop'('String')
+	print $S0
 	print "\n"
 .end
 

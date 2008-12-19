@@ -26,30 +26,34 @@ In the future, the result behaviour of the dot may be customizable, which is why
 	
 	##Make this a hook or something? Dunno. 
 	#Consider: What would the hook be written in? C? pir? fun?
-	'putchars'()
+	'put'()
 	
 finish:
 .end
 
-=item 'rand'
+=item time
 
- ->  I
+  -> I
 
-Pushes a random integer.
+Pushes the integer value of time in seconds since the epoch.
 
 =cut
 
-.sub 'rand'
+.sub 'time'
 	.local pmc stack
 	stack = get_global 'funstack'
-	
-	$P0 = new 'Random'
-	$I0 = $P0
-
-	.tailcall stack.'push'($I0)
+	$I0 = time
+	stack.'push'($I0)
 .end
 
+=item include
 
+ "filename"  ->
+
+Loads and runs a joy source file with the name "filename". You do not need to specify the filename extension if it is of the type .fun, .pir, or .pbc
+This is done to allow for precompiled modules.
+
+=cut
 
 .sub 'include'
 	.local pmc stack

@@ -52,6 +52,7 @@ BUILTINS_PIR = \
 	src/builtins/codeflow.pir \
 	src/builtins/listmanip.pir \
 	src/builtins/sequences.pir \
+	src/builtins/math.pir \
 
 CLASSES_PIR = \
 	src/classes/Stack.pir \
