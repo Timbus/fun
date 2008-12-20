@@ -33,11 +33,11 @@ ret_rand:
 	.tailcall stack.'push'($I0)
 .end
 
-=item 'rand'
+=item 'srand'
 
- ->  I
+ I ->
 
-Pushes a random integer.
+Takes an integer to set the random generator seed.
 
 =cut
 
@@ -54,3 +54,8 @@ Pushes a random integer.
 set_rand:
 	$P0 = seed
 .end
+
+
+=back
+=cut
+

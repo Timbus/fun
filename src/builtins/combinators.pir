@@ -425,6 +425,39 @@ loop:
 finish:
 .end
 
+=item cleave
+
+ X [P1] [P2]  ->  R1 R2
+
+Executes P1 and P2, each with X on top, producing two results.
+
+=cut
+
+.sub 'cleave'
+	.local pmc stack
+	.local pmc x, p1, p2, r1, r2
+	stack = get_global 'funstack'
+	p2 = stack.'pop'('ResizablePMCArray')
+	p1 = stack.'pop'('ResizablePMCArray')
+	x = stack.'pop'()
+	#Make a copy of 'x' since it will be ran twice
+	$P0 = '!@deepcopy'(x)
+	
+	#Make a cc to contain any possible overflow, then run p1
+	stack.'makecc'()
+	stack.'push'($P0, p1 :flat)
+	r1 = stack.'pop'()
+	stack.'endcc'()
+	
+	#Now run p2
+	stack.'makecc'()
+	stack.'push'(x, p2 :flat)
+	r2 = stack.'pop'()
+	stack.'endcc'()
+	
+	stack.'push'(r1, r2)
+.end
+
 =back
 =cut
 

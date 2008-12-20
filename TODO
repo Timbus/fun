@@ -1,1 +1,2 @@
-Fix error handling. Switch to exceptions you moron, this error deal is just going to get messy and needlessly complex. Register a handler before you pop, add a fukken function name to the handler so you can trace back the issue, and its problem goddamn solved.
+Add more builtins i guess
+Make an interface to declare and call c functions

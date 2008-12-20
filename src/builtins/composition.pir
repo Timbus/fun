@@ -64,7 +64,7 @@ Interchanges X and Y on top of the stack.
 
  X Y Z  ->  Y X Z
 
-As if defined by:   swapd  ==  [ [swap] dip ]
+Equivalent to [swap] dip
 
 =cut
 
@@ -95,7 +95,7 @@ Removes X from top of the stack.
 
  Y Z  ->  Z
 
-As if defined by: popd  ==  [ [pop] dip ] 
+Equivalent to [pop] dip
 
 =cut
 
@@ -148,7 +148,7 @@ Moves Y and Z down, moves X up
 
  X Y Z W  ->  Z X Y W
 
-As if defined by:   rollupd  ==  [ [rollup] dip ]
+Equivalent to [rollup] dip
 
 =cut
 
@@ -168,7 +168,7 @@ As if defined by:   rollupd  ==  [ [rollup] dip ]
 
  X Y Z W  ->  Y Z X W
 
-As if defined by:   rolldownd  ==  [rolldown] dip 
+Equivalent to [rolldown] dip 
 
 =cut
 
@@ -205,7 +205,7 @@ Interchanges X and Z
 
  X Y Z W  ->  Z Y X W
 
-As if defined by:   rotated  ==  [rotate] dip
+Equivalent to [rotate] dip
 
 =cut
 
