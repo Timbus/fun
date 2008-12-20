@@ -85,3 +85,34 @@ finish:
 .end
 
 
+.sub '!@arrays_equal'
+	.param pmc ar1
+	.param pmc ar2
+	$I0 = ar1
+	$I1 = ar2
+	if $I0 != $I1 goto false
+
+check_loop:
+	unless ar1 goto true
+	$P0 = shift ar1
+	$P1 = shift ar2
+	
+	$S0 = typeof $P0
+	if $S0 != 'ResizablePMCArray' goto simple_check
+	$S0 = typeof $P1
+	if $S0 != 'ResizablePMCArray' goto false
+	$I0 = '!@arrays_equal'($P0, $P1)
+	unless $I0 goto false
+	goto check_loop
+	
+simple_check:
+	if $P0 != $P1 goto false
+	goto check_loop
+	
+#No need for a bool type, its not being pushed
+true:
+	.return(1)
+false:
+	.return(0)
+.end
+
