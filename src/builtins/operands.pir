@@ -335,3 +335,11 @@ positive:
 	.tailcall stack.'push'(ret)
 .end
 
+.sub 'abs'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$I0 = stack.'pop'('Integer', 'Float')
+	abs $I0
+	stack.'push'($I0)
+.end
+

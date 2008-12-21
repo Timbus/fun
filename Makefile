@@ -36,10 +36,11 @@ all: fun.pbc
 FUN_GROUP = $(PMC_DIR)/fun_group$(LOAD_EXT)
 
 SOURCES = fun.pir \
-  src/gen_grammar.pir \
-  src/gen_actions.pir \
-  src/gen_builtins.pir \
+	src/gen_grammar.pir \
+	src/gen_actions.pir \
+	src/gen_builtins.pir \
 	src/gen_objects.pir \
+
 #  $(FUN_GROUP)
 
 BUILTINS_PIR = \

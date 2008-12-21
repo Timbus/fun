@@ -86,7 +86,8 @@ Pushes the stack as a list.
 
  [X Y Z ..]  ->  .. Z Y X
 
-The list [X Y Z ..] becomes the new stack.
+The list C<[X Y Z ..]> becomes the new stack.
+Be wary of using this.
 
 =cut
 
@@ -176,9 +177,9 @@ do_true:
 
  [P] [T] [R1] [R2]  ->  ...
 
-Executes P. If that yields true, executes T.
-Else uses R1 to produce two intermediates, recurses twice,
-then executes R2 (usually to combine their results).
+Executes C<P>. If that yields true, executes C<T>.
+Else uses C<R1> to produce two intermediates, recurses twice,
+then executes C<R2> (usually to combine their results).
 
 NOTE: C<P> is executed within a new continuation, so that the test gobbles no value(s).
 
@@ -259,8 +260,8 @@ do_true:
 
  [P] [T] [R1] [R2]  ->  ...
 
-Executes P, if that yields true executes T.
-Else executes R1 and then [[P] [T] [R1] [R2] genrec] R2.
+Executes C<P>, if that yields true executes C<T>.
+Else executes C<R1> and then C<[[P] [T] [R1] [R2] genrec] R2>.
 
 =cut
 
@@ -325,7 +326,7 @@ The end result is that nothing is removed from the stack.
 
  X [P]  ->  R
 
-Begins a new continuation, copies X over to it, then executes the list C<P>.
+Begins a new continuation, copies C<X> over to it, then executes the list C<P>.
 The result of C<P> is copied back to the prior continuation.
 C<X> will always be removed.
 
@@ -349,7 +350,7 @@ C<X> will always be removed.
 
  X Y [P]  ->  R
 
-Begins a new continuation, copies X Y over to it, then executes the list C<P>.
+Begins a new continuation, copies C<X Y> over to it, then executes the list C<P>.
 The result of C<P> is copied back to the prior continuation.
 C<X> and C<Y> will always be removed.
 
@@ -373,7 +374,7 @@ C<X> and C<Y> will always be removed.
 
  X Y Z [P]  ->  R
 
-Begins a new continuation, copies X Y Z over to it, then executes the list C<P>.
+Begins a new continuation, copies C<X Y Z> over to it, then executes the list C<P>.
 The result of C<P> is copied back to the prior continuation.
 C<X>, C<Y> and C<Z> will always be removed.
 
@@ -398,7 +399,7 @@ C<X>, C<Y> and C<Z> will always be removed.
 
  [B] [D]  ->  ...
 
-While executing B yields true executes D.
+While executing C<B> yields true executes C<D>.
 
 =cut
 
@@ -429,7 +430,7 @@ finish:
 
  X [P1] [P2]  ->  R1 R2
 
-Executes P1 and P2, each with X on top, producing two results.
+Executes C<P1> and C<P2>, each with C<X> on top, producing two results.
 
 =cut
 
