@@ -314,25 +314,23 @@ false:
 .end
 
 .sub 'sign'
-	.local pmc stack, val, ret
+	.local pmc stack, val
 	stack = get_global 'funstack'
 	val = stack.'pop'('Integer', 'Float')
 	
-	#Make the return type the same as the arg.
-	$S0 = typeof val
-	ret = new $S0
 	if val < 0 goto negative
 	if val > 0 goto positive
 
-	ret = 0
-	.tailcall stack.'push'(ret)
+	val = 0
+	.tailcall stack.'push'(val)
 	
 negative:
-	ret = -1
-	.tailcall stack.'push'(ret)
+	val = -1
+	.tailcall stack.'push'(val)
+	
 positive:
-	ret = 1
-	.tailcall stack.'push'(ret)
+	val = 1
+	.tailcall stack.'push'(val)
 .end
 
 .sub 'abs'
@@ -341,5 +339,13 @@ positive:
 	$I0 = stack.'pop'('Integer', 'Float')
 	abs $I0
 	stack.'push'($I0)
+.end
+
+.sub 'neg'
+	.local pmc stack, val
+	stack = get_global 'funstack'
+	val = stack.'pop'('Integer', 'Float')
+	val = val * -1
+	stack.'push'($P0)
 .end
 
