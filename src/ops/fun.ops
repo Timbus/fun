@@ -1,8 +1,10 @@
+#include <math.h>
 #include "parrot/dynext.h"
 #include "../../../../src/pmc/pmc_object.h"
 VERSION = PARROT_VERSION;
 
 inline op frexp(out NUM, in NUM, out INT) :base_core {
+/* This is alright, but probably won't work cross-architecture
 	union {
 		double v;
 		struct {
@@ -22,4 +24,8 @@ inline op frexp(out NUM, in NUM, out INT) :base_core {
 		$3 = 0;
 		$1 = 0;
 	}
+*/
+	int exp;
+	$1 = frexp($2, &exp);
+	$3 = exp;
 }
