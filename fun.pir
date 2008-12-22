@@ -24,6 +24,7 @@ object.
 .namespace [ 'fun::Compiler' ]
 
 .loadlib 'fun_group'
+.loadlib 'fun_ops'
 
 .sub 'onload' :anon :load :init
     load_bytecode 'PCT.pbc'

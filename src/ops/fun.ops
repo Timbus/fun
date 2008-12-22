@@ -1,0 +1,25 @@
+#include "parrot/dynext.h"
+#include "../../../../src/pmc/pmc_object.h"
+VERSION = PARROT_VERSION;
+
+inline op frexp(out NUM, in NUM, out INT) :base_core {
+	union {
+		double v;
+		struct {
+			unsigned int mant2 : 32;
+			unsigned int mant1 : 20;
+			unsigned int exp : 11;
+			unsigned int sign :  1;
+		} s;
+	} u;
+
+	if ($2) {
+		u.v = $2;
+		$3 = u.s.exp - 1022;
+		u.s.exp = 1022;
+		$1 = u.v;
+	} else {
+		$3 = 0;
+		$1 = 0;
+	}
+}
