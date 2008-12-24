@@ -129,13 +129,36 @@ at_string:
 	
 .end
 
+=item ord
 
-.sub 'tostring'
-	.local pmc stack, value
+ S  ->  I
+
+Integer I is the ascii value of character C (taken from the first letter of the given string).
+
+=cut
+
+.sub 'ord'
+	.local pmc stack
 	stack = get_global 'funstack'
-	value = stack.'pop'('Integer', 'Float')
-	$S0 = value
-	.tailcall stack.'push'($S0)
+	$S0 = stack.'pop'('String')
+	$I0 = ord $S0
+	stack.'push'($I0)
+.end
+
+=item chr
+
+ I  ->  S
+
+String S contains the character whose ascii value is I.
+
+=cut
+
+.sub 'chr'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$I0 = stack.'pop'('Integer')
+	$S0 = chr $I0
+	stack.'push'($S0)
 .end
 
 =back

@@ -22,7 +22,8 @@ Prints C<X> to stdout.
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
-	'!@print_rec'($P0)
+	$S0 = '!@mkstring'($P0)
+	print $S0
 	print "\n"
 .end
 
@@ -54,7 +55,8 @@ Prints C<X> to stdout. Does not add a newline
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
-	'!@print_rec'($P0)
+	$S0 = '!@mkstring'($P0)
+	print $S0
 .end
 
 =back

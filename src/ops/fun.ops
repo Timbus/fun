@@ -1,31 +1,56 @@
 #include <math.h>
+#include <time.h>
+
 #include "parrot/dynext.h"
+#include "parrot/resources.h"
 #include "../../../../src/pmc/pmc_object.h"
 VERSION = PARROT_VERSION;
 
 inline op frexp(out NUM, in NUM, out INT) :base_core {
-/* This is alright, but probably won't work cross-architecture
-	union {
-		double v;
-		struct {
-			unsigned int mant2 : 32;
-			unsigned int mant1 : 20;
-			unsigned int exp : 11;
-			unsigned int sign :  1;
-		} s;
-	} u;
-
-	if ($2) {
-		u.v = $2;
-		$3 = u.s.exp - 1022;
-		u.s.exp = 1022;
-		$1 = u.v;
-	} else {
-		$3 = 0;
-		$1 = 0;
-	}
-*/
 	int exp;
 	$1 = frexp($2, &exp);
 	$3 = exp;
+}
+
+inline op strtol(out INT, in STR, in INT) :base_core {
+	int exp;
+	$1 = strtol($2->strstart, 0, $3);
+}
+
+inline op strftime(out STR, in STR, in PMC) :base_core {
+	int errcount = 0;
+	int len;
+	char* buf;
+	struct tm timeinfo;
+	
+	timeinfo.tm_sec = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 0));
+	timeinfo.tm_min = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 1));
+	timeinfo.tm_hour = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 2));
+	timeinfo.tm_mday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 3));
+	timeinfo.tm_mon = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 4));
+	timeinfo.tm_year = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 5));
+	timeinfo.tm_wday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 6));
+	timeinfo.tm_yday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 7));
+	timeinfo.tm_isdst = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 8));
+	
+	len = ($2->bufused+5)*2;
+	buf = (char *)mem_sys_allocate(len);
+	
+	while (!strftime(buf, len, $2->strstart, &timeinfo) && errcount < 5){
+		++errcount;
+		len *= 2;
+		mem_sys_free(buf);
+		buf = (char *)mem_sys_allocate(len);
+	}
+	if (errcount == 5){
+		mem_sys_free(buf);
+		Parrot_ex_throw_from_c_args(
+			interp, NULL,
+			EXCEPTION_INVALID_OPERATION,
+			"Could not allocate enough space for strftime"
+		);
+	}
+	
+	$1 = string_from_cstring(interp, buf, strlen(buf));
+	mem_sys_free(buf);
 }

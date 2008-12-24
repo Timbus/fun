@@ -48,40 +48,57 @@ iter_end:
 	.return(valcpy)
 .end
 
-.sub '!@print_rec'
+.sub '!@mkstring'
 	.param pmc value
-	.local string type
+	.local string type, ret
 	type = typeof value
-	if type == 'Boolean' goto print_bool
-	if type == 'ResizablePMCArray' goto print_array
+	if type == 'Boolean' goto ret_bool
+	if type == 'ResizablePMCArray' goto ret_array
 	
-	print value
-	goto finish
+	#Otherwise it'll translate just fine as-is.
+	.return(value)
 	
-print_bool:
-	if value == 1 goto print_true
-	print "false"
-	goto finish
-print_true:
-	print "true"
-	goto finish
+ret_bool:
+	if value == 1 goto ret_true
+	.return("false")
+ret_true:
+	.return("true")
 	
-print_array:
+ret_array:
 	.local pmc it
 	it = iter value
-	print "["
+	ret = "["
 	unless it goto iter_end
 iter_loop:
 	$P0 = shift it
-	'!@print_rec'($P0) #Recursive way to follow lists
+	type = typeof $P0
+	if type == 'Boolean' goto iter_retbool
+	if type == 'ResizablePMCArray' goto iter_retarray
+	
+	$S0 = $P0
+	ret .= $S0
+	goto iter_next
+	
+iter_retbool:
+	if $P0 == 1 goto iter_rettrue
+	ret .= "false"
+	goto iter_next
+iter_rettrue:
+	ret .= "true"
+	goto iter_next
+	
+iter_retarray:
+	$S0 = '!@mkstring'($P0) #Recursive way to follow lists
+	ret .= $S0
+	
+iter_next:
 	unless it goto iter_end
-	print " "
+	ret .= " "
 	goto iter_loop
 
 iter_end:
-	print "]"
-
-finish:
+	ret .= "]"
+	.return(ret)
 .end
 
 
