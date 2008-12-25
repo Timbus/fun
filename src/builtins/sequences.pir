@@ -29,14 +29,42 @@ Sequence U is the concatenation of sequences S and T.
 	
 concat_array:
 	$P1.'append'($P0)
-	stack.'push'($P1)
-	goto finish
+	.tailcall stack.'push'($P1)
 
 concat_string:
 	concat $P1, $P0
-	stack.'push'($P1)
+	.tailcall stack.'push'($P1)
+.end
+
+=item enconcat
+
+ X S T  ->  U
+
+Sequence U is the concatenation of sequences S and T with X inserted between S and T.
+Equivalent to [swapd cons concat]
+
+=cut
+
+.sub 'enconcat'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('String', 'ResizablePMCArray')
+	$S0 = typeof $P0
+	$P1 = stack.'pop'($S0)
 	
-finish:
+	if $S0 == 'String' goto enconcat_string
+
+enconcat_array:
+	$P2 = stack.'pop'()
+	$P1.'push'($P2)
+	$P1.'append'($P0)
+	.tailcall stack.'push'($P1)
+	
+enconcat_string:
+	$P2 = stack.'pop'('String')
+	concat $P1, $P2
+	concat $P1, $P0
+	.tailcall stack.'push'($P1)
 .end
 
 =item reverse
@@ -49,15 +77,14 @@ Sequence R is the reverse of sequence S.
 
 .sub 'reverse'
 	.local pmc stack, value
+	.local int isstr
 	stack = get_global 'funstack'
 	value = stack.'pop'('String', 'ResizablePMCArray')
 	$S0 = typeof value
 	if $S0 == 'ResizablePMCArray' goto reverse_array
-	
-reverse_string:
-	value.'reverse'(value)
-	stack.'push'(value)
-	goto finish
+	isstr = 1
+	$S0 = value
+	value = split '', $S0
 	
 reverse_array:
 	.local pmc revarray
@@ -69,10 +96,12 @@ iter_loop:
 	unshift revarray, $P0
 	goto iter_loop
 iter_end:
-	stack.'push'(revarray)
+	if isstr == 1 goto push_string
+	.tailcall stack.'push'(revarray)
 
-finish:
-	.return()
+push_string:
+	$S0 = join '', revarray
+	.tailcall stack.'push'($S0)
 .end
 
 =item at
@@ -142,7 +171,7 @@ Integer I is the ascii value of character C (taken from the first letter of the 
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
 	$I0 = ord $S0
-	stack.'push'($I0)
+	.tailcall stack.'push'($I0)
 .end
 
 =item chr
@@ -158,7 +187,7 @@ String S contains the character whose ascii value is I.
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$S0 = chr $I0
-	stack.'push'($S0)
+	.tailcall stack.'push'($S0)
 .end
 
 =back
