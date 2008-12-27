@@ -60,8 +60,8 @@ typefail:
 	self.'push'(value)
 	#Die out.
 	$S0 = 'Bad type "'
-	$S0 = concat type
-	$S0 = concat '" popped from the stack'
+	$S0 .= type
+	$S0 .= '" popped from the stack'
 	
 	$P0 = new 'Exception'
 	$P0['message'] = $S0	

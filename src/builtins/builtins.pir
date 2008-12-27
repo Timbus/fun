@@ -203,7 +203,71 @@ X is converted to the string S.
 
 
 
+=item name
 
+ sym  ->  "sym"
+
+For functions, the string "sym" is the name of item sym, for literals sym the result string is its type.
+Because it has to directly pop a function without evaluating it, it currently does not work well with continuations. Do not try to use it in a continuation to pull an argument from a previous stack (ie C<symbol [name] nullary> will not work. C<[symbol name] nullary> is fine). This should be fixed in the future, but it's low priority.
+
+=cut
+
+.sub 'name'
+	.local pmc stack, value
+	stack = get_global 'funstack'
+	
+	#We need to grab the symbol -without- evaluating it.
+	$P0 = stack.'getstack'()
+	#TODO: Fix up the stack class to work with continuations when using getstack.
+	value = $P0.'pop'()
+	
+	$S0 = typeof value
+	
+	if $S0 == "Sub" goto push_symbol
+	if $S0 == "Closure" goto push_symbol
+	.tailcall stack.'push'($S0)
+
+push_symbol:
+	$S0 = value
+	.tailcall stack.'push'($S0)
+.end
+
+=item intern
+
+ "sym"  -> sym
+
+Pushes the item whose name is "sym". Will only work for individual symbols, not code. Use eval to parse code strings. This function mainly has the advantage of not needing the parser & compiler, making it very fast compared to eval.
+
+=cut
+
+.sub 'intern'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	$P0 = get_global $S0
+	.tailcall stack.'push'($P0)
+.end
+
+=item body
+
+ U  ->  [P]
+
+Quotation [P] is the body of user-defined symbol U.
+
+=cut
+
+.sub 'body'
+	.local pmc stack
+	stack = get_global 'funstack'
+	
+	#We need to grab the symbol -without- evaluating it.
+	$P0 = stack.'getstack'()
+	#TODO: Fix up the stack class to work with continuations when using getstack.
+	$S0 = $P0.'pop'()
+	$S0 = concat '!usrfnlist', $S0
+	$P0 = get_global $S0
+	stack.'push'($P0)
+.end
 
 =item include
 
