@@ -263,7 +263,9 @@ Quotation [P] is the body of user-defined symbol U.
 	#We need to grab the symbol -without- evaluating it.
 	$P0 = stack.'getstack'()
 	#TODO: Fix up the stack class to work with continuations when using getstack.
-	$S0 = $P0.'pop'()
+	$P0 = $P0.'pop'()
+	$P0('build' => 1)
+	$S0 = $P0
 	$S0 = concat '!usrfnlist', $S0
 	$P0 = get_global $S0
 	stack.'push'($P0)

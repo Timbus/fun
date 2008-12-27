@@ -61,22 +61,33 @@ method TOP($/) {
 						$fnlist,
 					),
 				),
-				#Now, clone the function list then push the func on the stack
+				#Check if the 'build' param was called
 				PAST::Op.new(
-					:name('push'), :pasttype('callmethod'), :node($/),
+					:pasttype('unless'),
+					:node($/),
 					PAST::Var.new(
-						:name('funstack'),
-						:scope('package'),
+						:name('build'),
+						:scope('parameter'),
+						:viviself('Integer'),
+						:node($/),
 					),
+					#Now, clone the function list then push the func on the stack
 					PAST::Op.new(
-						:flat(1),
-						:name('!@deepcopy'),
+						:name('push'), :pasttype('callmethod'), :node($/),
 						PAST::Var.new(
-							:name('!usrfnlist'~$name),
+							:name('funstack'),
 							:scope('package'),
 						),
+						PAST::Op.new(
+							:flat(1),
+							:name('!@deepcopy'),
+							PAST::Var.new(
+								:name('!usrfnlist'~$name),
+								:scope('package'),
+							),
+						),
 					),
-				),
+				)
 			)
 		);
 	}

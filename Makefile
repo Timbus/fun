@@ -132,6 +132,10 @@ testclean:
 CLEANUPS = \
   fun.pbc \
   src/gen_*.pir \
+  $(OPSDIR)/*.c \
+  $(OPSDIR)/*.h \
+  $(OPSDIR)/*$(O) \
+  $(OPSDIR)/*$(LOAD_EXT) \
   $(PMC_DIR)/*.h \
   $(PMC_DIR)/*.c \
   $(PMC_DIR)/*.dump \
