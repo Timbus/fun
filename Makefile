@@ -44,9 +44,8 @@ SOURCES = fun.pir \
 	src/gen_actions.pir \
 	src/gen_builtins.pir \
 	src/gen_objects.pir \
-	src/ops/fun_ops$(LOAD_EXT)
-	
-#  $(FUN_GROUP)
+	src/ops/fun_ops$(LOAD_EXT) \
+	$(FUN_GROUP)
 
 BUILTINS_PIR = \
 	src/builtins/builtins.pir \
@@ -63,10 +62,10 @@ BUILTINS_PIR = \
 CLASSES_PIR = \
 	src/classes/Stack.pir \
 	src/classes/Continuation.pir \
-#	src/classes/Error.pir \
+
 	
-# PMCS = fun
-# PMC_SOURCES = $(PMC_DIR)/fun.pmc
+PMCS = list
+PMC_SOURCES = $(PMC_DIR)/list.pmc
 
 # the default target
 fun.pbc: $(PARROT) $(SOURCES)

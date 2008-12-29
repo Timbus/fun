@@ -182,13 +182,17 @@ method userfunccall($/) {
 			),
 		),
 		#If it's null make a function that will throw an error. If the correct function is loaded later, it will override this.
-		PAST::Op.new(
-			:pirop('throw'),
-			PAST::Val.new(
-				:value( "\"Error: The function '"~$<funcname>~"' is not defined. Perhaps you misspelled it?\"" ),
-				:returns('Exception'),
-				:node($/),
-			),
+		PAST::Block.new(
+			:blocktype('declaration'),
+			:name($<funcname>),
+			PAST::Op.new(
+				:pirop('throw'),
+				PAST::Val.new(
+					:value( "\"Error: The function '"~$<funcname>~"' is not defined. Perhaps you misspelled it?\"" ),
+					:returns('Exception'),
+					:node($/),
+				),
+			)
 		),
 		PAST::Var.new(
 			:name($<funcname>),
