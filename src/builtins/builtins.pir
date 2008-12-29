@@ -60,8 +60,8 @@ Month is 1 = January ... 12 = December; isdst is a Boolean flagging daylight sav
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = decodelocaltime $I0
-	#P0 is a Array, we need to turn it into a ResizablePMCArray
-	$P1 = new 'ResizablePMCArray'
+	#P0 is a Array, we need to turn it into a List
+	$P1 = new 'List'
 	$P1.'append'($P0)
 	#The last part of the array needs to be a boolean, not an int.
 	$I0 = $P1[8]
@@ -86,8 +86,8 @@ Month is 1 = January ... 12 = December; isdst is false; weekday is 0 = Monday ..
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = decodetime $I0
-	#P0 is a Array, we need to turn it into a ResizablePMCArray
-	$P1 = new 'ResizablePMCArray'
+	#P0 is a Array, we need to turn it into a List
+	$P1 = new 'List'
 	$P1.'append'($P0)
 	#The last part of the array needs to be a boolean, not an int.
 	$I0 = $P1[8]
@@ -125,7 +125,7 @@ This currently uses the C function strftime, so please make sure that the format
 	.local pmc stack
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$S0 = strftime $S0, $P0
 	.tailcall stack.'push'($S0)
 .end

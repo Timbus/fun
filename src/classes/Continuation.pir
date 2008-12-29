@@ -34,7 +34,7 @@ The solution? Don't copy the entire stack. Only copy what is used from it.
 	$P0 = 0
 	setattribute self, 'position', $P0
 
-	$P0 = new 'ResizablePMCArray'
+	$P0 = new 'List'
 	setattribute self, 'stack', $P0
 .end
 

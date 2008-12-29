@@ -22,7 +22,7 @@ Executes the list C<P>
 	.local pmc list, stack
 	
 	stack = get_global 'funstack'
-	list = stack.'pop'('ResizablePMCArray')
+	list = stack.'pop'('List')
 	stack.'push'(list :flat)
 	stack.'run'()
 
@@ -41,7 +41,7 @@ Executes the list C<P> without removing it from the stack
 	.local pmc list, listcpy, stack
 	
 	stack = get_global 'funstack'
-	list = stack.'pop'('ResizablePMCArray')
+	list = stack.'pop'('List')
 	listcpy = '!@deepcopy'(list)
 	stack.'push'(list, listcpy :flat)
 	stack.'run'()
@@ -58,7 +58,7 @@ Saves C<X>, executes C<P>, pushes C<X> back.
 .sub 'dip'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P1 = stack.'pop'()
 	
 	stack.'push'($P0 :flat, $P1)
@@ -96,7 +96,7 @@ Be wary of using this.
 	stack = get_global 'funstack'
 	
 	'reverse'()
-	newstack = stack.'pop'('ResizablePMCArray')
+	newstack = stack.'pop'('List')
 	
 	##May as well manipulate the stack directly.
 	.tailcall stack.'setstack'(newstack)
@@ -115,7 +115,7 @@ Executes C<P>, C<N> times
 	.local pmc p
 	.local int n
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	n = stack.'pop'('Integer')
 	
 	$I0 = 0
@@ -144,10 +144,10 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	.local pmc stack
 	.local pmc p, t, r1, r2
 	stack = get_global 'funstack'
-	r2 = stack.'pop'('ResizablePMCArray')
-	r1 = stack.'pop'('ResizablePMCArray')
-	t = stack.'pop'('ResizablePMCArray')
-	p = stack.'pop'('ResizablePMCArray')
+	r2 = stack.'pop'('List')
+	r1 = stack.'pop'('List')
+	t = stack.'pop'('List')
+	p = stack.'pop'('List')
 	
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
@@ -189,10 +189,10 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	.local pmc stack
 	.local pmc p, t, r1, r2
 	stack = get_global 'funstack'
-	r2 = stack.'pop'('ResizablePMCArray')
-	r1 = stack.'pop'('ResizablePMCArray')
-	t = stack.'pop'('ResizablePMCArray')
-	p = stack.'pop'('ResizablePMCArray')
+	r2 = stack.'pop'('List')
+	r1 = stack.'pop'('List')
+	t = stack.'pop'('List')
+	p = stack.'pop'('List')
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
@@ -234,9 +234,9 @@ Else executes R1, recurses.
 	.local pmc stack
 	.local pmc p, t, r1
 	stack = get_global 'funstack'
-	r1 = stack.'pop'('ResizablePMCArray')
-	t = stack.'pop'('ResizablePMCArray')
-	p = stack.'pop'('ResizablePMCArray')
+	r1 = stack.'pop'('List')
+	t = stack.'pop'('List')
+	p = stack.'pop'('List')
 
 rec_loop:
 	stack.'makecc'()
@@ -270,10 +270,10 @@ Else executes C<R1> and then C<[[P] [T] [R1] [R2] genrec] R2>.
 	.local pmc p, t, r1, r2
 	stack = get_global 'funstack'
 	
-	r2 = stack.'pop'('ResizablePMCArray')
-	r1 = stack.'pop'('ResizablePMCArray')
-	t = stack.'pop'('ResizablePMCArray')
-	p = stack.'pop'('ResizablePMCArray')
+	r2 = stack.'pop'('List')
+	r1 = stack.'pop'('List')
+	t = stack.'pop'('List')
+	p = stack.'pop'('List')
 	
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
@@ -314,7 +314,7 @@ The end result is that nothing is removed from the stack.
 	.local pmc stack
 	.local pmc p
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	stack.'makecc'()
 	stack.'push'(p :flat)
 	$P0 = stack.'pop'()
@@ -336,7 +336,7 @@ C<X> will always be removed.
 	.local pmc stack
 	.local pmc p, x
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	x = stack.'pop'()
 	stack.'makecc'()
 	stack.'push'(x, p :flat)
@@ -360,7 +360,7 @@ C<X> and C<Y> will always be removed.
 	.local pmc stack
 	.local pmc p, x, y
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	y = stack.'pop'()
 	x = stack.'pop'()
 	stack.'makecc'()
@@ -384,7 +384,7 @@ C<X>, C<Y> and C<Z> will always be removed.
 	.local pmc stack
 	.local pmc p, x, y, z
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	z = stack.'pop'()
 	y = stack.'pop'()
 	x = stack.'pop'()
@@ -407,8 +407,8 @@ While executing C<B> yields true executes C<D>.
 	.local pmc stack
 	.local pmc b, d
 	stack = get_global 'funstack'
-	d = stack.'pop'('ResizablePMCArray')
-	b = stack.'pop'('ResizablePMCArray')
+	d = stack.'pop'('List')
+	b = stack.'pop'('List')
 
 loop:
 	stack.'makecc'()
@@ -438,8 +438,8 @@ Executes C<P1> and C<P2>, each with C<X> on top, producing two results.
 	.local pmc stack
 	.local pmc x, p1, p2, r1, r2
 	stack = get_global 'funstack'
-	p2 = stack.'pop'('ResizablePMCArray')
-	p1 = stack.'pop'('ResizablePMCArray')
+	p2 = stack.'pop'('List')
+	p1 = stack.'pop'('List')
 	x = stack.'pop'()
 	#Make a copy of 'x' since it will be ran twice
 	$P0 = '!@deepcopy'(x)

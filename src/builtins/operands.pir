@@ -167,8 +167,8 @@ false:
 .sub 'or'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
 	
 	$I0 = or $I0, $I1
 	$P0 = new 'Boolean'
@@ -181,8 +181,8 @@ false:
 .sub 'and'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
 
 	$I0 = and $I0, $I1
 	$P0 = new 'Boolean'
@@ -195,8 +195,8 @@ false:
 .sub 'xor'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'ResizablePMCArray')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
 
 	$I0 = xor $I0, $I1
 	$P0 = new 'Boolean'
@@ -246,7 +246,7 @@ false:
 .sub 'small'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('ResizablePMCArray', 'Integer', 'String', 'Boolean')
+	$I0 = stack.'pop'('List', 'Integer', 'String', 'Boolean')
 	
 	abs $I0
 	$I0 = $I0 <= 1
@@ -260,7 +260,7 @@ false:
 .sub 'null'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('ResizablePMCArray', 'Integer', 'String', 'Boolean')
+	$I0 = stack.'pop'('List', 'Integer', 'String', 'Boolean')
 	
 	abs $I0
 	$I0 = $I0 == 0
@@ -298,7 +298,7 @@ false:
 	if $S0 != $S1 goto false
 
 	#Array? Time to recurse.
-	if $S0 == 'ResizablePMCArray' goto check_array_equal
+	if $S0 == 'List' goto check_array_equal
 	#Otherwise, normal check
 	if $P1 != $P0 goto false
 	goto true

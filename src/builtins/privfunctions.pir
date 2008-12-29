@@ -8,7 +8,9 @@ Contains useful private functions
 
 .sub '!@mklist'
     .param pmc fields :slurpy
-    .return (fields)
+	$P0 = new 'List'
+	assign $P0, fields
+    .return ($P0)
 .end
 
 .sub '!@deepcopy'
@@ -16,7 +18,7 @@ Contains useful private functions
 	.local pmc valcpy
 	
 	$S0 = typeof val
-	if $S0 == 'ResizablePMCArray' goto array_dup
+	if $S0 == 'List' goto array_dup
 	valcpy = clone val
 	.return(valcpy)
 	
@@ -24,14 +26,14 @@ Contains useful private functions
 array_dup:
 	.local pmc it
 	it = iter val
-	valcpy = new 'ResizablePMCArray'
+	valcpy = new 'List'
 	
 iter_loop:
 	unless it goto iter_end
 	$P0 = shift it
 	
 	$S0 = typeof $P0
-	if $S0 == 'ResizablePMCArray' goto follow_down
+	if $S0 == 'List' goto follow_down
 	
 	$P0 = clone $P0
 	goto push_val
@@ -53,7 +55,7 @@ iter_end:
 	.local string type, ret
 	type = typeof value
 	if type == 'Boolean' goto ret_bool
-	if type == 'ResizablePMCArray' goto ret_array
+	if type == 'List' goto ret_array
 	
 	#Otherwise it'll translate just fine as-is.
 	.return(value)
@@ -73,7 +75,7 @@ iter_loop:
 	$P0 = shift it
 	type = typeof $P0
 	if type == 'Boolean' goto iter_retbool
-	if type == 'ResizablePMCArray' goto iter_retarray
+	if type == 'List' goto iter_retarray
 	
 	$S0 = $P0
 	ret .= $S0
@@ -115,9 +117,9 @@ check_loop:
 	$P1 = shift ar2
 	
 	$S0 = typeof $P0
-	if $S0 != 'ResizablePMCArray' goto simple_check
+	if $S0 != 'List' goto simple_check
 	$S0 = typeof $P1
-	if $S0 != 'ResizablePMCArray' goto false
+	if $S0 != 'List' goto false
 	$I0 = '!@arrays_equal'($P0, $P1)
 	unless $I0 goto false
 	goto check_loop

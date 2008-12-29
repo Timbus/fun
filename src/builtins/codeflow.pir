@@ -47,8 +47,8 @@ If B is true, then executes T else executes F.
 	.local pmc stack, ifcnd, then, else
 	stack = get_global 'funstack'
 	
-	else = stack.'pop'('ResizablePMCArray')
-	then = stack.'pop'('ResizablePMCArray')
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
 	
 	ifcnd = stack.'pop'('Boolean')
 	
@@ -76,10 +76,10 @@ Executes B. If that yields true, then executes T else executes F.
 	.local pmc stack, ifcnd, then, else
 	stack = get_global 'funstack'
 	
-	else = stack.'pop'('ResizablePMCArray')
-	then = stack.'pop'('ResizablePMCArray')
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	ifcnd = stack.'pop'('Boolean')
@@ -109,7 +109,7 @@ If no C<Bi> yields true, executes default C<D>.
 	.local pmc bi, ti, d
 	
 	stack = get_global 'funstack'
-	condlist = stack.'pop'('ResizablePMCArray')
+	condlist = stack.'pop'('List')
 	d = condlist.'pop'()
 	
 find_true:
@@ -143,7 +143,7 @@ Note: Uses '=' not 'equals' to check for a matching index. I<Do not> use lists (
 	.local pmc stack
 	.local pmc caselist, x, xs, d
 	stack = get_global 'funstack'
-	caselist = stack.'pop'('ResizablePMCArray')
+	caselist = stack.'pop'('List')
 	d = pop caselist
 	x = stack.'pop'()
 	
@@ -173,7 +173,7 @@ Defaults to the last case if no match found.
 	.local pmc stack
 	.local pmc caselist, x, xs, d
 	stack = get_global 'funstack'
-	caselist = stack.'pop'('ResizablePMCArray')
+	caselist = stack.'pop'('List')
 	d = pop caselist
 	x = stack.'pop'()
 	x = typeof x

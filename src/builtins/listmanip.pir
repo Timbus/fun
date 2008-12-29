@@ -20,7 +20,7 @@ Aggregate B is A with a new member X (first member for sequences).
 .sub 'cons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P1 = stack.'pop'()
 		
 	$P0.'unshift'($P1)
@@ -39,7 +39,7 @@ F and R are the first and the rest of non-empty aggregate A.
 .sub 'uncons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P1 = shift $P0
 	stack.'push'($P1, $P0)
 .end
@@ -56,7 +56,7 @@ Aggregate B is A with a new member X (first member for sequences).
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P1 = stack.'pop'()
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 		
 	$P0.'unshift'($P1)
 	stack.'push'($P0)
@@ -73,7 +73,7 @@ R and F are the rest and the first of non-empty aggregate A.
 .sub 'unswons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P1 = shift $P0
 	stack.'push'($P0, $P1)
 .end
@@ -89,7 +89,7 @@ F is the first member of the non-empty aggregate A.
 .sub 'first'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P0 = $P0[0]
 	stack.'push'($P0)
 .end
@@ -105,7 +105,7 @@ R is the non-empty aggregate A with its first member removed.
 .sub 'rest'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('ResizablePMCArray')
+	$P0 = stack.'pop'('List')
 	$P0.'shift'()
 	stack.'push'($P0)
 .end
@@ -124,8 +124,8 @@ and executes P for each member of A pushed.
 	.local pmc p, a
 	stack = get_global 'funstack'
 	
-	p = stack.'pop'('ResizablePMCArray')
-	a = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
+	a = stack.'pop'('List')
 	
 loop_agg:
 	unless a goto loop_end
@@ -151,9 +151,9 @@ and executes P for each member of A pushed.
 	.local pmc a, v0, p
 	stack = get_global 'funstack'
 	
-	p = stack.'pop'('ResizablePMCArray')
+	p = stack.'pop'('List')
 	v0 = stack.'pop'()
-	a = stack.'pop'('ResizablePMCArray')
+	a = stack.'pop'('List')
 	
 	stack.'push'(v0)	
 loop_agg:
@@ -179,9 +179,9 @@ collects results in sametype aggregate B.
 	.local pmc stack
 	.local pmc p, a, b
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
-	a = stack.'pop'('ResizablePMCArray')
-	b = new 'ResizablePMCArray'
+	p = stack.'pop'('List')
+	a = stack.'pop'('List')
+	b = new 'List'
 
 loop_agg:
 	unless a goto loop_end
@@ -211,10 +211,10 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 	.local pmc stack
 	.local pmc a, p, x1, x2
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
-	a = stack.'pop'('ResizablePMCArray')
-	x1 = new 'ResizablePMCArray'
-	x2 = new 'ResizablePMCArray'
+	p = stack.'pop'('List')
+	a = stack.'pop'('List')
+	x1 = new 'List'
+	x2 = new 'List'
 	
 loop_agg:
 	unless a goto loop_end
@@ -250,9 +250,9 @@ Note: Make sure P does not result in more than one value (a true or a false) on 
 	.local pmc stack
 	.local pmc a, p, b
 	stack = get_global 'funstack'
-	p = stack.'pop'('ResizablePMCArray')
-	a = stack.'pop'('ResizablePMCArray')
-	b = new 'ResizablePMCArray'
+	p = stack.'pop'('List')
+	a = stack.'pop'('List')
+	b = new 'List'
 	
 loop_agg:
 	unless a goto loop_end

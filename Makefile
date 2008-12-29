@@ -133,6 +133,7 @@ CLEANUPS = \
   src/gen_*.pir \
   $(OPSDIR)/*.c \
   $(OPSDIR)/*.h \
+  $(OPSDIR)/*.dump \
   $(OPSDIR)/*$(O) \
   $(OPSDIR)/*$(LOAD_EXT) \
   $(PMC_DIR)/*.h \

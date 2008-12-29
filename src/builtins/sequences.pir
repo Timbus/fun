@@ -21,7 +21,7 @@ Sequence U is the concatenation of sequences S and T.
 .sub 'concat'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('String', 'ResizablePMCArray')
+	$P0 = stack.'pop'('String', 'List')
 	$S0 = typeof $P0
 	$P1 = stack.'pop'($S0)
 
@@ -48,7 +48,7 @@ Equivalent to [swapd cons concat]
 .sub 'enconcat'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('String', 'ResizablePMCArray')
+	$P0 = stack.'pop'('String', 'List')
 	$S0 = typeof $P0
 	$P1 = stack.'pop'($S0)
 	
@@ -79,16 +79,16 @@ Sequence R is the reverse of sequence S.
 	.local pmc stack, value
 	.local int isstr
 	stack = get_global 'funstack'
-	value = stack.'pop'('String', 'ResizablePMCArray')
+	value = stack.'pop'('String', 'List')
 	$S0 = typeof value
-	if $S0 == 'ResizablePMCArray' goto reverse_array
+	if $S0 == 'List' goto reverse_array
 	isstr = 1
 	$S0 = value
 	value = split '', $S0
 	
 reverse_array:
 	.local pmc revarray
-	revarray = new 'ResizablePMCArray'
+	revarray = new 'List'
 	
 iter_loop:
 	unless value goto iter_end
@@ -116,7 +116,7 @@ X is the member of S at position I. (Same thing as S[I])
 	.local pmc stack, value, pos
 	stack = get_global 'funstack'
 	pos = stack.'pop'('Integer')
-	value = stack.'pop'('String', 'ResizablePMCArray')
+	value = stack.'pop'('String', 'List')
 	$S0 = typeof value
 	if $S0 == 'String' goto at_string
 	
@@ -142,7 +142,7 @@ X is the I-th member of aggregate S. (Same thing as S[I])
 .sub 'of'
 	.local pmc stack, value, pos
 	stack = get_global 'funstack'
-	value = stack.'pop'('String', 'ResizablePMCArray')
+	value = stack.'pop'('String', 'List')
 	pos = stack.'pop'('Integer')
 	$S0 = typeof value
 	if $S0 == 'String' goto at_string
