@@ -46,7 +46,7 @@ method TOP($/) {
 							:node($/),
 						),
 					),
-					#If the list in null, create it.
+					#If the list is null, create it.
 					PAST::Op.new(
 						:pasttype('bind'),
 						:node($/),
@@ -71,7 +71,7 @@ method TOP($/) {
 						:viviself('Integer'),
 						:node($/),
 					),
-					#Now, clone the function list then push the func on the stack
+					#If not, clone the function list then push the func on the stack to be ran.
 					PAST::Op.new(
 						:name('push'), :pasttype('callmethod'), :node($/),
 						PAST::Var.new(
@@ -119,7 +119,7 @@ method TOP($/) {
 		}
 	}
 	#Finally, if there are values left in the stack list, push them.					
-	if $stacklist {$past.push($stacklist);}
+	$past.push($stacklist);
 	
 	make $past;
 }
@@ -181,11 +181,12 @@ method userfunccall($/) {
 				:node($/),
 			),
 		),
+		#If it's null make a function that will throw an error. If the correct function is loaded later, it will override this.
 		PAST::Op.new(
 			:pirop('throw'),
 			PAST::Val.new(
-				:value( "\"Error: The function '"~$<funcname>~"' is not defined. Perhaps you misspelled it?\"" ), 
-				:returns('Exception'), 
+				:value( "\"Error: The function '"~$<funcname>~"' is not defined. Perhaps you misspelled it?\"" ),
+				:returns('Exception'),
 				:node($/),
 			),
 		),

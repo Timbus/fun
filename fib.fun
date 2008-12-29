@@ -11,7 +11,7 @@ fib [
 	[200 <]
 	[
 		dup swapd +
-		dup tostring "Fibonacci number: " swap concat putchars
+		dup tostr "Fibonacci number: " swap concat putchars
 	] while
 	pop pop
 ] ==

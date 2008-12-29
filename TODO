@@ -1,2 +1,4 @@
+Make continuations not break getstack
+Make undefined functions delay loaded so its not a 'compile-time' error to have undefined symbols.
 Add more builtins i guess
 Make an interface to declare and call c functions <- holy freakin crap this is going to suck so bad

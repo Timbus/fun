@@ -63,7 +63,7 @@ token value {
 }
 
 token integer { '-'? \d+ {*} }
-token float { '-'? \d+ '.' \d+ {*} }
+token float { '-'? \d* '.' \d+ {*} }
 token bool { ['true' | 'false'] {*} }
 token string {
     [ \' <string_literal: '\'' > \' | \" <string_literal: '"' > \" ]
@@ -111,7 +111,6 @@ token builtins {
 	| 'strftime' {*}
 	| 'enconcat' {*}
 	| 'ifstring' {*}
-	| 'tostring' {*}
 	| 'treestep' {*}
 	| 'putchars' {*}
 	| 'setsize' {*}
@@ -202,6 +201,9 @@ token builtins {
 	| 'ifset' {*}
 	| 'while' {*}
 	| 'times' {*}
+	| 'tostr' {*}
+	| 'toint' {*}
+	| 'tonum' {*}
 	| 'infra' {*}
 	| 'split' {*}
 	| 'putch' {*}
