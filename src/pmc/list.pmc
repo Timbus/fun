@@ -1,5 +1,12 @@
 #include "parrot/parrot.h"
 
-pmclass List extends ResizablePMCArray dynpmc group fun_group provides array {
+pmclass List 
+	need_ext 
+	dynpmc 
+	group fun_group 
+	hll fun 
+	extends ResizablePMCArray
+	provides array 
+{
 
 }
