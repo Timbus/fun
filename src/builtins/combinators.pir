@@ -76,6 +76,7 @@ Pushes the stack as a list.
 .sub 'stack'
 	.local pmc stack, stacklist
 	stack = get_global 'funstack'
+	#TODO: Fix this to work with continuations.
 	stacklist = stack.'getstack'()
 	stacklist = '!@deepcopy'(stacklist)
 	stack.'push'(stacklist)

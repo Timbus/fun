@@ -71,6 +71,13 @@ typefail:
 
 .end
 
+#Used to grab a value without running it.
+.sub 'pop_raw' :method
+	.local pmc currentc
+	currentc = getattribute self, 'topcc'	
+	.tailcall currentc.'pop_raw'()
+.end
+
 .sub 'run' :method
 	#For now, no params.
 	.local pmc currentc

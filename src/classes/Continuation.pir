@@ -103,7 +103,7 @@ run_down:
 	mypos = getattribute self, 'position'
 	if mypos < 1 goto stack_empty
 	parent = getattribute self, 'parent'
-	if_null parent, stack_empty
+	if null parent goto stack_empty
 
 	#Tests cleared, we grab the value copy:
 	dec mypos
@@ -140,8 +140,7 @@ stack_empty:
 	
 undefined_func:
 	$P0 = new 'Exception'
-	$S0 = "Undefined symbol hit.\nPerhaps you misspelled a function name?"
-	$P0['message'] = $S0
+	$P0 = "Undefined symbol hit.\nPerhaps you misspelled a function name?"
 	throw $P0
 	.return()
 	
@@ -152,8 +151,8 @@ run_error:
 	if $I0 == -1 goto error_exit
 	
 	.local string errstr
-	errstr = "Error in function '"
 	$S0 = value
+	errstr = "Error in function '"
 	errstr .= $S0
 	errstr .= "': "
 	printerr errstr
@@ -164,6 +163,31 @@ error_exit:
 	#die errstr
 .end
 
+#A frankenfunction, copy pasted from run and pop. 
+#Pops (or copies) the top element without runnning it.
+.sub 'pop_raw' :method
+	.local pmc stack, parent, mypos
+	
+	stack = getattribute self, 'stack'
+	$I0 = stack
+	if $I0 goto just_pop
+	
+	mypos = getattribute self, 'position'
+	if mypos < 1 goto stack_empty
+	parent = getattribute self, 'parent'
+	if null parent goto stack_empty
+	
+	.tailcall self.'getat'(mypos)
+	
+just_pop:
+	.tailcall stack.'pop'()
+	
+stack_empty:
+	$P0 = new 'Exception'
+	$P0['message'] = 'Cannot pop from empty stack'
+	throw $P0
+	.return()
+.end
 
 .sub 'getat' :method
 	.param int pos
