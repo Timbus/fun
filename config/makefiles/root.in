@@ -60,8 +60,13 @@ CLASSES_PIR = \
 	src/classes/Continuation.pir \
 
 	
-PMCS = list
-PMC_SOURCES = $(PMC_DIR)/list.pmc
+PMCS = \
+	list \
+	delayedsub
+	
+PMC_SOURCES = \
+	$(PMC_DIR)/list.pmc \
+	$(PMC_DIR)/delayedsub.pmc 
 
 # the default target
 fun.pbc: $(PARROT) $(SOURCES)

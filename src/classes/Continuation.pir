@@ -111,6 +111,7 @@ run_down:
 	$S0 = typeof $P0
 	if $S0 == 'Sub' goto runval
 	if $S0 == 'Closure' goto runval
+	if $S0 == 'DelayedSub' goto runval
 	stack.'push'($P0)
 	.return(0)
 	
@@ -121,6 +122,7 @@ just_run:
 	$S0 = typeof value
 	if $S0 == 'Sub' goto pre_runval
 	if $S0 == 'Closure' goto pre_runval
+	if $S0 == 'DelayedSub' goto pre_runval
 	.return(0)
 
 pre_runval:
