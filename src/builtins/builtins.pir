@@ -27,6 +27,8 @@ In the future, the result behaviour of the dot may be customizable, which is why
 	#Consider: What would the hook be written in? C? pir? fun?
 	'put'()
 	
+#	stack.'dump'()
+	
 finish:
 .end
 

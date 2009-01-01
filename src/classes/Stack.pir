@@ -137,7 +137,8 @@ no_stack:
 	print "stackdump:\n"
 loop:
 	$P0 = currentc.'getstack'()
-	'!@print_rec'($P0)
+	$S0 = '!@mkstring'($P0)
+	print $S0
 	print "\n"
 	currentc = currentc.'getparent'()
 	if_null currentc, finish
