@@ -1,0 +1,132 @@
+#include "parrot/parrot.h"
+
+pmclass DelayedSub 
+	dynpmc
+	need_ext
+	group fun_group 
+{
+
+/*
+
+=item C<void init()>
+
+Initializes the string.
+
+=cut
+
+*/
+
+    VTABLE void init() {
+        PMC_str_val(SELF) = string_make_empty(INTERP, enum_stringrep_one, 0);
+    }
+
+/*
+
+=item C<void mark()>
+
+Marks the string as live.
+
+=cut
+
+*/
+
+    VTABLE void mark() {
+        if (PMC_str_val(SELF))
+            pobject_lives(INTERP, (PObj *)PMC_str_val(SELF));
+    }
+
+/*
+
+=item C<PMC *clone()>
+
+Creates a copy of the string.
+
+=cut
+
+*/
+
+    VTABLE PMC *clone() {
+        PMC * const dest = pmc_new_noinit(INTERP, SELF->vtable->base_type);
+        PObj_custom_mark_SET(dest);
+        PMC_str_val(dest) = string_copy(INTERP, SELF.get_string());
+        return dest;
+    }
+
+/*
+
+=item C<STRING *get_string()>
+
+Returns the string itself.
+
+=cut
+
+*/
+
+    VTABLE STRING *get_string() {
+        STRING * const s = PMC_str_val(SELF);
+        return s ? string_copy(INTERP, s) : NULL;
+    }
+
+/*
+
+=item C<VOID set_string_native(STRING *value)>
+
+Sets the value of the string to that of the specified C<string>.
+
+=cut
+
+*/
+
+    VTABLE void set_string_native(STRING *value) {
+        /* Only allow constant PMCs to embed constant strings */
+        if (PObj_constant_TEST(SELF) && !PObj_constant_TEST(value)) {
+             const char *copy = string_to_cstring(INTERP, value);
+             value            = const_string(INTERP, copy);
+        }
+        PMC_str_val(SELF) = value;
+    }
+
+/*
+
+=item C<VOID assign_string_native(STRING *value)>
+
+Sets the value of the string to a copy of the specified C<string>.
+
+=cut
+
+*/
+
+    VTABLE void assign_string_native(STRING *value) {
+        PMC_str_val(SELF) = string_set(INTERP, PMC_str_val(SELF), value);
+    }
+
+/*
+
+=item C<opcode_t* invoke(void* next)>
+
+Finds and calls the subroutine that matches the name assigned to the PMC. 
+Throws an exception if the sub cannot be found.
+
+=cut
+
+*/
+
+	VTABLE opcode_t *invoke(void *next) {       
+		PMC *P0;
+		STRING *subname = PMC_str_val(SELF);
+		PMC *sub = Parrot_find_name_op(INTERP, subname, next);
+		
+		/*fprintf(stderr, "Invoke called! Name of the sub being looked for: %s\n", subname->strstart);*/
+
+		if (PMC_IS_NULL(sub)) {
+			Parrot_ex_throw_from_c_args(
+				INTERP,
+				next,
+				EXCEPTION_GLOBAL_NOT_FOUND,
+				"Function is undefined"
+			);
+		}
+		return VTABLE_invoke(INTERP, sub, next);
+	}
+
+}
