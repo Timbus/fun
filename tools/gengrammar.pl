@@ -14,10 +14,10 @@ for my $pirfile (<src/builtins/*.pir>){
 
 @funbuiltins = sort {length $b <=> length $a} @funbuiltins;
 chomp @funbuiltins;
-my $gengrammar = join "\t| ", map {$_ . " {*}\n"} @funbuiltins;
+my $gengrammar = join "\t| ", map {"'" . $_ . "' {*}\n"} @funbuiltins;
 
 for (<DATA>){
-	s/===BUILTINS===/$gengrammar/ if $_ eq "\t|===BUILTINS===\n";
+	s/===BUILTINS===/$gengrammar/ if $_ eq "\t| ===BUILTINS===\n";
 	print;
 }
 
@@ -97,7 +97,7 @@ token string {
 
 token builtins {
 	[
-	|===BUILTINS===
+	| ===BUILTINS===
 	] <?before [ \s | '[' | ']' | '.' ]>
 }
 
