@@ -10,15 +10,15 @@ A collection of predicates used to compare and test values and value types.
 	$P0 = stack.'pop'('Integer', 'Float', 'String')
 	$P1 = stack.'pop'('Integer', 'Float', 'String')
 	$P2 = new 'Boolean'
-	$P2 = 0
 	
 	if $P1 < $P0 goto true
-	goto false
+	
+	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
 	$P2 = 1
-false:
-	stack.'push'($P2)
-	.return ()
+	.tailcall stack.'push'($P2)
 .end
 
 .sub '>'
@@ -27,15 +27,15 @@ false:
 	$P0 = stack.'pop'('Integer', 'Float', 'String')
 	$P1 = stack.'pop'('Integer', 'Float', 'String')
 	$P2 = new 'Boolean'
-	$P2 = 0
 	
 	if $P1 > $P0 goto true
-	goto false
+
+	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
 	$P2 = 1
-false:
-	stack.'push'($P2)
-	.return ()
+	.tailcall stack.'push'($P2)
 .end
 
 .sub '='
@@ -44,13 +44,15 @@ false:
 	$P0 = stack.'pop'('Integer', 'Float', 'String')
 	$P1 = stack.'pop'('Integer', 'Float', 'String')
 	$P2 = new 'Boolean'
-	$P2 = 1
 	
 	if $P1 == $P0 goto true
+
 	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
-	stack.'push'($P2)
-	.return ()
+	$P2 = 1
+	.tailcall stack.'push'($P2)
 .end
 
 .sub '!='
@@ -62,10 +64,13 @@ true:
 	$P2 = 1
 	
 	if $P1 != $P0 goto true
+
 	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
-	stack.'push'($P2)
-	.return ()
+	$P2 = 1
+	.tailcall stack.'push'($P2)
 .end
 
 .sub '<='
@@ -74,15 +79,16 @@ true:
 	$P0 = stack.'pop'('Integer', 'Float', 'String')
 	$P1 = stack.'pop'('Integer', 'Float', 'String')
 	$P2 = new 'Boolean'
-	$P2 = 0
+	$P2 = 1
 	
 	if $P1 <= $P0	goto true
-	goto false
+
+	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
 	$P2 = 1
-false:
-	stack.'push'($P2)
-	.return ()
+	.tailcall stack.'push'($P2)
 .end
 
 .sub '>='
@@ -91,15 +97,16 @@ false:
 	$P0 = stack.'pop'('Integer', 'Float', 'String')
 	$P1 = stack.'pop'('Integer', 'Float', 'String')
 	$P2 = new 'Boolean'
-	$P2 = 0
+	$P2 = 1
 	
 	if $P1 >= $P0 goto true
-	goto false
+	
+	$P2 = 0
+	.tailcall stack.'push'($P2)
+
 true:
 	$P2 = 1
-false:
-	stack.'push'($P2)
-	.return ()
+	.tailcall stack.'push'($P2)
 .end
 
 
@@ -188,7 +195,6 @@ false:
 	.local pmc stack, ret
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
-	ret = 0
 	
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
@@ -211,8 +217,11 @@ check_array_equal:
 	
 true:
 	ret = 1
+	.tailcall stack.'push'(ret)
+
 false:
-	stack.'push'(ret)
+	ret = 0
+	.tailcall stack.'push'(ret)
 .end
 
 .sub 'cmp'
@@ -223,4 +232,100 @@ false:
 	
 	$I0 = cmp $P1, $P0
 	stack.'push'($I0)
+.end
+
+.sub 'num?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "Float" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'int?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "Integer" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'bool?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "Boolean" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'str?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "String" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'list?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "List" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'file?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "FileHandle" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
 .end
