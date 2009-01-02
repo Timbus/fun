@@ -26,13 +26,10 @@ If B is true, then X = T else X = F.
 	$P2 = stack.'pop'('Boolean')
 	
 	if $P2 == 0 goto false
-	stack.'push'($P1)
-	goto finish
+	.tailcall stack.'push'($P1)
+
 false:
-	stack.'push'($P0)
-	
-finish:
-	.return()
+	.tailcall stack.'push'($P0)
 .end
 
 =item branch
@@ -53,14 +50,10 @@ If B is true, then executes T else executes F.
 	ifcnd = stack.'pop'('Boolean')
 	
 	if ifcnd == 0 goto run_else
-	stack.'push'(then :flat)
-	goto finish
+	.tailcall stack.'push'(then :flat)
 
 run_else:
-	stack.'push'(else :flat)
-	
-finish:
-	stack.'run'()
+	.tailcall stack.'push'(else :flat)
 .end
 
 
@@ -68,7 +61,7 @@ finish:
 
  [B] [T] [F]  ->  ...
 
-Executes B. If that yields true, then executes T else executes F.
+Executes B within a continuation. If that yields true, then executes T else executes F.
 
 =cut
 
@@ -80,19 +73,18 @@ Executes B. If that yields true, then executes T else executes F.
 	then = stack.'pop'('List')
 	
 	$P0 = stack.'pop'('List')
+	stack.'makecc'()
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	ifcnd = stack.'pop'('Boolean')
+	stack.'exitcc'()
 	
 	if ifcnd == 0 goto run_else
-	stack.'push'(then :flat)
-	stack.'run'()
-	.return()
+	.tailcall stack.'push'(then :flat)
 
 run_else:
-	stack.'push'(else :flat)
-	stack.'run'()
-	.return()
+	.tailcall stack.'push'(else :flat)
+
 .end
 
 =item cond
@@ -120,14 +112,10 @@ find_true:
 	$I0 = stack.'pop'('Boolean')
 	unless $I0 goto find_true
 	
-	stack.'push'(ti :flat)
-	stack.'run'()
-	.return()
+	.tailcall stack.'push'(ti :flat)
 
 do_default:
-	stack.'push'(d :flat)
-	stack.'run'()
-	.return()
+	.tailcall stack.'push'(d :flat)
 .end
 
 =item case
@@ -152,12 +140,10 @@ find_true:
 	xs = shift caselist
 	$P0 = shift xs
 	if $P0 != x goto find_true
-	stack.'push'(xs :flat)
-	goto finish
+	.tailcall stack.'push'(xs :flat)
 	
 do_default:
-	stack.'push'(d :flat)
-finish:
+	.tailcall stack.'push'(d :flat)
 .end
 
 =item opcase
@@ -184,12 +170,164 @@ find_true:
 	$P0 = shift xs
 	$P0 = typeof $P0
 	if $P0 != x goto find_true
-	stack.'push'(xs :flat)
-	goto finish
-	
+	.tailcall stack.'push'(xs)
+
 do_default:
-	stack.'push'(d :flat)
-finish:
+	#Remove the first element of the default list.
+	d.'pop'()
+	#Now its cool.
+	.tailcall stack.'push'(d)
+
+.end
+
+=item ifint
+
+ X [T] [E]  ->  ...
+
+If X is an integer, executes T else executes E.
+
+=cut
+
+.sub 'ifint'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'Integer' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
+=item iflbool
+
+ X [T] [E]  ->  ...
+
+If X is a logical or truth value, executes T else executes E.
+
+=cut
+
+.sub 'ifbool'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'Boolean' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
+=item ifstr
+
+ X [T] [E]  ->  ...
+
+If X is a string, executes T else executes E.
+
+=cut
+
+.sub 'ifstr'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'String' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
+=item iflist
+
+ X [T] [E]  ->  ...
+
+If X is a list, executes T else executes E.
+
+=cut
+
+.sub 'iflist'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'List' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
+=item ifnum
+
+ X [T] [E]  ->  ...
+
+If X is a float, executes T else executes E.
+
+=cut
+
+.sub 'ifnum'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'Float' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
+=item iffile
+
+ X [T] [E]  ->  ...
+
+If X is a file, executes T else executes E.
+
+=cut
+
+.sub 'iffile'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 != 'FileHandle' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
 .end
 
 =back
