@@ -8,7 +8,7 @@ for my $pirfile (<src/builtins/*.pir>){
 		or die "Could not open '$pirfile': $!";
 
 	for my $line (<$fh>){
-		push @funbuiltins, $1 if $line =~ /.sub ['"]([^\.\@\!\^'"][^'"]*)['"]/;
+		push @funbuiltins, $1 if $line =~ /.sub ['"]([^\.\@'"]*)['"]/;
 	}
 }
 

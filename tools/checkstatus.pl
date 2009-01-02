@@ -7,7 +7,7 @@ open my $fh, "<", "plain-manual.html"
 	or die "Could not open the joy manual: $!";
 
 for my $line (<$fh>){
-	++$joybuiltins{$1} if $line =~ /^([^\s]+)\s+:\s/;
+	++$joybuiltins{$1} if $line =~ /^([^\sA-Z]+)\s+:\s/;
 }
 
 my %funbuiltins;
@@ -16,7 +16,7 @@ for my $pirfile (<src/builtins/*.pir>){
 		or die "Could not open '$pirfile': $!";
 
 	for my $line (<$fh>){
-		++$funbuiltins{$1} if $line =~ /.sub ['"]([^\.\!\@]+)['"]/;
+		++$funbuiltins{$1} if $line =~ /.sub ['"]([^\.\@'"]*)['"]/;
 	}
 }
 
