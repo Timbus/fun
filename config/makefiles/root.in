@@ -54,6 +54,7 @@ BUILTINS_PIR = \
 	src/builtins/listmanip.pir \
 	src/builtins/sequences.pir \
 	src/builtins/math.pir \
+	src/builtins/predicates.pir \
 
 CLASSES_PIR = \
 	src/classes/Stack.pir \

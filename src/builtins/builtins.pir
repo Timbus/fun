@@ -215,22 +215,20 @@ Because it has to directly pop a function without evaluating it, it currently do
 =cut
 
 .sub 'name'
-	.local pmc stack, value
+	.local pmc stack, symbol
 	stack = get_global 'funstack'
-	
 	#We need to grab the symbol -without- evaluating it.
-	$P0 = stack.'getstack'()
-	#TODO: Fix up the stack class to work with continuations when using getstack.
-	value = $P0.'pop'()
+	symbol = stack.'pop_raw'()
 	
-	$S0 = typeof value
+	$S0 = typeof symbol
 	
 	if $S0 == "Sub" goto push_symbol
 	if $S0 == "Closure" goto push_symbol
+	if $S0 == 'DelayedSub' goto push_symbol
 	.tailcall stack.'push'($S0)
 
 push_symbol:
-	$S0 = value
+	$S0 = symbol
 	.tailcall stack.'push'($S0)
 .end
 
@@ -259,15 +257,13 @@ Quotation [P] is the body of user-defined symbol U.
 =cut
 
 .sub 'body'
-	.local pmc stack
+	.local pmc stack, symbol
 	stack = get_global 'funstack'
 	
 	#We need to grab the symbol -without- evaluating it.
-	$P0 = stack.'getstack'()
-	#TODO: Fix up the stack class to work with continuations when using getstack.
-	$P0 = $P0.'pop'()
-	$P0('build' => 1)
-	$S0 = $P0
+	symbol = stack.'pop_raw'()
+	symbol('build' => 1)
+	$S0 = symbol
 	$S0 = concat '!usrfnlist', $S0
 	$P0 = get_global $S0
 	stack.'push'($P0)
