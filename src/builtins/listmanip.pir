@@ -114,8 +114,7 @@ R is the non-empty aggregate A with its first member removed.
 
  A [P]  ->  ...
 
-Sequentially pushes members of aggregate A onto the stack
-and executes P for each member of A pushed.
+Sequentially pushes members of aggregate A onto the stack and executes P for each member of A pushed.
 
 =cut
 
@@ -141,8 +140,7 @@ loop_end:
 
  A V0 [P]  ->  ...
 
-Starting with value V0, sequentially pushes members of aggregate A
-and executes P for each member of A pushed.
+Starting with value V0, sequentially pushes members of aggregate A, and executes P for each member of A pushed.
 
 =cut
 
@@ -170,8 +168,7 @@ loop_end:
 
  A [P]  ->  B
 
-Executes P on each member of aggregate A,
-collects results in sametype aggregate B.
+Executes P on each member of aggregate A, collects results in sametype aggregate B.
 
 =cut
 
@@ -202,8 +199,6 @@ loop_end:
  A [P]  ->  A1 A2
 
 Uses test P to split aggregate A into sametype aggregates A1 and A2.
-
-Note: Make sure P does not result in more than one value (a true or a false) on the stack.
 
 =cut
 
@@ -241,8 +236,6 @@ loop_end:
  A [P]  ->  B
 
 Uses test P to filter aggregate A producing sametype aggregate B.
-
-Note: Make sure P does not result in more than one value (a true or a false) on the stack.
 
 =cut
 

@@ -73,7 +73,7 @@ PMC_SOURCES = \
 fun.pbc: $(PARROT) $(SOURCES)
 	$(PARROT) $(PARROT_ARGS) -o fun.pbc fun.pir
 
-src/gen_grammar.pir: $(PERL6GRAMMAR) src/parser/grammar.pg
+src/gen_grammar.pir: $(PERL6GRAMMAR) src/parser/grammar.pg src/gen_builtins.pir
 	$(PARROT) $(PARROT_ARGS) $(PERL6GRAMMAR) \
 	    --output=src/gen_grammar.pir \
 	    src/parser/grammar.pg
@@ -83,6 +83,7 @@ src/gen_actions.pir: $(NQP) $(PCT) src/parser/actions.pm
 	    --target=pir src/parser/actions.pm
 
 src/gen_builtins.pir: $(BUILTINS_PIR)
+	$(PERL) tools/gengrammar.pl >src/parser/grammar.pg
 	$(CAT) $(BUILTINS_PIR) >src/gen_builtins.pir
 
 src/gen_objects.pir: $(CLASSES_PIR)
@@ -95,10 +96,10 @@ src/ops/fun_ops$(LOAD_EXT) : $(OPS_FILE)
 	@cd $(OPSDIR) && $(BUILD_DYNOPS) copy "--destination=$(PARROT_DYNEXT)" $(OPSLIB)
 
 $(FUN_GROUP): $(PARROT) $(PMC_SOURCES)
-	cd $(PMC_DIR) && $(BUILD_DYNPMC) generate $(PMCS)
-	cd $(PMC_DIR) && $(BUILD_DYNPMC) compile $(PMCS)
-	cd $(PMC_DIR) && $(BUILD_DYNPMC) linklibs $(PMCS)
-	cd $(PMC_DIR) && $(BUILD_DYNPMC) copy --destination=$(PARROT_DYNEXT) $(PMCS)
+	@cd $(PMC_DIR) && $(BUILD_DYNPMC) generate $(PMCS)
+	@cd $(PMC_DIR) && $(BUILD_DYNPMC) compile $(PMCS)
+	@cd $(PMC_DIR) && $(BUILD_DYNPMC) linklibs $(PMCS)
+	@cd $(PMC_DIR) && $(BUILD_DYNPMC) copy --destination=$(PARROT_DYNEXT) $(PMCS)
 
 # regenerate the Makefile
 Makefile: config/makefiles/root.in

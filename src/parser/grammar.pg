@@ -95,6 +95,9 @@ token builtins {
 	| 'choice' {*}
 	| 'branch' {*}
 	| 'opcase' {*}
+	| 'ifbool' {*}
+	| 'iflist' {*}
+	| 'iffile' {*}
 	| 'linrec' {*}
 	| 'binrec' {*}
 	| 'genrec' {*}
@@ -108,6 +111,9 @@ token builtins {
 	| 'toint' {*}
 	| 'tonum' {*}
 	| 'tostr' {*}
+	| 'ifint' {*}
+	| 'ifstr' {*}
+	| 'ifnum' {*}
 	| 'stack' {*}
 	| 'times' {*}
 	| 'unary' {*}
@@ -181,6 +187,7 @@ token builtins {
 	| 'chr' {*}
 	| '++' {*}
 	| '--' {*}
+	| '!=' {*}
 	| '<=' {*}
 	| '>=' {*}
 	| 'or' {*}
