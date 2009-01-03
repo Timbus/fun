@@ -91,31 +91,46 @@ run_else:
 
  [..[[Bi] Ti]..[D]]  ->  ...
 
-Tries each C<Bi>. If that yields true, then executes C<Ti> and exits.
+Tries each C<Bi> in its own continuation. If that yields true, then executes C<Ti> and exits.
 If no C<Bi> yields true, executes default C<D>.
 
 =cut
 
 .sub 'cond'
 	.local pmc stack, condlist 
-	.local pmc bi, ti, d
+	.local pmc b, t
 	
 	stack = get_global 'funstack'
 	condlist = stack.'pop'('List')
-	d = condlist.'pop'()
-	
-find_true:
-	unless condlist goto do_default
-	ti = shift condlist
-	bi = shift ti
-	stack.'push'(bi :flat)
-	$I0 = stack.'pop'('Boolean')
-	unless $I0 goto find_true
-	
-	.tailcall stack.'push'(ti :flat)
+	unless condlist goto bad_list
 
-do_default:
-	.tailcall stack.'push'(d :flat)
+find_true:
+	t = shift condlist
+	#t must be a list.
+	$S0 = typeof t
+	if $S0 != 'List' goto bad_list	
+	#If condlist is now empty, we the current 't' as the default.
+	unless condlist goto found
+	
+	b = shift t
+	#b has to be a list as well.
+	$S0 = typeof b
+	if $S0 != 'List' goto bad_list
+	
+	#Now run b. do it in a cc
+	stack.'makecc'()
+	stack.'push'(b :flat)
+	$I0 = stack.'pop'('Boolean')
+	stack.'exitcc'()
+	unless $I0 goto find_true
+
+found:
+	.tailcall stack.'push'(t :flat)
+	
+bad_list:
+	$P0 = new 'Exception'
+	$P0 = "The given list is invalid."
+	throw $P0
 .end
 
 =item case
@@ -129,21 +144,33 @@ Note: Uses '=' not 'equals' to check for a matching index. I<Do not> use lists (
 
 .sub 'case'
 	.local pmc stack
-	.local pmc caselist, x, xs, d
+	.local pmc caselist, x, xs
 	stack = get_global 'funstack'
 	caselist = stack.'pop'('List')
-	d = pop caselist
+	unless caselist goto bad_list
+
 	x = stack.'pop'()
 	
 find_true:
-	unless caselist goto do_default
 	xs = shift caselist
+	#xs must be a list.
+	$S0 = typeof xs
+	if $S0 != 'List' goto bad_list
+	unless caselist goto default
+	
 	$P0 = shift xs
-	if $P0 != x goto find_true
+	if $P0 == x goto found
+	goto find_true
+
+default:
+	xs.'shift'()
+found:
 	.tailcall stack.'push'(xs :flat)
 	
-do_default:
-	.tailcall stack.'push'(d :flat)
+bad_list:
+	$P0 = new 'Exception'
+	$P0 = "The given list is invalid."
+	throw $P0
 .end
 
 =item opcase
@@ -157,27 +184,36 @@ Defaults to the last case if no match found.
 
 .sub 'opcase'
 	.local pmc stack
-	.local pmc caselist, x, xs, d
+	.local pmc caselist, xs
+	.local string x
 	stack = get_global 'funstack'
 	caselist = stack.'pop'('List')
-	d = pop caselist
-	x = stack.'pop'()
-	x = typeof x
+	unless caselist goto bad_list
+
+	$P0 = stack.'pop'()
+	x = typeof $P0
 	
 find_true:
-	unless caselist goto do_default
 	xs = shift caselist
+	#xs must be a list.
+	$S0 = typeof xs
+	if $S0 != 'List' goto bad_list
+	unless caselist goto default
+	
 	$P0 = shift xs
-	$P0 = typeof $P0
-	if $P0 != x goto find_true
+	$S0 = typeof $P0
+	if $S0 == x goto found
+	goto find_true
+
+default:
+	xs.'shift'()
+found:
 	.tailcall stack.'push'(xs)
-
-do_default:
-	#Remove the first element of the default list.
-	d.'pop'()
-	#Now its cool.
-	.tailcall stack.'push'(d)
-
+	
+bad_list:
+	$P0 = new 'Exception'
+	$P0 = "The given list is invalid."
+	throw $P0
 .end
 
 =item ifint
