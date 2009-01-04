@@ -88,6 +88,7 @@ token builtins {
 	| 'ternary' {*}
 	| 'rollupd' {*}
 	| 'rotated' {*}
+	| 'unswons' {*}
 	| 'reverse' {*}
 	| 'gmtime' {*}
 	| 'mktime' {*}
@@ -106,7 +107,6 @@ token builtins {
 	| 'cleave' {*}
 	| 'rollup' {*}
 	| 'rotate' {*}
-	| 'uncons' {*}
 	| 'uncons' {*}
 	| 'filter' {*}
 	| 'concat' {*}

@@ -97,7 +97,7 @@ R and F are the rest and the first of non-empty aggregate A.
 
 =cut
 
-.sub 'uncons'
+.sub 'unswons'
 	.local pmc stack
 	stack = get_global 'funstack'
 	
