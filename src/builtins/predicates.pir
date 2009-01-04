@@ -113,8 +113,8 @@ true:
 .sub 'or'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 	
 	$I0 = or $I0, $I1
 	$P0 = new 'Boolean'
@@ -127,8 +127,8 @@ true:
 .sub 'and'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 
 	$I0 = and $I0, $I1
 	$P0 = new 'Boolean'
@@ -141,8 +141,8 @@ true:
 .sub 'xor'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
-	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List')
+	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
+	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 
 	$I0 = xor $I0, $I1
 	$P0 = new 'Boolean'
@@ -155,7 +155,7 @@ true:
 .sub 'small'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('List', 'Integer', 'String', 'Boolean')
+	$I0 = stack.'pop'('List', 'Integer', 'String') #TODO: Reconsider int being here?
 	
 	abs $I0
 	$I0 = $I0 <= 1
@@ -169,7 +169,7 @@ true:
 .sub 'null'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$I0 = stack.'pop'('List', 'Integer', 'String', 'Boolean')
+	$I0 = stack.'pop'('List', 'String')
 	
 	abs $I0
 	$I0 = $I0 == 0
@@ -227,8 +227,8 @@ false:
 .sub 'cmp'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Boolean')
-	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Boolean')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Boolean', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Boolean', 'Char')
 	
 	$I0 = cmp $P1, $P0
 	stack.'push'($I0)
@@ -290,6 +290,22 @@ true:
 	$P0 = stack.'pop'()
 	$S0 = typeof $P0
 	if $S0 == "String" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+.sub 'char?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	$P0 = stack.'pop'()
+	$S0 = typeof $P0
+	if $S0 == "Char" goto true
 
 	ret = 0
 	.tailcall stack.'push'(ret)

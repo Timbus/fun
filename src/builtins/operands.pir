@@ -58,7 +58,7 @@ Simple math operators.
 .sub '--'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float')
+	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	dec $P0
 	stack.'push'($P0)
 	.return ()

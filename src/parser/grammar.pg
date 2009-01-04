@@ -135,6 +135,7 @@ token builtins {
 	| 'small' {*}
 	| 'equal' {*}
 	| 'bool?' {*}
+	| 'char?' {*}
 	| 'list?' {*}
 	| 'file?' {*}
 	| 'time' {*}
