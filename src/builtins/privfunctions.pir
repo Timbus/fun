@@ -13,7 +13,7 @@ Contains useful private functions
     .return ($P0)
 .end
 
-.sub '!@mkchars'
+.sub '!@str2chars'
 	.param string arg
 	.local pmc chars, ret
 

@@ -183,7 +183,7 @@ Sequentially pushes members of aggregate A onto the stack and executes P for eac
 	a = stack.'pop'('List', 'String')
 	$S0 = typeof a
 	if $S0 == 'List' goto loop_agg
-	a = '!@mkchars'(a)
+	a = '!@str2chars'(a)
 		
 loop_agg:
 	unless a goto loop_end
@@ -215,7 +215,7 @@ Starting with value V0, sequentially pushes members of aggregate A, and executes
 	
 	$S0 = typeof a
 	if $S0 == 'List' goto loop_agg
-	a = '!@mkchars'(a)
+	a = '!@str2chars'(a)
 	
 loop_agg:
 	unless a goto loop_end
@@ -238,24 +238,43 @@ Executes P on each member of aggregate A, collects results in sametype aggregate
 .sub 'map'
 	.local pmc stack
 	.local pmc p, a, b
+	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
 	b = new 'List'
-
+		
+	type = typeof a
+	if type == 'List' goto loop_agg
+	a = '!@str2chars'(a)
+	
 loop_agg:
 	unless a goto loop_end
-	$P0 = shift a
+	$P0 = a.'shift'()
 	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'(p)
 	stack.'makecc'()
+
 	stack.'push'($P0, $P1 :flat)
+
+	#Make sure we're popping a char type if we're iterating a string.
+	if type == 'String' goto safecheck
 	$P0 = stack.'pop'()
-	push b, $P0
+	goto cont
+safecheck:
+	$P0 = stack.'pop'('Char')
+
+cont:
 	stack.'exitcc'()
+	b.'push'($P0)
 	goto loop_agg
+
 loop_end:
-	stack.'push'(b)
+	if type == 'List' goto ldone
+	$S0 = join '', b
+	.tailcall stack.'push'($S0)
+ldone:
+	.tailcall stack.'push'(b)
 .end
 
 =item split 
