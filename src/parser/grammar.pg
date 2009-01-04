@@ -94,12 +94,6 @@ token builtins {
 	| 'mktime' {*}
 	| 'strtol' {*}
 	| 'intern' {*}
-	| 'choice' {*}
-	| 'branch' {*}
-	| 'opcase' {*}
-	| 'ifbool' {*}
-	| 'iflist' {*}
-	| 'iffile' {*}
 	| 'linrec' {*}
 	| 'binrec' {*}
 	| 'genrec' {*}
@@ -107,21 +101,27 @@ token builtins {
 	| 'cleave' {*}
 	| 'rollup' {*}
 	| 'rotate' {*}
+	| 'choice' {*}
+	| 'branch' {*}
+	| 'opcase' {*}
+	| 'ifbool' {*}
+	| 'iflist' {*}
+	| 'iffile' {*}
 	| 'uncons' {*}
 	| 'filter' {*}
 	| 'concat' {*}
 	| 'toint' {*}
 	| 'tonum' {*}
 	| 'tostr' {*}
-	| 'ifint' {*}
-	| 'ifstr' {*}
-	| 'ifnum' {*}
 	| 'stack' {*}
 	| 'times' {*}
 	| 'unary' {*}
 	| 'while' {*}
 	| 'swapd' {*}
 	| 'print' {*}
+	| 'ifint' {*}
+	| 'ifstr' {*}
+	| 'ifnum' {*}
 	| 'swons' {*}
 	| 'first' {*}
 	| 'split' {*}
@@ -141,12 +141,13 @@ token builtins {
 	| 'time' {*}
 	| 'name' {*}
 	| 'body' {*}
-	| 'ifte' {*}
-	| 'cond' {*}
-	| 'case' {*}
 	| 'dupd' {*}
 	| 'swap' {*}
 	| 'popd' {*}
+	| 'sign' {*}
+	| 'ifte' {*}
+	| 'cond' {*}
+	| 'case' {*}
 	| 'cons' {*}
 	| 'rest' {*}
 	| 'step' {*}
@@ -161,7 +162,6 @@ token builtins {
 	| 'sinh' {*}
 	| 'sqrt' {*}
 	| 'tanh' {*}
-	| 'sign' {*}
 	| 'null' {*}
 	| 'num?' {*}
 	| 'int?' {*}
@@ -169,33 +169,33 @@ token builtins {
 	| 'dip' {*}
 	| 'dup' {*}
 	| 'pop' {*}
+	| 'mod' {*}
+	| 'rem' {*}
+	| 'div' {*}
+	| 'abs' {*}
+	| 'neg' {*}
 	| 'put' {*}
 	| 'map' {*}
+	| 'ord' {*}
+	| 'chr' {*}
 	| 'cos' {*}
 	| 'exp' {*}
 	| 'log' {*}
 	| 'pow' {*}
 	| 'sin' {*}
 	| 'tan' {*}
-	| 'mod' {*}
-	| 'rem' {*}
-	| 'div' {*}
-	| 'abs' {*}
-	| 'neg' {*}
 	| 'and' {*}
 	| 'xor' {*}
 	| 'not' {*}
 	| 'cmp' {*}
-	| 'ord' {*}
-	| 'chr' {*}
 	| '++' {*}
 	| '--' {*}
+	| 'at' {*}
+	| 'of' {*}
 	| '!=' {*}
 	| '<=' {*}
 	| '>=' {*}
 	| 'or' {*}
-	| 'at' {*}
-	| 'of' {*}
 	| 'i' {*}
 	| 'x' {*}
 	| '+' {*}

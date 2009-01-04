@@ -24,9 +24,7 @@ Executes the list C<P>
 	stack = get_global 'funstack'
 	list = stack.'pop'('List')
 	stack.'push'(list :flat)
-	stack.'run'()
 
-	.return ()
 .end
 
 =item x
@@ -44,7 +42,7 @@ Executes the list C<P> without removing it from the stack
 	list = stack.'pop'('List')
 	listcpy = '!@deepcopy'(list)
 	stack.'push'(list, listcpy :flat)
-	stack.'run'()
+
 .end
 
 =item dip
@@ -62,7 +60,7 @@ Saves C<X>, executes C<P>, pushes C<X> back.
 	$P1 = stack.'pop'()
 	
 	stack.'push'($P0 :flat, $P1)
-	stack.'run'()
+
 .end
 
 =item stack

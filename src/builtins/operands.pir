@@ -9,8 +9,8 @@ Simple math operators.
 .sub '+'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float')
-	$P1 = stack.'pop'('Integer', 'Float')
+	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'Char')
 	$P1 += $P0
 	stack.'push'($P1)
 	.return ()
@@ -19,8 +19,8 @@ Simple math operators.
 .sub '-'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float')
-	$P1 = stack.'pop'('Integer', 'Float')
+	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'Char')
 	$P1 -= $P0
 	stack.'push'($P1)
 	.return ()
