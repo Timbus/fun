@@ -84,9 +84,8 @@ The solution? Don't copy the entire stack. Only copy what is used from it.
 
 stack_empty:
 	$P0 = new 'Exception'
-	$P0['message'] = 'Cannot pop from empty stack'
+	$P0 = 'Cannot pop from empty stack'
 	throw $P0
-	.return()
 .end
 
 .sub 'run' :method
@@ -171,20 +170,22 @@ error_exit:
 	stack = getattribute self, 'stack'
 	$I0 = stack
 	if $I0 goto just_pop
-	
+
 	mypos = getattribute self, 'position'
 	if mypos < 1 goto stack_empty
 	parent = getattribute self, 'parent'
 	if null parent goto stack_empty
 	
-	.tailcall self.'getat'(mypos)
+	$P0 = self.'getat'(mypos)
+	.return()
 	
 just_pop:
-	.tailcall stack.'pop'()
+	$P0 = stack.'pop'()
+	.return($P0)
 	
 stack_empty:
 	$P0 = new 'Exception'
-	$P0['message'] = 'Cannot pop from empty stack'
+	$P0 = 'Cannot pop from empty stack'
 	throw $P0
 	.return()
 .end
@@ -199,7 +200,8 @@ stack_empty:
 	$P0 = getattribute self, 'stack'
 	pos -= $I0
 	$P0 = $P0[pos]
-	.tailcall '!@deepcopy'($P0)
+	$P0 = '!@deepcopy'($P0)
+	.return ($P0)
 	
 walk_down:
 	$P0 = getattribute self, 'parent'
