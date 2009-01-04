@@ -253,8 +253,8 @@ loop_agg:
 	$P0 = a.'shift'()
 	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'(p)
-	stack.'makecc'()
 
+	stack.'makecc'()
 	stack.'push'($P0, $P1 :flat)
 
 	#Make sure we're popping a char type if we're iterating a string.
@@ -270,11 +270,12 @@ cont:
 	goto loop_agg
 
 loop_end:
-	if type == 'List' goto ldone
+	if type == 'String' goto sdone
+	.tailcall stack.'push'(b)
+	
+sdone:
 	$S0 = join '', b
 	.tailcall stack.'push'($S0)
-ldone:
-	.tailcall stack.'push'(b)
 .end
 
 =item split 
@@ -288,31 +289,43 @@ Uses test P to split aggregate A into sametype aggregates A1 and A2.
 .sub 'split'
 	.local pmc stack
 	.local pmc a, p, x1, x2
+	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
 	x1 = new 'List'
 	x2 = new 'List'
+	
+	type = typeof a
+	if type == 'List' goto loop_agg
+	a = '!@str2chars'(a)
 	
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'($P0)
-	stack.'makecc'()
 	$P2 = '!@deepcopy'(p)
+	
+	stack.'makecc'()
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
+	stack.'exitcc'()
+	
 	unless $I0 goto add_false
 	push x1, $P1
 	goto next
 add_false:
 	push x2, $P1
 next:
-	stack.'exitcc'()
 	goto loop_agg
 loop_end:
-	stack.'push'(x1, x2)
+	if type == 'String' goto sdone
+	.tailcall stack.'push'(x1, x2)
+
+sdone:
+	$S0 = join '', x1
+	$S1 = join '', x2
+	.tailcall stack.'push'($S0, $S1)
 .end
 
 =item filter
@@ -326,17 +339,23 @@ Uses test P to filter aggregate A producing sametype aggregate B.
 .sub 'filter'
 	.local pmc stack
 	.local pmc a, p, b
+	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
 	b = new 'List'
+	
+	type = typeof a
+	if type == 'List' goto loop_agg
+	a = '!@str2chars'(a)
 	
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
 	$P1 = '!@deepcopy'($P0)
-	stack.'makecc'()
 	$P2 = '!@deepcopy'(p)
+	
+	stack.'makecc'()
 	stack.'push'($P0, $P2 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
@@ -346,7 +365,12 @@ loop_agg:
 	goto loop_agg
 
 loop_end:
-	stack.'push'(b)
+	if type == 'String' goto sdone
+	.tailcall stack.'push'(b)
+
+sdone:
+	$S0 = join '', b
+	.tailcall stack.'push'($S0)
 .end
 
 =back

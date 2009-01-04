@@ -7,8 +7,8 @@ A collection of predicates used to compare and test values and value types.
 .sub '<'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	
 	if $P1 < $P0 goto true
@@ -24,8 +24,8 @@ true:
 .sub '>'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	
 	if $P1 > $P0 goto true
@@ -41,8 +41,8 @@ true:
 .sub '='
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	
 	if $P1 == $P0 goto true
@@ -58,8 +58,8 @@ true:
 .sub '!='
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	$P2 = 1
 	
@@ -76,8 +76,8 @@ true:
 .sub '<='
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	$P2 = 1
 	
@@ -94,8 +94,8 @@ true:
 .sub '>='
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'String')
-	$P1 = stack.'pop'('Integer', 'Float', 'String')
+	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
 	$P2 = 1
 	
