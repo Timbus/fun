@@ -156,6 +156,9 @@ method float($/) {
 method bool($/) {
 	make PAST::Val.new( :value( ($/ eq 'true') ?? 1 !! 0 ), :returns('Boolean'), :node($/) );
 }
+method char($/) {
+	make PAST::Val.new( :value( '"'~$<chr>~'"' ) , :returns('Char'), :node($/) );
+}
 method string($/) {
 	make PAST::Val.new( :value( $($<string_literal>) ), :returns('String'), :node($/) );
 }

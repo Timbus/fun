@@ -63,11 +63,13 @@ CLASSES_PIR = \
 	
 PMCS = \
 	list \
-	delayedsub
+	delayedsub \
+	char
 	
 PMC_SOURCES = \
 	$(PMC_DIR)/list.pmc \
-	$(PMC_DIR)/delayedsub.pmc 
+	$(PMC_DIR)/delayedsub.pmc \
+	$(PMC_DIR)/char.pmc 
 
 # the default target
 fun.pbc: $(PARROT) $(SOURCES)

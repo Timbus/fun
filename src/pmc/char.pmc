@@ -1,0 +1,43 @@
+#include "parrot/parrot.h"
+
+pmclass Char
+	need_ext 
+	dynpmc 
+	group fun_group 
+	hll fun 
+	extends Integer
+{
+
+/*
+
+=item C<PMC new_from_string(STRING *rep)>
+
+Class method to construct an Integer from the string representation C<rep>.
+
+=cut
+
+*/
+	VTABLE PMC *new_from_string(STRING *rep, INTVAL flags) {
+		const INTVAL type = SELF->vtable->base_type;
+		PMC * const  res  = (flags & PObj_constant_FLAG)
+			? constant_pmc_new(INTERP, type)
+			: pmc_new(INTERP, type);
+
+		PMC_int_val(res) = string_ord(INTERP, rep, 0);
+		return res;
+	}
+
+	VTABLE STRING *get_string() {
+		return string_chr(INTERP, (UINTVAL)SELF.get_integer());
+	}
+
+	VTABLE STRING *get_repr() {
+		return string_chr(INTERP, (UINTVAL)SELF.get_integer());
+	}
+
+	VTABLE void set_string_native(STRING *value) {
+		PMC_int_val(SELF) = string_ord(INTERP, value, 0);
+	}
+
+
+}

@@ -85,11 +85,13 @@ token value {
 	| <integer>	{*} #= integer
 	| <string> 	{*} #= string
 	| <bool> 	{*} #= bool
+	| <char> 	{*} #= char
 }
 
 token integer { '-'? \d+ {*} }
 token float { '-'? \d* '.' \d+ {*} }
 token bool { ['true' | 'false'] {*} }
+token char { \' $<chr>=. <!before \'> {*} }
 token string {
     [ \' <string_literal: '\'' > \' | \" <string_literal: '"' > \" ]
     {*}

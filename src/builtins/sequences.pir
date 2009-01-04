@@ -14,7 +14,7 @@ If any other form of sequence should be included, these functions will also work
 
  S T  ->  U
 
-Sequence U is the concatenation of sequences S and T.
+Sequence U is the concatenation of same type sequences S and T.
 
 =cut
 
@@ -40,7 +40,7 @@ concat_string:
 
  X S T  ->  U
 
-Sequence U is the concatenation of sequences S and T with X inserted between S and T.
+Sequence U is the concatenation of sequences S and T with element X inserted between S and T.
 Equivalent to [swapd cons concat]
 
 =cut
@@ -61,8 +61,9 @@ enconcat_array:
 	.tailcall stack.'push'($P1)
 	
 enconcat_string:
-	$P2 = stack.'pop'('String')
-	concat $P1, $P2
+	$I0 = stack.'pop'('Char')
+	$S0 = chr $I0
+	concat $P1, $S0
 	concat $P1, $P0
 	.tailcall stack.'push'($P1)
 .end
@@ -108,7 +109,7 @@ push_string:
 
  S I  ->  X
 
-X is the member of S at position I. (Same thing as S[I])
+X is the member of S at position I.
 
 =cut
 
@@ -135,7 +136,7 @@ at_string:
 
  I S  ->  X
 
-X is the I-th member of aggregate S. (Same thing as S[I])
+X is the I-th member of aggregate S.
 
 =cut
 
@@ -160,25 +161,34 @@ at_string:
 
 =item ord
 
- S  ->  I
+ C  ->  I
 
-Integer I is the ascii value of character C (taken from the first letter of the given string).
+Integer I is the ascii value of character C. 
+C can also be a string, and the first letter of the given string will be converted to an int.
 
 =cut
 
 .sub 'ord'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$S0 = stack.'pop'('String')
+	$P0 = stack.'pop'('String', 'Char')
+	$S0 = typeof $P0
+	if $S0 == 'Char' goto push_char
+	
+	$S0 = $P0
 	$I0 = ord $S0
 	.tailcall stack.'push'($I0)
+	
+push_char:
+	$I0 = $P0
+	stack.'push'($I0)
 .end
 
 =item chr
 
- I  ->  S
+ I  ->  C
 
-String S contains the character whose ascii value is I.
+Char C is the character whose ascii value is I.
 
 =cut
 
@@ -186,8 +196,9 @@ String S contains the character whose ascii value is I.
 	.local pmc stack
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
-	$S0 = chr $I0
-	.tailcall stack.'push'($S0)
+	$P0 = new 'Char'
+	$P0 = $I0
+	.tailcall stack.'push'($P0)
 .end
 
 =back
