@@ -20,12 +20,19 @@ Aggregate B is A with a new member X (first member for sequences).
 .sub 'cons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List')
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto cons_string
+	
 	$P1 = stack.'pop'()
-		
 	$P0.'unshift'($P1)
-	stack.'push'($P0)
-	.return ()
+	.tailcall stack.'push'($P0)
+	
+cons_string:
+	$S0 = stack.'pop'('Char')
+	$S1 = $P0
+	$S0 .= $S1
+	.tailcall stack.'push'($S0)
 .end
 
 =item uncons
@@ -39,27 +46,47 @@ F and R are the first and the rest of non-empty aggregate A.
 .sub 'uncons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List')
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto uncons_string
+	
 	$P1 = shift $P0
-	stack.'push'($P1, $P0)
+	.tailcall stack.'push'($P1, $P0)
+	
+uncons_string:
+	$S0 = $P0
+	$S1 = substr $S0, 0, 1
+	$S0 = substr $S0, 1
+	.tailcall stack.'push'($S1, $S0)
 .end
 
 =item swons
 
  A X  ->  B
 
-Aggregate B is A with a new member X (first member for sequences).
+Aggregate B is A with a new member X at the front.
 
 =cut
 
 .sub 'swons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P1 = stack.'pop'()
-	$P0 = stack.'pop'('List')
-		
+	
+	#This isnt normally a good idea but it sure is for this situation.
+	swap()
+	
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto swons_string
+	
 	$P0.'unshift'($P1)
-	stack.'push'($P0)
+	.tailcall stack.'push'($P0)
+	
+swons_string:
+	$S0 = stack.'pop'('Char')
+	$S1 = $P0
+	$S0 .= $S1
+	.tailcall stack.'push'($S0)
 .end
 
 =item unswons
@@ -70,12 +97,24 @@ R and F are the rest and the first of non-empty aggregate A.
 
 =cut
 
-.sub 'unswons'
+.sub 'uncons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List')
+	
+	swap()
+	
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto unswons_string
+	
 	$P1 = shift $P0
-	stack.'push'($P0, $P1)
+	.tailcall stack.'push'($P1, $P0)
+	
+unswons_string:
+	$S0 = $P0
+	$S1 = substr $S0, 0, 1
+	$S0 = substr $S0, 1
+	.tailcall stack.'push'($S1, $S0)
 .end
 
 =item first
@@ -89,9 +128,19 @@ F is the first member of the non-empty aggregate A.
 .sub 'first'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List')
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto first_string
+	
 	$P0 = $P0[0]
-	stack.'push'($P0)
+	.tailcall stack.'push'($P0)
+	
+first_string:
+	$S0 = $P0
+	$S0 = substr $S0, 0, 1
+	$P0 = new 'Char'
+	$P0 = $S0
+	.tailcall stack.'push'($P0)
 .end
 
 =item rest
@@ -105,9 +154,16 @@ R is the non-empty aggregate A with its first member removed.
 .sub 'rest'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List')
+	$P0 = stack.'pop'('List', 'String')
+	$S0 = typeof $P0
+	if $S0 == 'String' goto rest_string
 	$P0.'shift'()
-	stack.'push'($P0)
+	.tailcall stack.'push'($P0)
+
+rest_string:
+	$S0 = $P0
+	$S0 = substr $S0, 1
+	.tailcall stack.'push'($S0)
 .end
 
 =item step
@@ -124,16 +180,19 @@ Sequentially pushes members of aggregate A onto the stack and executes P for eac
 	stack = get_global 'funstack'
 	
 	p = stack.'pop'('List')
-	a = stack.'pop'('List')
-	
+	a = stack.'pop'('List', 'String')
+	$S0 = typeof a
+	if $S0 == 'List' goto loop_agg
+	a = '!@mkchars'(a)
+		
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
-	stack.'push'($P0, p :flat)
+	##TODO: Make tests to see if this copy is required at all. For now, be safe.
+	$P1 = '!@deepcopy'(p)
+	stack.'push'($P0, $P1 :flat)
 	goto loop_agg
-
 loop_end:
-	stack.'run'()
 .end
 
 =item fold
@@ -151,17 +210,21 @@ Starting with value V0, sequentially pushes members of aggregate A, and executes
 	
 	p = stack.'pop'('List')
 	v0 = stack.'pop'()
-	a = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
+	stack.'push'(v0)
 	
-	stack.'push'(v0)	
+	$S0 = typeof a
+	if $S0 == 'List' goto loop_agg
+	a = '!@mkchars'(a)
+	
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
+	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'(p)
 	stack.'push'($P0, $P1 :flat)
 	goto loop_agg
 loop_end:
-	stack.'run'()
 .end
 
 =item map
@@ -183,6 +246,7 @@ Executes P on each member of aggregate A, collects results in sametype aggregate
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
+	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'(p)
 	stack.'makecc'()
 	stack.'push'($P0, $P1 :flat)
@@ -214,6 +278,7 @@ Uses test P to split aggregate A into sametype aggregates A1 and A2.
 loop_agg:
 	unless a goto loop_end
 	$P0 = shift a
+	##TODO: Make tests to see if this copy is required at all. For now, be safe.
 	$P1 = '!@deepcopy'($P0)
 	stack.'makecc'()
 	$P2 = '!@deepcopy'(p)

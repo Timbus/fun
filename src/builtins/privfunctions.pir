@@ -13,6 +13,28 @@ Contains useful private functions
     .return ($P0)
 .end
 
+.sub '!@mkchars'
+	.param string arg
+	.local pmc chars, ret
+
+	chars = split '', arg
+	ret = new 'ResizablePMCArray'
+	
+	.local pmc it, char
+	it = iter chars
+	
+iter_loop:
+	unless it goto iter_end
+	$S0 = shift it
+	char = new 'Char'
+	char = $S0
+	ret.'push'(char)
+	goto iter_loop
+
+iter_end:
+	.return(ret)
+.end
+
 .sub '!@deepcopy'
 	.param pmc val
 	.local pmc valcpy

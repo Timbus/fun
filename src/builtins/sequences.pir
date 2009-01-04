@@ -61,10 +61,10 @@ enconcat_array:
 	.tailcall stack.'push'($P1)
 	
 enconcat_string:
-	$I0 = stack.'pop'('Char')
-	$S0 = chr $I0
+	$S0 = stack.'pop'('Char')
 	concat $P1, $S0
 	concat $P1, $P0
+	
 	.tailcall stack.'push'($P1)
 .end
 
@@ -109,7 +109,7 @@ push_string:
 
  S I  ->  X
 
-X is the member of S at position I.
+X is the member of sequence S at position I.
 
 =cut
 
@@ -128,7 +128,9 @@ at_string:
 	$S0 = value
 	$I0 = pos
 	$S0 = substr $S0, $I0, 1
-	.tailcall stack.'push'($S0)
+	$P0 = new 'Char'
+	$P0 = $S0
+	.tailcall stack.'push'($P0)
 	
 .end
 
@@ -155,7 +157,9 @@ at_string:
 	$S0 = value
 	$I0 = pos
 	$S0 = substr $S0, $I0, 1
-	.tailcall stack.'push'($S0)
+	$P0 = new 'Char'
+	$P0 = $S0
+	.tailcall stack.'push'($P0)
 	
 .end
 
