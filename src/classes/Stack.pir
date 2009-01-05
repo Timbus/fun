@@ -99,8 +99,19 @@ typefail:
 .end
 
 .sub 'getstack' :method
-	$P0 = getattribute self, 'topcc'
-	.tailcall $P0.'getstack'()
+	.local pmc topcc, flatstack
+	topcc = getattribute self, 'topcc'
+	flatstack = new 'List'
+	
+	$I0 = topcc
+iter_loop:
+	dec $I0
+	unless $I0 >= 0 goto done
+	$P0 = topcc.'getat'($I0)
+	flatstack.'push'($P0)
+	goto iter_loop
+done:
+	.return (flatstack)
 .end
 
 .sub 'setstack' :method

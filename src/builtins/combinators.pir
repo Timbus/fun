@@ -76,7 +76,6 @@ Pushes the stack as a list.
 	stack = get_global 'funstack'
 	#TODO: Fix this to work with continuations.
 	stacklist = stack.'getstack'()
-	stacklist = '!@deepcopy'(stacklist)
 	stack.'push'(stacklist)
 	'reverse'()
 .end
