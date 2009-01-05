@@ -17,6 +17,10 @@ inline op strtol(out INT, in STR, in INT) :base_core {
 	$1 = strtol($2->strstart, 0, $3);
 }
 
+inline op maxint(out INT) :base_core {
+	$1 = PARROT_INTVAL_MAX;
+}
+
 inline op strftime(out STR, in STR, in PMC) :base_core {
 	int errcount = 0;
 	int len;

@@ -93,6 +93,7 @@ token builtins {
 	| 'gmtime' {*}
 	| 'mktime' {*}
 	| 'strtol' {*}
+	| 'maxint' {*}
 	| 'intern' {*}
 	| 'linrec' {*}
 	| 'binrec' {*}

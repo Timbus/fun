@@ -35,20 +35,23 @@ Handles pop/push, and continuations(stack copies).
 .sub 'pop' :method
 	.param pmc args :slurpy
 	.local pmc currentc, value
+	.local int argc
 	
 	currentc = getattribute self, 'topcc'
 	value = currentc.'pop'()
 
 	#No args means no typechecking.
-	$I0 = args
-	if $I0 == 0 goto finish
+	argc = args
+	unless argc goto finish
 	
 	.local string type
-	type = typeof value
+	.local pmc it
 	
+	type = typeof value
+	it = iter args
 iter_loop:
-	unless args goto typefail
-	$S0 = shift args
+	unless it goto typefail
+	$S0 = shift it
 	if $S0 == type goto finish
 	goto iter_loop
 	
@@ -56,15 +59,30 @@ finish:
 	.return(value)
 
 typefail:
-	#May as well salvage what we can.
-	self.'push'(value)
+	#May as well salvage what we can. ##Or maybe not.
+	#self.'push'(value)
 	#Die out.
-	$S0 = 'Bad type "'
+	$S0 = "Bad type '"
 	$S0 .= type
-	$S0 .= '" popped from the stack'
+	$S0 .= "' popped from the stack.\nWas expecting type '"
 	
+	if argc == 1 goto just_one
+
+	$S2 = args.'pop'()
+	$S1 = join "', '", args
+	$S0 .= $S1
+	$S0 .= "' or '"
+	$S0 .= $S2
+	goto err_done
+	
+just_one:
+	$S1 = args[0]
+	$S0 .= $S1
+
+err_done:
+	$S0 .= "'."
 	$P0 = new 'Exception'
-	$P0['message'] = $S0	
+	$P0 = $S0	
 	throw $P0
 	#die $S0
 	.return()

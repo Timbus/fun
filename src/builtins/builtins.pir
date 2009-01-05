@@ -87,16 +87,16 @@ Month is 1 = January ... 12 = December; isdst is false; weekday is 0 = Monday ..
 	.local pmc stack
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
-	$P0 = decodetime $I0
+	$P1 = decodetime $I0
 	#P0 is a Array, we need to turn it into a List
-	$P1 = new 'List'
-	$P1.'append'($P0)
+	$P0 = new 'List'
+	$P0 = $P1
 	#The last part of the array needs to be a boolean, not an int.
-	$I0 = $P1[8]
-	$P0 = new 'Boolean'
-	$P0 = $I0
-	$P1[8] = $P0
-	.tailcall stack.'push'($P1)
+	$I0 = $P0[8]
+	$P1 = new 'Boolean'
+	$P1 = $I0
+	$P0[8] = $P0
+	.tailcall stack.'push'($P0)
 .end
 
 =item mktime
@@ -200,6 +200,20 @@ X is converted to the string S.
 	.tailcall stack.'push'($S0)
 .end
 
+=item maxint
+
+ ->  maxint
+
+Pushes largest integer possible.
+
+=cut
+
+.sub 'maxint'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$I0 = maxint
+	.tailcall stack.'push'($I0)
+.end
 
 
 
@@ -245,7 +259,14 @@ Pushes the item whose name is "sym". Will only work for individual symbols, not 
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = get_global $S0
+	if null $P0 goto not_found
 	.tailcall stack.'push'($P0)
+	
+not_found:
+	$S1 = "Symbol '"
+	$S1 .= $S0
+	$S1 .= "' is undefined."
+	die $S1
 .end
 
 =item body
