@@ -1,4 +1,4 @@
 Fix date/time stuff.
 Add more builtins i guess
-Look into adding a .const pmc for the stack instead of using get_global. It should be a lot faster.
+Look into adding a .const pmc for the stack instead of using get_global. It should be a lot faster. <-- Maybe give up on this one.
 Make an interface to declare and call c functions <- holy freakin crap this is going to suck so bad

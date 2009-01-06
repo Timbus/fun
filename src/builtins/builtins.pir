@@ -128,8 +128,13 @@ This currently uses the C function strftime, so please make sure that the format
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = stack.'pop'('List')
+	$I0 = $P0
+	if $I0 < 9 goto list_too_small
 	$S0 = strftime $S0, $P0
 	.tailcall stack.'push'($S0)
+	
+list_too_small:
+	die "The given time list was invalid"
 .end
 
 =item strtol
