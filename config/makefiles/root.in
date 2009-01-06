@@ -134,24 +134,24 @@ test: all
 testclean:
 
 CLEANUPS = \
-  fun.pbc \
-  src/gen_*.pir \
-  src/parser/grammar.pg \
-  $(OPSDIR)/*.c \
-  $(OPSDIR)/*.h \
-  $(OPSDIR)/*.dump \
-  $(OPSDIR)/*$(O) \
-  $(OPSDIR)/*$(LOAD_EXT) \
-  $(PMC_DIR)/*.h \
-  $(PMC_DIR)/*.c \
-  $(PMC_DIR)/*.dump \
-  $(PMC_DIR)/*$(O) \
-  $(PMC_DIR)/*$(LOAD_EXT) \
-  $(PMC_DIR)/*.exp \
-  $(PMC_DIR)/*.ilk \
-  $(PMC_DIR)/*.manifest \
-  $(PMC_DIR)/*.pdb \
-  $(PMC_DIR)/*.lib \
+	fun.pbc \
+	src/gen_*.pir \
+	src/parser/grammar.pg \
+	$(OPSDIR)/*.c \
+	$(OPSDIR)/*.h \
+	$(OPSDIR)/*.dump \
+	$(OPSDIR)/*$(O) \
+	$(OPSDIR)/*$(LOAD_EXT) \
+	$(PMC_DIR)/*.h \
+	$(PMC_DIR)/*.c \
+	$(PMC_DIR)/*.dump \
+	$(PMC_DIR)/*$(O) \
+	$(PMC_DIR)/*$(LOAD_EXT) \
+	$(PMC_DIR)/*.exp \
+	$(PMC_DIR)/*.ilk \
+	$(PMC_DIR)/*.manifest \
+	$(PMC_DIR)/*.pdb \
+	$(PMC_DIR)/*.lib \
 
 
 clean:

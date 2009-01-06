@@ -55,6 +55,13 @@ to the fun compiler.
 .include 'src/gen_grammar.pir'
 .include 'src/gen_actions.pir'
 
+.namespace []
+
+.sub 'mkstack' :anon :init
+	$P0 = new 'Stack'
+	set_global 'funstack', $P0
+.end
+
 =back
 
 =cut

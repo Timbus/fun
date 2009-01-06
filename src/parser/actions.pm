@@ -7,14 +7,6 @@ method TOP($/) {
 		PAST::Block.new(
 			:blocktype('declaration'), 
 			:node( $/ ),
-			
-			PAST::Var.new(
-				:name('funstack'),
-				:viviself('Stack'),
-				:scope('package'),
-				:isdecl(1),
-				:lvalue(1),
-			),
 		);
 	
 	for $<func> {
