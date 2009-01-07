@@ -20,8 +20,8 @@ Aggregate B is A with a new member X (first member for sequences).
 .sub 'cons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+	
 	if $S0 == 'String' goto cons_string
 	
 	$P1 = stack.'pop'()
@@ -46,8 +46,8 @@ F and R are the first and the rest of non-empty aggregate A.
 .sub 'uncons'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+
 	if $S0 == 'String' goto uncons_string
 	
 	$P1 = shift $P0
@@ -75,8 +75,8 @@ Aggregate B is A with a new member X at the front.
 	#This isnt normally a good idea but it sure is for this situation.
 	swap()
 	
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+	
 	if $S0 == 'String' goto swons_string
 	
 	$P0.'unshift'($P1)
@@ -103,8 +103,8 @@ R and F are the rest and the first of non-empty aggregate A.
 	
 	swap()
 	
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+	
 	if $S0 == 'String' goto unswons_string
 	
 	$P1 = shift $P0
@@ -128,8 +128,8 @@ F is the first member of the non-empty aggregate A.
 .sub 'first'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+	
 	if $S0 == 'String' goto first_string
 	
 	$P0 = $P0[0]
@@ -154,8 +154,8 @@ R is the non-empty aggregate A with its first member removed.
 .sub 'rest'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('List', 'String')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('List', 'String')
+	
 	if $S0 == 'String' goto rest_string
 	$P0.'shift'()
 	.tailcall stack.'push'($P0)
@@ -180,8 +180,8 @@ Sequentially pushes members of aggregate A onto the stack and executes P for eac
 	stack = get_global 'funstack'
 	
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
-	$S0 = typeof a
+	(a, $S0) = stack.'pop'('List', 'String')
+
 	if $S0 == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 		
@@ -210,10 +210,9 @@ Starting with value V0, sequentially pushes members of aggregate A, and executes
 	
 	p = stack.'pop'('List')
 	v0 = stack.'pop'()
-	a = stack.'pop'('List', 'String')
+	(a, $S0) = stack.'pop'('List', 'String')
 	stack.'push'(v0)
 	
-	$S0 = typeof a
 	if $S0 == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	
@@ -241,10 +240,9 @@ Executes P on each member of aggregate A, collects results in sametype aggregate
 	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
+	(a, type) = stack.'pop'('List', 'String')
 	b = new 'List'
-		
-	type = typeof a
+
 	if type == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	
@@ -292,11 +290,10 @@ Uses test P to split aggregate A into sametype aggregates A1 and A2.
 	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
+	(a, type) = stack.'pop'('List', 'String')
 	x1 = new 'List'
 	x2 = new 'List'
 	
-	type = typeof a
 	if type == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	
@@ -342,10 +339,9 @@ Uses test P to filter aggregate A producing sametype aggregate B.
 	.local string type
 	stack = get_global 'funstack'
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
+	(a, type) = stack.'pop'('List', 'String')
 	b = new 'List'
-	
-	type = typeof a
+
 	if type == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	
@@ -388,10 +384,9 @@ Applies test P to members of aggregate A, X = true if any pass.
 	stack = get_global 'funstack'
 	
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
+	(a, type) = stack.'pop'('List', 'String')
 	x = new 'Boolean'
-	
-	type = typeof a
+
 	if type == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	
@@ -426,10 +421,9 @@ Applies test P to members of aggregate A, X = true if all pass.
 	stack = get_global 'funstack'
 	
 	p = stack.'pop'('List')
-	a = stack.'pop'('List', 'String')
+	(a, type) = stack.'pop'('List', 'String')
 	x = new 'Boolean'
-	
-	type = typeof a
+
 	if type == 'List' goto loop_agg
 	a = '!@str2chars'(a)
 	

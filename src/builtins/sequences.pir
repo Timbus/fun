@@ -21,8 +21,7 @@ Sequence U is the concatenation of same type sequences S and T.
 .sub 'concat'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('String', 'List')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('String', 'List')
 	$P1 = stack.'pop'($S0)
 
 	if $S0 == 'String' goto concat_string
@@ -48,8 +47,7 @@ Equivalent to [swapd cons concat]
 .sub 'enconcat'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('String', 'List')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('String', 'List')
 	$P1 = stack.'pop'($S0)
 	
 	if $S0 == 'String' goto enconcat_string
@@ -80,12 +78,11 @@ Sequence R is the reverse of sequence S.
 	.local pmc stack, value
 	.local int isstr
 	stack = get_global 'funstack'
-	value = stack.'pop'('String', 'List')
-	$S0 = typeof value
+	(value, $S0) = stack.'pop'('String', 'List')
 	if $S0 == 'List' goto reverse_array
 	isstr = 1
-	$S0 = value
-	value = split '', $S0
+
+	value = '!@str2chars'(value)
 	
 reverse_array:
 	.local pmc revarray
@@ -97,12 +94,11 @@ iter_loop:
 	unshift revarray, $P0
 	goto iter_loop
 iter_end:
-	if isstr == 1 goto push_string
-	.tailcall stack.'push'(revarray)
-
-push_string:
+	unless isstr == 1 goto push_list
 	$S0 = join '', revarray
 	.tailcall stack.'push'($S0)
+push_list:
+	.tailcall stack.'push'(revarray)
 .end
 
 =item at
@@ -117,8 +113,7 @@ X is the member of sequence S at position I.
 	.local pmc stack, value, pos
 	stack = get_global 'funstack'
 	pos = stack.'pop'('Integer')
-	value = stack.'pop'('String', 'List')
-	$S0 = typeof value
+	(value, $S0) = stack.'pop'('String', 'List')
 	if $S0 == 'String' goto at_string
 	
 	$P0 = value[pos]
@@ -145,9 +140,9 @@ X is the I-th member of aggregate S.
 .sub 'of'
 	.local pmc stack, value, pos
 	stack = get_global 'funstack'
-	value = stack.'pop'('String', 'List')
+	(value, $S0) = stack.'pop'('String', 'List')
 	pos = stack.'pop'('Integer')
-	$S0 = typeof value
+
 	if $S0 == 'String' goto at_string
 	
 	$P0 = value[pos]
@@ -175,8 +170,7 @@ C can also be a string, and the first letter of the given string will be convert
 .sub 'ord'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('String', 'Char')
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'('String', 'Char')
 	if $S0 == 'Char' goto push_char
 	
 	$S0 = $P0

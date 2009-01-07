@@ -190,8 +190,7 @@ Defaults to the last case if no match found.
 	caselist = stack.'pop'('List')
 	unless caselist goto bad_list
 
-	$P0 = stack.'pop'()
-	x = typeof $P0
+	($P0, x) = stack.'pop'()
 	
 find_true:
 	xs = shift caselist
@@ -231,8 +230,8 @@ If X is an integer, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'Integer' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
@@ -256,8 +255,8 @@ If X is a logical or truth value, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'Boolean' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
@@ -281,8 +280,8 @@ If X is a string, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'String' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
@@ -306,8 +305,8 @@ If X is a list, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'List' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
@@ -331,8 +330,8 @@ If X is a float, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'Float' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
@@ -356,8 +355,8 @@ If X is a file, executes T else executes E.
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
+
 	if $S0 != 'FileHandle' goto run_else
 	
 	.tailcall stack.'push'(then :flat)
