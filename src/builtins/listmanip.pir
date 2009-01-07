@@ -373,5 +373,81 @@ sdone:
 	.tailcall stack.'push'($S0)
 .end
 
+=item any
+
+ A [P]  ->  X
+
+Applies test P to members of aggregate A, X = true if any pass.
+
+=cut
+
+.sub 'any'
+	.local pmc stack
+	.local pmc a, p, x
+	.local string type
+	stack = get_global 'funstack'
+	
+	p = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
+	x = new 'Boolean'
+	
+	type = typeof a
+	if type == 'List' goto loop_agg
+	a = '!@str2chars'(a)
+	
+loop_agg:
+	unless a goto ret_false
+	$P0 = shift a
+	$P1 = '!@deepcopy'(p)
+	stack.'push'($P0, $P1 :flat)
+	$I0 = stack.'pop'('Boolean')
+	if $I0 == 0 goto loop_agg
+	
+	x = 1
+	.tailcall stack.'push'(x)
+
+ret_false:
+	x = 0
+	.tailcall stack.'push'(x)
+.end
+
+=item all
+
+ A [P]  ->  X
+
+Applies test P to members of aggregate A, X = true if all pass.
+
+=cut
+
+.sub 'all'
+	.local pmc stack
+	.local pmc a, p, x
+	.local string type
+	stack = get_global 'funstack'
+	
+	p = stack.'pop'('List')
+	a = stack.'pop'('List', 'String')
+	x = new 'Boolean'
+	
+	type = typeof a
+	if type == 'List' goto loop_agg
+	a = '!@str2chars'(a)
+	
+loop_agg:
+	unless a goto ret_true
+	$P0 = shift a
+	$P1 = '!@deepcopy'(p)
+	stack.'push'($P0, $P1 :flat)
+	$I0 = stack.'pop'('Boolean')
+	if $I0 == 1 goto loop_agg
+	
+	x = 0
+	.tailcall stack.'push'(x)
+
+ret_true:
+	x = 1
+	.tailcall stack.'push'(x)
+.end
+
 =back
 =cut

@@ -177,6 +177,8 @@ token builtins {
 	| 'neg' {*}
 	| 'put' {*}
 	| 'map' {*}
+	| 'any' {*}
+	| 'all' {*}
 	| 'ord' {*}
 	| 'chr' {*}
 	| 'cos' {*}
