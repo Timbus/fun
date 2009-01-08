@@ -22,8 +22,7 @@ inline op maxint(out INT) :base_core {
 }
 
 inline op strftime(out STR, in STR, in PMC) :base_core {
-	int errcount = 0;
-	int len;
+	int errcount, len;
 	char* buf;
 	struct tm timeinfo;
 	
@@ -31,8 +30,8 @@ inline op strftime(out STR, in STR, in PMC) :base_core {
 	timeinfo.tm_min = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 1));
 	timeinfo.tm_hour = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 2));
 	timeinfo.tm_mday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 3));
-	timeinfo.tm_mon = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 4));
-	timeinfo.tm_year = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 5));
+	timeinfo.tm_mon = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 4)) - 1;
+	timeinfo.tm_year = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 5)) - 1900;
 	timeinfo.tm_wday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 6));
 	timeinfo.tm_yday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 7));
 	timeinfo.tm_isdst = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $3, 8));
@@ -40,8 +39,7 @@ inline op strftime(out STR, in STR, in PMC) :base_core {
 	len = ($2->bufused+5)*2;
 	buf = (char *)mem_sys_allocate(len);
 	
-	while (!strftime(buf, len, $2->strstart, &timeinfo) && errcount < 5){
-		++errcount;
+	for (errcount = 0; !strftime(buf, len, $2->strstart, &timeinfo) && errcount < 3; ++errcount){
 		len *= 2;
 		mem_sys_free(buf);
 		buf = (char *)mem_sys_allocate(len);
@@ -57,4 +55,20 @@ inline op strftime(out STR, in STR, in PMC) :base_core {
 	
 	$1 = string_from_cstring(interp, buf, strlen(buf));
 	mem_sys_free(buf);
+}
+
+inline op mktime(out INT, in PMC) :base_core {
+	struct tm timeinfo;
+	
+	timeinfo.tm_sec = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 0));
+	timeinfo.tm_min = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 1));
+	timeinfo.tm_hour = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 2));
+	timeinfo.tm_mday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 3));
+	timeinfo.tm_mon = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 4)) - 1;
+	timeinfo.tm_year = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 5)) - 1900;
+	timeinfo.tm_wday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 6));
+	timeinfo.tm_yday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 7));
+	timeinfo.tm_isdst = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 8));
+
+	$1 = mktime(&timeinfo);
 }

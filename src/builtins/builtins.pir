@@ -53,7 +53,7 @@ Pushes the integer value of time in seconds since the epoch.
 
 Converts a time I into a list T representing local time:
 [second minute hour day month year weekday yearday isdst].
-Month is 1 = January ... 12 = December; isdst is a Boolean flagging daylight savings/summer time; weekday is 0 = Monday ... 7 = Sunday.
+Month is 1 = January ... 12 = December; isdst is a Boolean flagging daylight savings/summer time; weekday is 0..6, where 0 is Sunday.
 
 =cut
 
@@ -79,7 +79,7 @@ Month is 1 = January ... 12 = December; isdst is a Boolean flagging daylight sav
 
 Converts a time I into a list T representing universal time:
 [second minute hour day month year weekday yearday isdst].
-Month is 1 = January ... 12 = December; isdst is false; weekday is 0 = Monday ... 7 = Sunday.
+Month is 1 = January ... 12 = December; isdst is false; weekday is 0..6, where 0 is Sunday.
 
 =cut
 
@@ -87,16 +87,16 @@ Month is 1 = January ... 12 = December; isdst is false; weekday is 0 = Monday ..
 	.local pmc stack
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
-	$P1 = decodetime $I0
+	$P0 = decodetime $I0
 	#P0 is a Array, we need to turn it into a List
-	$P0 = new 'List'
-	$P0 = $P1
+	$P1 = new 'List'
+	$P1.'append'($P0)
 	#The last part of the array needs to be a boolean, not an int.
-	$I0 = $P0[8]
-	$P1 = new 'Boolean'
-	$P1 = $I0
-	$P0[8] = $P0
-	.tailcall stack.'push'($P0)
+	$I0 = $P1[8]
+	$P0 = new 'Boolean'
+	$P0 = $I0
+	$P1[8] = $P0
+	.tailcall stack.'push'($P1)
 .end
 
 =item mktime
@@ -108,7 +108,16 @@ Converts a list T representing local time into a time I. T is in the format gene
 =cut
 
 .sub 'mktime'
-	die "Function not implemented"
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('List')
+	$I0 = $P0
+	if $I0 < 9 goto list_too_small
+	$I0 = mktime $P0
+	.tailcall stack.'push'($I0)
+	
+list_too_small:
+	die "The given time list was invalid"
 .end
 
 =item strftime
@@ -120,9 +129,7 @@ This currently uses the C function strftime, so please make sure that the format
 
 =cut
 
-#There is something wierd about using parrot to get a formatted time struct, 
-#then turn it into an array, only for it to be turned back from an array 
-#into a struct and passed to strftime..
+#TODO: Consider turning this into a pure pir function instead of using the C std.
 .sub 'strftime'
 	.local pmc stack
 	stack = get_global 'funstack'
