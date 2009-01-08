@@ -302,6 +302,18 @@ Quotation [P] is the body of user-defined symbol U.
 	stack.'push'($P0)
 .end
 
+=item gc
+
+  ->
+
+Initiates garbage collection.
+
+=cut
+
+.sub 'gc'
+	collect
+.end
+
 =item include
 
  "filename"  ->

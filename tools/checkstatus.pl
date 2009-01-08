@@ -1,6 +1,36 @@
 #!/usr/bin/perl -W
 use strict;
 use v5.10;
+my @ignores = qw(
+	true
+	false
+	help
+	helpdetail
+	conts
+	set
+	ifset
+	id
+);
+my %alts = (
+	compare => 'cmp',
+	succ => '++',
+	pred => '--',
+	
+	integer => 'int?',
+	float => 'num?',
+	char => 'char?',
+	string => 'str?',
+	list => 'list?',
+	logical => 'bool?',
+	file => 'file?',
+	
+	ifinteger => 'ifint',
+	iffloat => 'ifnum',
+	ifstring => 'ifstr',
+	iflogical => 'ifbool',
+	
+	some => 'any'
+);
 
 my %joybuiltins;
 open my $fh, "<", "plain-manual.html"
