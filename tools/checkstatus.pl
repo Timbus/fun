@@ -1,36 +1,9 @@
 #!/usr/bin/perl -W
 use strict;
 use v5.10;
-my @ignores = qw(
-	true
-	false
-	help
-	helpdetail
-	conts
-	set
-	ifset
-	id
-);
-my %alts = (
-	compare => 'cmp',
-	succ => '++',
-	pred => '--',
-	
-	integer => 'int?',
-	float => 'num?',
-	char => 'char?',
-	string => 'str?',
-	list => 'list?',
-	logical => 'bool?',
-	file => 'file?',
-	
-	ifinteger => 'ifint',
-	iffloat => 'ifnum',
-	ifstring => 'ifstr',
-	iflogical => 'ifbool',
-	
-	some => 'any'
-);
+use YAML::Tiny;
+
+my $yaml = YAML::Tiny->read('funcs.yaml') or die "Could not open funcs.yaml: $!";
 
 my %joybuiltins;
 open my $fh, "<", "plain-manual.html"
@@ -52,11 +25,11 @@ for my $pirfile (<src/builtins/*.pir>){
 
 say "The following joy builtins are yet to be implemented by fun:";
 
-my @todo = grep { !$funbuiltins{$_} } keys %joybuiltins;
+my @todo = grep { $a = $_; !(grep { $_->{$a} } @{$yaml->[0]{'Alts'}}) && !$funbuiltins{$a} && !$yaml->[0]{'Ignore'}{$a} } keys %joybuiltins;
 
 say for @todo;
 
-say "\n##########\n\nThe following are functions in joy that are not found in the fun spec:";
+say "\n##########\n\nThe following are functions in joy that are not part of the spec:";
 
 my @extras = grep { !$joybuiltins{$_} } keys %funbuiltins;
 

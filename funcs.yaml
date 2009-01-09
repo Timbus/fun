@@ -1,0 +1,45 @@
+---
+Ignore:
+  true: It's a type not a function.
+  false: It's a type not a function.
+  help: Use the manual.
+  helpdetail: Use the manual.
+  conts: Broken in joy and near useless anyway.
+  set: Sets aren't in fun
+  ifset: Sets aren't in fun
+  id: This function literally does nothing.
+
+Alts:
+  - compare: 'cmp'
+    rationale: Shorter, more common.
+  - succ: '++'
+    rationale: Shorter, more common.
+  - pred: '--'
+    rationale: Shorter, more common.
+    
+  - ifinteger: 'ifint'
+    rationale: Shorter type name. 
+  - iffloat: 'ifnum'
+    rationale: Shorter type name.
+  - ifstring: 'ifstr'
+    rationale: Shorter type name.
+  - iflogical: 'ifbool'
+    rationale: Shorter type name.
+    
+  - integer: 'int?'
+    rationale: More apparant it is a predicate.
+  - float: 'num?'
+    rationale: More apparant it is a predicate.
+  - char: 'char?'
+    rationale: More apparant it is a predicate.
+  - string: 'str?'
+    rationale: More apparant it is a predicate.
+  - list: 'list?'
+    rationale: More apparant it is a predicate.
+  - logical: 'bool?'
+    rationale: More apparant it is a predicate.
+  - file: 'file?'
+    rationale: More apparant it is a predicate.
+
+  - some: 'any'
+    rationale: Any/all 'feels' more right to me.
