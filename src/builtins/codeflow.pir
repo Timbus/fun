@@ -290,6 +290,31 @@ run_else:
 	.tailcall stack.'push'(else :flat)
 .end
 
+=item ifchar
+
+ X [T] [E]  ->  ...
+
+If X is a char, executes T else executes E.
+
+=cut
+
+.sub 'ifchar'
+	.local pmc stack, ifcnd, then, else
+	stack = get_global 'funstack'
+	
+	else = stack.'pop'('List')
+	then = stack.'pop'('List')
+	
+	($P0, $S0) = stack.'pop'()
+
+	if $S0 != 'Char' goto run_else
+	
+	.tailcall stack.'push'(then :flat)
+	
+run_else:
+	.tailcall stack.'push'(else :flat)
+.end
+
 =item iflist
 
  X [T] [E]  ->  ...
