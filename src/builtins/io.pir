@@ -152,7 +152,7 @@ C is the next available character from stream S.
 	$S0 = read $P0, 1
 	$P1 = new 'Char'
 	$P1 = $S0
-	stack.'push'($P0, $P1)
+	.tailcall stack.'push'($P0, $P1)
 .end
 
 =item fgets
@@ -168,7 +168,7 @@ L is the next available line (as a string) from stream S.
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = readline $P0
-	stack.'push'($P0, $S0)
+	.tailcall stack.'push'($P0, $S0)
 .end
 
 =item fread
@@ -185,7 +185,7 @@ I bytes are read from the current position of stream S and returned as a string 
 	$I0 = stack.'pop'('Integer')
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = read $P0, $I0
-	stack.'push'($P0, $S0)
+	.tailcall stack.'push'($P0, $S0)
 .end
 
 =item fflush
@@ -201,7 +201,44 @@ Flush stream S, forcing all buffered output to be written.
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$P0.'flush'()
-	stack.'push'($P0)
+	.tailcall stack.'push'($P0)
+.end
+
+=item feof
+
+ S  ->  S B
+
+B is the end-of-file status of stream S.
+
+=cut
+
+.sub 'feof'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	$I0 = $P0.'eof'()
+	$P1 = new 'Boolean'
+	$P1 = $I0
+	.tailcall stack.'push'($P0, $P1)
+.end
+
+=item fwrite
+
+ S X  ->  S
+
+The item X will be written to the current position of stream S.
+
+=cut
+
+.sub 'fwrite'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$S0 = '!@mkstring'($P0)
+	$P0 = stack.'pop'('FileHandle')
+	
+	print $P0, $S0
+	.tailcall stack.'push'($P0)
 .end
 
 =back

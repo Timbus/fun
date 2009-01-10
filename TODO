@@ -1,4 +1,6 @@
-Fix date/time stuff.
-Add more builtins i guess
+Add more builtins, I guess
+Maybe make file I/O simpler, particularly the O part. Make it so say/print can print to files perhaps instead of fwrite/fput/etc
+
 Look into adding a .const pmc for the stack instead of using get_global. It should be a lot faster. <-- Maybe give up on this one.
+Maybe roll your own strftime
 Make an interface to declare and call c functions <- holy freakin crap this is going to suck so bad
