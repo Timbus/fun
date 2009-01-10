@@ -122,5 +122,87 @@ The file system object with pathname P is opened with mode M (a char, or string 
 	.tailcall stack.'push'($P0)
 .end
 
+=item fclose
+
+ S  ->  
+
+Stream S is closed and removed from the stack.
+
+=cut
+
+.sub 'fclose'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	close $P0
+.end
+
+=item fgetch
+
+ S  ->  S C
+
+C is the next available character from stream S.
+
+=cut
+
+.sub 'fgetch'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	$S0 = read $P0, 1
+	$P1 = new 'Char'
+	$P1 = $S0
+	stack.'push'($P0, $P1)
+.end
+
+=item fgets
+
+ S  ->  S L
+
+L is the next available line (as a string) from stream S.
+
+=cut
+
+.sub 'fgets'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	$S0 = readline $P0
+	stack.'push'($P0, $S0)
+.end
+
+=item fread
+
+ S I  ->  S L
+
+I bytes are read from the current position of stream S and returned as a string L.
+
+=cut
+
+.sub 'fread'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$I0 = stack.'pop'('Integer')
+	$P0 = stack.'pop'('FileHandle')
+	$S0 = read $P0, $I0
+	stack.'push'($P0, $S0)
+.end
+
+=item fflush
+
+ S  ->  S
+
+Flush stream S, forcing all buffered output to be written.
+
+=cut
+
+.sub 'fflush'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	$P0.'flush'()
+	stack.'push'($P0)
+.end
+
 =back
 

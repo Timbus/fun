@@ -150,7 +150,7 @@ list_too_small:
 
 String S is converted to the integer J using base I.
 If I = 0, assumes base 10, but leading "0" means base 8 and leading "0x" means base 16.
-If you don't need any kind of special base, considet using L<toint>
+If you don't need any kind of special base, consider using L<toint>
 
 =cut
 
