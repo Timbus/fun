@@ -222,7 +222,7 @@ B is the end-of-file status of stream S.
 	.tailcall stack.'push'($P0, $P1)
 .end
 
-=item fwrite
+=item fprint
 
  S X  ->  S
 
@@ -230,7 +230,7 @@ The item X will be written to the current position of stream S.
 
 =cut
 
-.sub 'fwrite'
+.sub 'fprint'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'()
@@ -239,6 +239,69 @@ The item X will be written to the current position of stream S.
 	
 	print $P0, $S0
 	.tailcall stack.'push'($P0)
+.end
+
+=item fput
+
+ S X  ->  S
+
+The item X will be written to the current position of stream S, with an added trailing newline.
+
+=cut
+
+.sub 'fput'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$S0 = '!@mkstring'($P0)
+	$P0 = stack.'pop'('FileHandle')
+	
+	print $P0, $S0
+	print $P0, "\n"
+	.tailcall stack.'push'($P0)
+.end
+
+=item fwrite
+
+ S L  ->  S
+
+A list of integers or charcters are written as bytes to the current position of stream S.
+
+=cut
+
+.sub 'fwrite'
+	.local pmc stack
+	.local pmc l, fh
+	.local string result
+	stack = get_global 'funstack'
+	l = stack.'pop'('List')
+	fh = stack.'pop'('FileHandle')
+	
+loop:
+	unless l goto loop_end
+	$P0 = l.'shift'()
+	$S0 = typeof $P0
+	if $S0 == 'Integer' goto printint
+	if $S0 == 'Char' goto printchar
+	
+	$S1 = "The type '"
+	$S1 .= $S0 
+	$S1 .= "' was found in the given list,\nbut a 'Char' or 'Integer' was expected."
+	die $S1
+	
+printint:
+	$I0 = $P0
+	$S0 = chr $I0
+	result .= $S0
+	goto loop
+printchar:
+	$S0 = $P0
+	result .= $S0
+	goto loop
+
+loop_end:
+	print fh, result
+	.tailcall stack.'push'(fh)
 .end
 
 =back
