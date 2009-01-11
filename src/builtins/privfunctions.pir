@@ -18,7 +18,7 @@ Contains useful private functions
 	.local pmc chars, ret
 
 	chars = split '', arg
-	ret = new 'ResizablePMCArray'
+	ret = new 'List'
 	
 	.local pmc it, char
 	it = iter chars

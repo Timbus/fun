@@ -171,11 +171,28 @@ L is the next available line (as a string) from stream S.
 	.tailcall stack.'push'($P0, $S0)
 .end
 
+=item fgetchars
+
+ S  ->  S L
+
+I bytes are read from the current position of stream S and returned as a string L.
+
+=cut
+
+.sub 'fgets'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$I0 = stack.'pop'('Integer')
+	$P0 = stack.'pop'('FileHandle')
+	$S0 = read $P0, $I0
+	.tailcall stack.'push'($P0, $S0)
+.end
+
 =item fread
 
  S I  ->  S L
 
-I bytes are read from the current position of stream S and returned as a string L.
+I bytes are read from the current position of stream S and returned as the list of chars L.
 
 =cut
 
@@ -185,7 +202,8 @@ I bytes are read from the current position of stream S and returned as a string 
 	$I0 = stack.'pop'('Integer')
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = read $P0, $I0
-	.tailcall stack.'push'($P0, $S0)
+	$P1 = '!@str2chars'($S0)
+	.tailcall stack.'push'($P0, $P1)
 .end
 
 =item fflush
