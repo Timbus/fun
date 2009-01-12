@@ -179,7 +179,7 @@ I bytes are read from the current position of stream S and returned as a string 
 
 =cut
 
-.sub 'fgets'
+.sub 'fgetchars'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
@@ -320,6 +320,64 @@ printchar:
 loop_end:
 	print fh, result
 	.tailcall stack.'push'(fh)
+.end
+
+=item fremove 
+
+ P  ->  B
+
+Removes the file or empty directory specified by the path P. B is a boolean indicating success or failure.
+
+=cut
+
+.sub 'fremove'
+	.local pmc stack
+	.local pmc os, ret
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	os = new 'OS'
+	ret = new 'Boolean'
+	
+	push_eh rm_fail
+	os.'rm'($S0)
+	pop_eh
+	
+	ret = 1
+	.tailcall stack.'push'($P0)
+	
+rm_fail:
+	ret = 0
+	.tailcall stack.'push'($P0)
+.end
+
+=item frename
+
+ P1 P2  ->  B
+
+The file system object with pathname P1 is renamed to P2. B is a boolean indicating success or failure.
+
+=cut
+
+.sub 'frename'
+	.local pmc stack
+	.local pmc file, ret
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('string')
+	$S1 = stack.'pop'('string')
+	file = new 'File'
+	ret = new 'Boolean'
+	
+	push_eh mv_fail
+	file.'rename'($S1, $S0)
+	pop_eh
+	
+	ret = 1
+	.tailcall stack.'push'($P0)
+	
+mv_fail:
+	ret = 0
+	.tailcall stack.'push'($P0)
+	
 .end
 
 =back
