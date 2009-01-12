@@ -137,6 +137,43 @@ Stream S is closed and removed from the stack.
 	close $P0
 .end
 
+=item fseek
+
+ S P W  ->  S
+
+Stream S is repositioned to position P relative to the point W (0 for the start of the file, 1 for the current position, and 2 for the end of the file).
+
+=cut
+
+.sub 'fseek'
+	.local pmc stack
+	.local pmc w, p, fh
+	stack = get_global 'funstack'
+	w = stack.'pop'('Integer')
+	p = stack.'pop'('Integer')
+	fh = stack.'pop'('FileHandle')
+	
+	seek fh, $I1, $I2
+	stack.'push'(fh)
+.end
+
+=item ftell
+
+ S  ->  S I
+
+I is the current position of stream S.
+
+=cut
+
+.sub 'ftell'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('FileHandle')
+	
+	$I0 = tell $P0
+	stack.'push'($P0, $I0)
+.end
+
 =item fgetch
 
  S  ->  S C
