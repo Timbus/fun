@@ -234,6 +234,88 @@ false:
 	stack.'push'($I0)
 .end
 
+=item has
+
+ A X  ->  B
+
+Tests whether aggregate A has X as a member.
+
+=cut
+
+.sub 'has'
+	.local pmc stack, x, a
+	stack = get_global 'funstack'
+	(x. $S0) = stack.'pop'()
+	(a, $S1) = stack.'pop'('List', 'String')
+	
+	if $S1 == 'List' goto do_loop
+	if $S0 != 'Char' goto notchar_error
+
+	$S0 = a
+	a = split '', $S0
+
+do_loop:
+	unless a goto notin
+	$P0 = a.'shift'()
+	unless $P0 == x goto do_loop
+	
+	$P0 = new 'Boolean'
+	$P0 = 1
+	.tailcall stack.'push'($P0)
+	
+notin:
+	$P0 = new 'Boolean'
+	$P0 = 0
+	.tailcall stack.'push'($P0)
+	
+notchar_error:
+	$S1 = "Bad type '"
+	$S1 .= $S0
+	$S1 .= "' popped from the stack.\nWas expecting a 'Char'."
+	die $S1
+.end
+
+=item in
+
+ X A  ->  B
+
+Tests whether X is a member of aggregate A.
+
+=cut
+
+.sub 'in'
+	.local pmc stack, x, a
+	stack = get_global 'funstack'
+	(a, $S1) = stack.'pop'('List', 'String')
+	(x. $S0) = stack.'pop'()
+	
+	if $S1 == 'List' goto do_loop
+	if $S0 != 'Char' goto notchar_error
+
+	$S0 = a
+	a = split '', $S0
+
+do_loop:
+	unless a goto notin
+	$P0 = a.'shift'()
+	unless $P0 == x goto do_loop
+	
+	$P0 = new 'Boolean'
+	$P0 = 1
+	.tailcall stack.'push'($P0)
+	
+notin:
+	$P0 = new 'Boolean'
+	$P0 = 0
+	.tailcall stack.'push'($P0)
+	
+notchar_error:
+	$S1 = "Bad type '"
+	$S1 .= $S0
+	$S1 .= "' popped from the stack.\nWas expecting a 'Char'."
+	die $S1
+.end
+
 .sub 'num?'
 	.local pmc stack, ret
 	stack = get_global 'funstack'

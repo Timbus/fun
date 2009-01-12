@@ -316,6 +316,42 @@ The item X will be written to the current position of stream S, with an added tr
 	.tailcall stack.'push'($P0)
 .end
 
+=item fputch
+
+ S C  ->  S
+
+The char C will be written to the current position of stream S
+
+=cut
+
+.sub 'fputch'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('Char')
+	$P0 = stack.'pop'('FileHandle')
+	
+	print $P0, $S0
+	.tailcall stack.'push'($P0)
+.end
+
+=item fputchars
+
+ S L  ->  S
+
+The string L will be written to the current position of stream S
+
+=cut
+
+.sub 'fputchars'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	$P0 = stack.'pop'('FileHandle')
+	
+	print $P0, $S0
+	.tailcall stack.'push'($P0)
+.end
+
 =item fwrite
 
  S L  ->  S

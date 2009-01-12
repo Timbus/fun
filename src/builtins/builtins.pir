@@ -212,6 +212,25 @@ X is converted to the string S.
 	.tailcall stack.'push'($S0)
 .end
 
+=item tochar
+
+ X  ->  C
+
+X is converted to the char C. 
+A list or string will be converted by getting the length, and converting it to an ascii char. This function does not act in the same way as C<chr>
+
+=cut
+
+.sub 'tochar'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'()
+	$I0 = $P0
+	$P0 = new 'Char'
+	$P0 = $I0
+	.tailcall stack.'push'($P0)
+.end
+
 =item maxint
 
  ->  maxint
