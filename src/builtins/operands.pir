@@ -9,21 +9,49 @@ Simple math operators.
 .sub '+'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	($P0, $S0) = stack.'pop'('Integer', 'Float', 'Char')
+		
+	if $S0 == 'Float' goto addfloat
+	if $S0 == 'Char' goto addchar
+
 	$P1 = stack.'pop'('Integer', 'Float', 'Char')
+	#If S0 is an int, $P0 can be added just fine.
 	$P1 += $P0
-	stack.'push'($P1)
-	.return ()
+	.tailcall stack.'push'($P1)
+	
+addfloat:
+	$P1 = stack.'pop'('Integer', 'Float')
+	$P0 += $P1
+	.tailcall stack.'push'($P0)
+	
+addchar:
+	$P1 = stack.'pop'('Integer', 'Char')
+	$P0 += $P1
+	.tailcall stack.'push'($P0)
 .end
 
 .sub '-'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	($P0, $S0) = stack.'pop'('Integer', 'Float', 'Char')
+	
+	if $S0 == 'Float' goto subfloat
+	if $S0 == 'Char' goto subchar
+
 	$P1 = stack.'pop'('Integer', 'Float', 'Char')
+	#If S0 is an int, $P0 can be added just fine.
 	$P1 -= $P0
-	stack.'push'($P1)
-	.return ()
+	.tailcall stack.'push'($P1)
+	
+subfloat:
+	$P1 = stack.'pop'('Integer', 'Float')
+	$P0 -= $P1
+	.tailcall stack.'push'($P0)
+	
+subchar:
+	$P1 = stack.'pop'('Integer', 'Char')
+	$P0 -= $P1
+	.tailcall stack.'push'($P0)	
 .end
 
 .sub '*'
@@ -32,8 +60,7 @@ Simple math operators.
 	$P0 = stack.'pop'('Integer', 'Float')
 	$P1 = stack.'pop'('Integer', 'Float')
 	$P1 *= $P0
-	stack.'push'($P1)
-	.return ()
+	.tailcall stack.'push'($P1)
 .end
 
 .sub '/'
@@ -42,8 +69,7 @@ Simple math operators.
 	$P0 = stack.'pop'('Integer', 'Float')
 	$P1 = stack.'pop'('Integer', 'Float')
 	$P1 /= $P0
-	stack.'push'($P1)
-	.return ()
+	.tailcall stack.'push'($P1)
 .end
 
 .sub '++'
@@ -51,8 +77,7 @@ Simple math operators.
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	inc $P0
-	stack.'push'($P0)
-	.return ()
+	.tailcall stack.'push'($P0)
 .end
 
 .sub '--'
@@ -60,8 +85,7 @@ Simple math operators.
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	dec $P0
-	stack.'push'($P0)
-	.return ()
+	.tailcall stack.'push'($P0)
 .end
 
 
@@ -72,7 +96,7 @@ Simple math operators.
 	$P1 = stack.'pop'('Integer', 'Float')
 	
 	mod $P1, $P0
-	stack.'push'($P1)
+	.tailcall stack.'push'($P1)
 .end
 
 .sub 'rem'
