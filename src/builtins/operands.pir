@@ -6,6 +6,14 @@ Simple math operators.
 
 .namespace[]
 
+=item +
+
+ I J  ->  K
+
+K is the result of adding J to I.
+
+=cut
+
 .sub '+'
 	.local pmc stack
 	stack = get_global 'funstack'
@@ -29,6 +37,14 @@ addchar:
 	$P0 += $P1
 	.tailcall stack.'push'($P0)
 .end
+
+=item -
+
+ I J  ->  K
+
+K is the result of subtracting J from I.
+
+=cut
 
 .sub '-'
 	.local pmc stack
@@ -54,6 +70,14 @@ subchar:
 	.tailcall stack.'push'($P0)	
 .end
 
+=item *
+
+ I J  ->  K
+
+K is the result of multiplying I by J.
+
+=cut
+
 .sub '*'
 	.local pmc stack
 	stack = get_global 'funstack'
@@ -62,6 +86,14 @@ subchar:
 	$P1 *= $P0
 	.tailcall stack.'push'($P1)
 .end
+
+=item /
+
+ I J  ->  K
+
+K is the result of dividing I by J.
+
+=cut
 
 .sub '/'
 	.local pmc stack
@@ -72,6 +104,14 @@ subchar:
 	.tailcall stack.'push'($P1)
 .end
 
+=item ++
+
+ N  ->  N+1
+
+Gives the numeric successor of N.
+
+=cut
+
 .sub '++'
 	.local pmc stack
 	stack = get_global 'funstack'
@@ -79,6 +119,14 @@ subchar:
 	inc $P0
 	.tailcall stack.'push'($P0)
 .end
+
+=item --
+
+ N  ->  N-1
+
+Gives the numeric predecessor of N.
+
+=cut
 
 .sub '--'
 	.local pmc stack
@@ -88,6 +136,13 @@ subchar:
 	.tailcall stack.'push'($P0)
 .end
 
+=item mod
+
+ I J  ->  K
+
+Integer K is the remainder of dividing I by J.
+
+=cut
 
 .sub 'mod'
 	.local pmc stack
@@ -103,6 +158,14 @@ subchar:
 	.tailcall 'mod'()
 .end
 
+=item div
+
+ I J  ->  K L
+
+Integers K and L are the quotient and remainder of dividing I by J.
+
+=cut
+
 .sub 'div'
 	.local pmc stack
 	stack = get_global 'funstack'
@@ -115,6 +178,14 @@ subchar:
 	stack.'push'($I2, $I1)
 	.return()
 .end
+
+=item sign
+
+ N  ->  S
+
+S is the sign (-1 or 0 or +1) of numeric N
+
+=cut
 
 .sub 'sign'
 	.local pmc stack, val
@@ -136,6 +207,14 @@ positive:
 	.tailcall stack.'push'(val)
 .end
 
+=item neg
+
+ N  ->  +N
+
+Returns the absolute value of numeric N
+
+=cut
+
 .sub 'abs'
 	.local pmc stack
 	stack = get_global 'funstack'
@@ -144,6 +223,14 @@ positive:
 	stack.'push'($I0)
 .end
 
+=item neg
+
+ N  ->  -N
+
+Returns the negative value of numeric N
+
+=cut
+
 .sub 'neg'
 	.local pmc stack, val
 	stack = get_global 'funstack'
@@ -151,3 +238,44 @@ positive:
 	val = val * -1
 	stack.'push'($P0)
 .end
+
+=item max
+
+ N1 N2  ->  N
+
+N is the maximum of numeric values N1 and N2.  Also supports char.
+
+=cut
+
+.sub 'max'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'Char')
+	
+	if $P0 > $P1 goto rightval
+	.tailcall stack.'push'($P1)
+rightval:
+	.tailcall stack.'push'($P0)
+.end
+
+=item min
+
+ N1 N2  ->  N
+
+N is the minimum of numeric values N1 and N2.  Also supports char.
+
+=cut
+
+.sub 'min'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('Integer', 'Float', 'Char')
+	$P1 = stack.'pop'('Integer', 'Float', 'Char')
+	
+	if $P0 < $P1 goto rightval
+	.tailcall stack.'push'($P1)
+rightval:
+	.tailcall stack.'push'($P0)
+.end
+
