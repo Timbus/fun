@@ -2,6 +2,10 @@
 
 Simple math operators.
 
+=head2 Functions
+
+=over 4
+
 =cut
 
 .namespace[]
@@ -277,4 +281,7 @@ N is the minimum of numeric values N1 and N2.  Also supports char.
 rightval:
 	.tailcall stack.'push'($P0)
 .end
+
+=back
+=cut
 

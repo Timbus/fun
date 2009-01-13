@@ -9,6 +9,27 @@ If any other form of sequence should be included, these functions will also work
 
 =cut
 
+=item size
+
+ A  ->  I
+
+Integer I is the number of elements of aggregate A.
+
+=cut
+
+.sub 'size'
+	.local pmc stack
+	stack = get_global 'funstack'
+	($P0, $S0) = stack.'pop'('String', 'List')
+	if $S0 == 'String' goto ret_strlen
+	$I0 = $P0
+	.tailcall stack.'push'($I0)
+	
+ret_strlen:
+	$S0 = $P0
+	$I0 = length $S0
+	.tailcall stack.'push'($I0)
+.end
 
 =item concat
 
