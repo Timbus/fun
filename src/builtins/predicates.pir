@@ -245,7 +245,7 @@ Tests whether aggregate A has X as a member.
 .sub 'has'
 	.local pmc stack, x, a
 	stack = get_global 'funstack'
-	(x. $S0) = stack.'pop'()
+	(x, $S0) = stack.'pop'()
 	(a, $S1) = stack.'pop'('List', 'String')
 	
 	if $S1 == 'List' goto do_loop
@@ -287,7 +287,7 @@ Tests whether X is a member of aggregate A.
 	.local pmc stack, x, a
 	stack = get_global 'funstack'
 	(a, $S1) = stack.'pop'('List', 'String')
-	(x. $S0) = stack.'pop'()
+	(x, $S0) = stack.'pop'()
 	
 	if $S1 == 'List' goto do_loop
 	if $S0 != 'Char' goto notchar_error
