@@ -4,10 +4,14 @@ Ignore:
   false: It's a type not a function.
   help: Use the manual.
   helpdetail: Use the manual.
-  conts: Broken in joy and near useless anyway.
+  manual: Fun uses POD.
+  conts: Broken in joy and near useless in fun anyway.
   set: Sets aren't in fun
   ifset: Sets aren't in fun
+  setsize: Sets aren't in fun
   id: This function literally does nothing.
+  abort: Difficult to add, and would probably be terribly confusing since fun runs backwards.
+  putch: Feels out of place. just use 'chr print'
 
 Alts:
   - compare: 'cmp'
@@ -43,3 +47,6 @@ Alts:
 
   - some: 'any'
     rationale: Any/all 'feels' more right to me.
+    
+  - fputstring: 'fputchars'
+    rationale: Unneeded duplicate function

@@ -316,6 +316,14 @@ notchar_error:
 	die $S1
 .end
 
+=item num?
+
+ X  ->  B
+
+Tests if X is a floating point number.
+
+=cut
+
 .sub 'num?'
 	.local pmc stack, ret
 	stack = get_global 'funstack'
@@ -331,6 +339,14 @@ true:
 	ret = 1
 	.tailcall stack.'push'(ret)
 .end
+
+=item int?
+
+ X  ->  B
+
+Tests if X is an integer.
+
+=cut
 
 .sub 'int?'
 	.local pmc stack, ret
@@ -348,6 +364,14 @@ true:
 	.tailcall stack.'push'(ret)
 .end
 
+=item bool?
+
+ X  ->  B
+
+Tests if X is a boolean.
+
+=cut
+
 .sub 'bool?'
 	.local pmc stack, ret
 	stack = get_global 'funstack'
@@ -363,6 +387,14 @@ true:
 	ret = 1
 	.tailcall stack.'push'(ret)
 .end
+
+=item str?
+
+ X  ->  B
+
+Tests if X is a string.
+
+=cut
 
 .sub 'str?'
 	.local pmc stack, ret
@@ -380,6 +412,14 @@ true:
 	.tailcall stack.'push'(ret)
 .end
 
+=item char?
+
+ X  ->  B
+
+Tests if X is a char.
+
+=cut
+
 .sub 'char?'
 	.local pmc stack, ret
 	stack = get_global 'funstack'
@@ -396,6 +436,14 @@ true:
 	.tailcall stack.'push'(ret)
 .end
 
+=item list?
+
+ X  ->  B
+
+Tests if X is a list.
+
+=cut
+
 .sub 'list?'
 	.local pmc stack, ret
 	stack = get_global 'funstack'
@@ -411,6 +459,14 @@ true:
 	ret = 1
 	.tailcall stack.'push'(ret)
 .end
+
+=item file?
+
+ X  ->  B
+
+Tests if X is a file stream.
+
+=cut
 
 .sub 'file?'
 	.local pmc stack, ret

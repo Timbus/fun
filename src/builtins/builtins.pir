@@ -163,6 +163,22 @@ If you don't need any kind of special base, consider using L<toint>
 	.tailcall stack.'push'($I0)
 .end
 
+=item strtod
+
+ S  ->  F
+
+String S is converted to the float F
+
+=cut
+
+.sub 'strtol'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	$N0 = $S0
+	.tailcall stack.'push'($N0)
+.end
+
 =item toint
 
  X  ->  I
