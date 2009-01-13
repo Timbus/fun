@@ -393,6 +393,126 @@ C<X>, C<Y> and C<Z> will always be removed.
 	stack.'push'($P0)
 .end
 
+=item unary2
+
+ X1 X2 [P]  ->  R1 R2
+
+Executes P twice, with X1 and X2 on top of the stack. Returns the two values R1 and R2.
+
+=cut
+
+.sub 'unary2'
+	.local pmc stack
+	.local pmc p, pc, x1, x2
+	stack = get_global 'funstack'
+	p = stack.'pop'('List')
+	x2 = stack.'pop'()
+	x1 = stack.'pop'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x1, pc :flat)
+	stack.'run'()
+	$P0 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	stack.'push'(x2, p :flat)
+	stack.'run'()
+	$P1 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'push'($P0, $P1)
+.end
+
+=item unary3
+
+ X1 X2 X3 [P]  ->  R1 R2 R3
+
+Executes P three times, with Xi, returns Ri (i = 1..3).
+
+=cut
+
+.sub 'unary3'
+	.local pmc stack
+	.local pmc p, pc, x1, x2, x3
+	stack = get_global 'funstack'
+	p = stack.'pop'('List')
+	x3 = stack.'pop'()
+	x2 = stack.'pop'()
+	x1 = stack.'pop'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x1, pc :flat)
+	stack.'run'()
+	$P0 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x2, pc :flat)
+	stack.'run'()
+	$P1 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	stack.'push'(x3, p :flat)
+	stack.'run'()
+	$P2 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'push'($P0, $P1, $P2)
+.end
+
+=item unary4
+
+ X1 X2 X3 X4 [P]  ->  R1 R2 R3 R4
+
+Executes P four times, with Xi, returns Ri (i = 1..4).
+
+=cut
+
+.sub 'unary4'
+	.local pmc stack
+	.local pmc p, pc, x1, x2, x3, x4
+	stack = get_global 'funstack'
+	p = stack.'pop'('List')
+	x4 = stack.'pop'()
+	x3 = stack.'pop'()
+	x2 = stack.'pop'()
+	x1 = stack.'pop'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x1, pc :flat)
+	stack.'run'()
+	$P0 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x2, pc :flat)
+	stack.'run'()
+	$P1 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	pc = '!@deepcopy'(p)
+	stack.'push'(x3, pc :flat)
+	stack.'run'()
+	$P2 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'makecc'()
+	stack.'push'(x4, p :flat)
+	stack.'run'()
+	$P3 = stack.'pop'()
+	stack.'exitcc'()
+	
+	stack.'push'($P0, $P1, $P2, $P3)
+.end
+
 =item while
 
  [B] [D]  ->  ...

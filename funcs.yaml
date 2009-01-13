@@ -12,6 +12,9 @@ Ignore:
   id: This function literally does nothing.
   abort: Difficult to add, and would probably be terribly confusing since fun runs backwards.
   putch: Feels out of place. just use 'chr print'
+  app1: Same as unary, and broken in joy. If someone give me a good reason to add this I will.
+  app11: Also broken in joy, seems to serve no real purpose.
+  app12: Confusing and could just as well be done using [unary2 pop]
 
 Alts:
   - compare: 'cmp'
@@ -49,4 +52,11 @@ Alts:
     rationale: Any/all 'feels' more right to me.
     
   - fputstring: 'fputchars'
+    rationale: Unneeded duplicate function
+    
+  - app2: 'unary2'
+    rationale: Unneeded duplicate function
+  - app3: 'unary3'
+    rationale: Unneeded duplicate function
+  - app4: 'unary4'
     rationale: Unneeded duplicate function
