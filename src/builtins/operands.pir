@@ -175,8 +175,7 @@ Integers K and L are the quotient and remainder of dividing I by J.
 	$I2 = $I1 / $I0 
 	mod $I1, $I0
 	
-	stack.'push'($I2, $I1)
-	.return()
+	.tailcall stack.'push'($I2, $I1)
 .end
 
 =item sign
@@ -220,7 +219,7 @@ Returns the absolute value of numeric N
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float')
 	abs $I0
-	stack.'push'($I0)
+	.tailcall stack.'push'($I0)
 .end
 
 =item neg
@@ -236,7 +235,7 @@ Returns the negative value of numeric N
 	stack = get_global 'funstack'
 	val = stack.'pop'('Integer', 'Float')
 	val = val * -1
-	stack.'push'($P0)
+	.tailcall stack.'push'($P0)
 .end
 
 =item max
