@@ -1,7 +1,8 @@
 ## $Id$
 
 ## arguments we want to run parrot with
-PARROT_ARGS =
+PARROT_ARGS = 
+
 
 ## configuration settings
 BUILD_DIR     = @build_dir@

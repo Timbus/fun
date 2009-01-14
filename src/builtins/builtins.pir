@@ -48,6 +48,24 @@ Pushes the number of arguments passed to the program.
 	stack.'push'($I0)
 .end
 
+=item argv
+
+  ->  A
+
+Creates an aggregate A containing the program's command line arguments.
+
+=cut
+
+.sub 'argv'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = get_global 'args'
+	$P1 = new 'List'
+	$P1.'append'($P0)
+	stack.'push'($P1)
+.end
+
+
 =item time
 
   ->  I

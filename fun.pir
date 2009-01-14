@@ -46,7 +46,7 @@ to the fun compiler.
 .sub 'main' :main
     .param pmc args
 	
-#	set_hll_global "args", args
+	set_hll_global "args", args
 	
     $P0 = compreg 'fun'
     $P1 = $P0.'command_line'(args)
