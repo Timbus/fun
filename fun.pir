@@ -45,7 +45,9 @@ to the fun compiler.
 
 .sub 'main' :main
     .param pmc args
-
+	
+#	set_hll_global "args", args
+	
     $P0 = compreg 'fun'
     $P1 = $P0.'command_line'(args)
 .end
@@ -57,7 +59,7 @@ to the fun compiler.
 
 .namespace []
 
-.sub 'mkstack' :anon :init
+.sub 'mkstack' :init :anon
 	$P0 = new 'Stack'
 	set_global 'funstack', $P0
 .end

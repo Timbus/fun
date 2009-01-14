@@ -32,9 +32,25 @@ In the future, the result behaviour of the dot may be customizable, which is why
 finish:
 .end
 
+=item argc
+
+  ->  I
+
+Pushes the number of arguments passed to the program.
+
+=cut
+
+.sub 'argc'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = get_global 'args'
+	$I0 = $P0
+	stack.'push'($I0)
+.end
+
 =item time
 
-  -> I
+  ->  I
 
 Pushes the integer value of time in seconds since the epoch.
 
@@ -171,7 +187,7 @@ String S is converted to the float F
 
 =cut
 
-.sub 'strtol'
+.sub 'strtod'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
