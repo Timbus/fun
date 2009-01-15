@@ -320,7 +320,7 @@ notchar_error:
 
  X  ->  B
 
-Tests if X is a floating point number.
+Tests whether X is a floating point number.
 
 =cut
 
@@ -329,8 +329,7 @@ Tests if X is a floating point number.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "Float" goto true
 
 	ret = 0
@@ -344,7 +343,7 @@ true:
 
  X  ->  B
 
-Tests if X is an integer.
+Tests whether X is an integer.
 
 =cut
 
@@ -353,8 +352,7 @@ Tests if X is an integer.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "Integer" goto true
 
 	ret = 0
@@ -368,7 +366,7 @@ true:
 
  X  ->  B
 
-Tests if X is a boolean.
+Tests whether X is a boolean.
 
 =cut
 
@@ -377,8 +375,7 @@ Tests if X is a boolean.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "Boolean" goto true
 
 	ret = 0
@@ -392,7 +389,7 @@ true:
 
  X  ->  B
 
-Tests if X is a string.
+Tests whether X is a string.
 
 =cut
 
@@ -401,8 +398,7 @@ Tests if X is a string.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "String" goto true
 
 	ret = 0
@@ -416,7 +412,7 @@ true:
 
  X  ->  B
 
-Tests if X is a char.
+Tests whether X is a char.
 
 =cut
 
@@ -425,8 +421,7 @@ Tests if X is a char.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "Char" goto true
 
 	ret = 0
@@ -440,7 +435,7 @@ true:
 
  X  ->  B
 
-Tests if X is a list.
+Tests whether X is a list.
 
 =cut
 
@@ -449,9 +444,31 @@ Tests if X is a list.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "List" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+
+=item leaf?
+
+ X  ->  B
+
+Tests whether X is not a list.
+
+=cut
+
+.sub 'leaf?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	($P0, $S0) = stack.'pop'()
+	if $S0 != "List" goto true
 
 	ret = 0
 	.tailcall stack.'push'(ret)
@@ -464,7 +481,7 @@ true:
 
  X  ->  B
 
-Tests if X is a file stream.
+Tests whether X is a file stream.
 
 =cut
 
@@ -473,8 +490,7 @@ Tests if X is a file stream.
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$S0 = typeof $P0
+	($P0, $S0) = stack.'pop'()
 	if $S0 == "FileHandle" goto true
 
 	ret = 0
@@ -483,3 +499,28 @@ true:
 	ret = 1
 	.tailcall stack.'push'(ret)
 .end
+
+=item user?
+
+ X  ->  B
+
+Tests whether X is a user-defined symbol.
+NOTE: Keep in mind this function requires a value to be removed from the stack without being executed. So it will not chain down.
+
+=cut
+
+.sub 'user?'
+	.local pmc stack, ret
+	stack = get_global 'funstack'
+	ret = new 'Boolean'
+	
+	($P0, $S0) = stack.'pop_raw'()
+	if $S0 == "DelayedSub" goto true
+
+	ret = 0
+	.tailcall stack.'push'(ret)
+true:
+	ret = 1
+	.tailcall stack.'push'(ret)
+.end
+

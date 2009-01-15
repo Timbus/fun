@@ -227,7 +227,6 @@ formatlist:
  S I  ->  J
 
 String S is converted to the integer J using base I.
-If I is 0, it is automatic. strtol will assume normally base 10, but a leading "0" will assume base 8 and leading "0x" will assume base 16.
 If you don't need any kind of special base for conversion, consider using L<toint>
 
 =cut
@@ -236,8 +235,8 @@ If you don't need any kind of special base for conversion, consider using L<toin
 	.local pmc stack
 	stack = get_global 'funstack'
 	$I0 = stack.'pop'('Integer')
-	$S0 = stack.'pop'('String')
-	$I0 = strtol $S0, $I0
+	$P0 = stack.'pop'('String')
+	$I0 = $P0.'to_int'($I0)
 	.tailcall stack.'push'($I0)
 .end
 

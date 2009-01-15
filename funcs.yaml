@@ -47,6 +47,10 @@ Alts:
     rationale: More apparant it is a predicate.
   - file: 'file?'
     rationale: More apparant it is a predicate.
+  - leaf: 'leaf?'
+    rationale: More apparant it is a predicate.
+  - user: 'user?'
+    rationale: More apparant it is a predicate.
 
   - some: 'any'
     rationale: Any/all 'feels' more right to me.

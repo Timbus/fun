@@ -443,5 +443,85 @@ ret_true:
 	.tailcall stack.'push'(x)
 .end
 
+=item drop
+
+ A N  ->  B
+
+Aggregate B is the result of deleting the first N elements of A.
+
+=cut
+
+.sub 'drop'
+	.local pmc stack
+	.local pmc a
+	.local int n
+	.local string type
+	stack = get_global 'funstack'
+	n = stack.'pop'('Integer')
+	if n < 0 goto drop_negative
+	
+	(a, type) = stack.'pop'('List', 'String')
+	if type == 'List' goto drop_list
+	
+	$S0 = a
+	$I0 = length $S0
+	if n > $I0 goto drop_too_many 
+	$S0 = substr $S0, n
+	.tailcall stack.'push'($S0)
+	
+drop_list:
+	$P0 = new 'List'
+	splice a, $P0, 0, n
+	.tailcall stack.'push'(a)
+	
+drop_negative:
+	die "Trying to drop a negative number of elements."
+	
+drop_too_many:
+	die "Trying to drop more elements than the aggregate even holds."
+.end
+
+=item take
+
+ A N  ->  B
+
+Aggregate B is the result of retaining just the first N elements of A.
+
+=cut
+
+.sub 'take'
+	.local pmc stack
+	.local pmc a
+	.local int n
+	.local string type
+	stack = get_global 'funstack'
+	n = stack.'pop'('Integer')
+	if n < 0 goto take_negative
+	
+	(a, type) = stack.'pop'('List', 'String')
+	if type == 'List' goto take_list
+	
+	$S0 = a
+	$I0 = length $S0
+	if n > $I0 goto take_too_many 
+	$S0 = substr $S0, 0, n
+	.tailcall stack.'push'($S0)
+	
+take_list:
+	$I0 = a
+	if n > $I0 goto take_too_many 
+	#Just setting the new length will effectivly chop off the end elements.
+	a = n
+	.tailcall stack.'push'(a)
+		
+take_negative:
+	die "Trying to take a negative number of elements."
+	
+take_too_many:
+	die "Trying to take more elements than the aggregate even holds."
+.end
+
+
 =back
 =cut
+
