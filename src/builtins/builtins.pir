@@ -65,6 +65,23 @@ Creates an aggregate A containing the program's command line arguments.
 	stack.'push'($P1)
 .end
 
+=item getenv
+
+ V  ->  S
+
+Retrieves the string value S of the named environment variable V.
+
+=cut
+
+.sub 'getenv'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	$P0 = new 'Env'
+	$S0 = $P0[$S0]
+
+	.tailcall stack.'push'($S0)
+.end
 
 =item time
 
@@ -178,13 +195,40 @@ list_too_small:
 	die "The given time list was invalid"
 .end
 
+=item format
+
+ L F  ->  S
+
+Will format either a single number or list of numbers L according to the format string F to produce string S.
+The format string is the same as used by sprintf. Length specifiers are not required.
+
+=cut
+
+.sub 'format'
+	.local pmc stack
+	.local string formatstr
+	stack = get_global 'funstack'
+	formatstr = stack.'pop'('String')
+	($P0, $S0) = stack.'pop'('List', 'Integer', 'Float')
+	
+	if $S0 == 'List' goto formatlist
+	
+	$P1 = new 'List'
+	$P1[0] = $P0
+	$P0 = $P1
+	
+formatlist:
+	$S0 = sprintf formatstr, $P0
+	.tailcall stack.'push'($S0)
+.end
+
 =item strtol
 
  S I  ->  J
 
 String S is converted to the integer J using base I.
-If I = 0, assumes base 10, but leading "0" means base 8 and leading "0x" means base 16.
-If you don't need any kind of special base, consider using L<toint>
+If I is 0, it is automatic. strtol will assume normally base 10, but a leading "0" will assume base 8 and leading "0x" will assume base 16.
+If you don't need any kind of special base for conversion, consider using L<toint>
 
 =cut
 
@@ -297,8 +341,20 @@ Pushes largest integer possible.
 .end
 
 
+=item typeof
 
+ X  ->  S
 
+Value X is popped from the stack and the string representation of its type is pushed.
+
+=cut
+
+.sub 'typeof'
+	.local pmc stack, symbol
+	stack = get_global 'funstack'
+	($P0, $S0) = stack.'pop'()
+	stack.'push'($S0)
+.end
 
 =item name
 
