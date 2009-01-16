@@ -191,20 +191,24 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
 	p = stack.'pop'('List')
+	
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
+	
 	if $I0 goto do_true
 	
 	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
-	stack.'run'()
+	#Save the second of the values to use after the first recursion halts.
+	$P0 = stack.'pop'()
 
 	stack.'push'(p, t, r1, r2)
 	'binrec'()
-	stack.'push'(p, t, r1, r2)
+	
+	stack.'push'($P0, p, t, r1, r2)
 	'binrec'()
 
 	$P0 = '!@deepcopy'(r2)
@@ -576,6 +580,43 @@ Executes C<P1> and C<P2>, each with C<X> on top, producing two results.
 	
 	stack.'push'(r1, r2)
 .end
+
+=item treerec
+
+ T [O] [C]  ->  ...
+
+T is a tree. If T is a leaf, executes O. Else executes [[O] [C] treerec] C.
+
+=cut
+
+.sub 'treerec'
+	.local pmc stack
+	.local pmc t, o, c
+	stack = get_global 'funstack'
+	stack.'dump'()
+	c = stack.'pop'('List')
+	o = stack.'pop'('List')
+	(t, $S0) = stack.'pop'()
+	
+	if $S0 == 'List' goto recurse
+	$P0 = '!@deepcopy'(o)
+	.tailcall stack.'push'(t, $P0 :flat)
+	
+recurse:
+	$P0 = get_global "treerec"
+	$P0 = '!@mklist'(o, c, $P0)
+	$P1 = '!@deepcopy'(c)
+	.tailcall stack.'push'(t, $P0, $P1 :flat)
+.end
+
+=item treegenrec
+
+ T [O1] [O2] [C]  ->  ...
+
+T is a tree. If T is a leaf, executes O1.
+Else executes O2 and then [[O1] [O2] [C] treegenrec] C.
+
+=cut
 
 =back
 =cut

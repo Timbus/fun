@@ -170,7 +170,7 @@ loop:
 	print $S0
 	print "\n"
 	currentc = currentc.'getparent'()
-	if_null currentc, finish
+	if null currentc goto finish
 	goto loop
 finish:
 .end

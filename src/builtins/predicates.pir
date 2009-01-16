@@ -196,11 +196,8 @@ true:
 	stack = get_global 'funstack'
 	ret = new 'Boolean'
 	
-	$P0 = stack.'pop'()
-	$P1 = stack.'pop'()
-	
-	$S0 = typeof $P0
-	$S1 = typeof $P1
+	($P0, $S0) = stack.'pop'()
+	($P1, $S1) = stack.'pop'()
 	
 	#Not the same type? Not equal.
 	if $S0 != $S1 goto false
@@ -208,8 +205,8 @@ true:
 	#Array? Time to recurse.
 	if $S0 == 'List' goto check_array_equal
 	#Otherwise, normal check
-	if $P1 != $P0 goto false
-	goto true
+	if $P1 == $P0 goto true
+	goto false
 	
 check_array_equal:
 	$I0 = '!@arrays_equal'($P0, $P1)

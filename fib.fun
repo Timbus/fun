@@ -1,10 +1,15 @@
-#fib [
-#	--
-#	0 1 rolldown	
-#	[ dup swapd + ] times
-#] ==
+recfib [
+	[small] []
+	[-- dup --]
+	[+]
+	binrec
+] ==
 
-#12 fib .
+iterfib [
+	--
+	0 1 rolldown	
+	[ dup swapd + ] times
+] ==
 
 fib [
 	0 1

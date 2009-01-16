@@ -88,6 +88,7 @@ ret_bool:
 ret_true:
 	.return("true")
 	
+	
 ret_array:
 	.local pmc it
 	it = iter value
@@ -139,9 +140,12 @@ check_loop:
 	$P1 = shift ar2
 	
 	$S0 = typeof $P0
+	$S1 = typeof $P1
+	
+	if $S0 != $S1 goto false
+	
 	if $S0 != 'List' goto simple_check
-	$S0 = typeof $P1
-	if $S0 != 'List' goto false
+	
 	$I0 = '!@arrays_equal'($P0, $P1)
 	unless $I0 goto false
 	goto check_loop
