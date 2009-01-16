@@ -593,7 +593,6 @@ T is a tree. If T is a leaf, executes O. Else executes [[O] [C] treerec] C.
 	.local pmc stack
 	.local pmc t, o, c
 	stack = get_global 'funstack'
-	stack.'dump'()
 	c = stack.'pop'('List')
 	o = stack.'pop'('List')
 	(t, $S0) = stack.'pop'()
