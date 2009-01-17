@@ -200,22 +200,21 @@ iter_condlist:
 	$S0 = typeof $P0
 	if $S0 != 'List' goto bad_list
 	testit = iter $P0
-	unless condlistit goto default
+	unless condit goto default
 	
-	b = shift testit
+	$P0 = shift testit
 	stack.'makecc'()
-	$P0 = '!@deepcopy'(b)
+	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)
 	$I0 = stack.'pop'('Boolean')
 	stack.'exitcc'()
 	if $I0 == 0 goto iter_condlist
 
 default:
-	$I0 = cond
+	$I0 = testit
 	if $I0 == 1 goto terminal_cond
-	if $I0 == 2 goto rec_cond
-	goto bad_list
-	
+	if $I0 != 2 goto bad_list
+
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)
