@@ -171,6 +171,80 @@ do_true:
 	stack.'run'()
 .end
 
+=item condlinrec
+
+ [ [C1] [C2] .. [D] ]  ->  ...
+
+Each [Ci] is of the forms [[B] [T]] or [[B] [R1] [R2]].
+Tries each B. If that yields true and there is just a [T], executes T and exit.
+If there are [R1] and [R2], executes R1, recurses, executes R2.
+Subsequent case are ignored. If no B yields true, then [D] is used.
+It is then of the forms [[T]] or [[R1] [R2]]. For the former, executes T.
+For the latter executes R1, recurses, executes R2.
+
+=cut
+
+.sub 'condlinrec'
+	.local pmc stack
+	.local pmc condlist, reclist
+	.local pmc condit, testit
+	stack = get_hll_global 'funstack'
+	condlist = stack.'pop'('List')
+	unless condlist goto bad_list
+	
+recurse:
+	condit = iter condlist
+
+iter_condlist:
+	$P0 = shift condit
+	$S0 = typeof $P0
+	if $S0 != 'List' goto bad_list
+	testit = iter $P0
+	unless condlistit goto default
+	
+	b = shift testit
+	stack.'makecc'()
+	$P0 = '!@deepcopy'(b)
+	stack.'push'($P0 :flat)
+	$I0 = stack.'pop'('Boolean')
+	stack.'exitcc'()
+	if $I0 == 0 goto iter_condlist
+
+default:
+	$I0 = cond
+	if $I0 == 1 goto terminal_cond
+	if $I0 == 2 goto rec_cond
+	goto bad_list
+	
+	$P0 = shift testit
+	$P0 = '!@deepcopy'($P0)
+	stack.'push'($P0 :flat)
+	
+	$P0 = shift testit
+	reclist.'unshift'($P0)
+	goto recurse
+	
+terminal_cond:
+	$P0 = shift testit
+	stack.'push'($P0)
+	#Now get the list of r2's and push them on the stack, flattened, in order.
+	$P1 = new 'List'
+
+flatten_reclist:
+	unless reclist goto push_reclist
+	$P1 = shift reclist
+	$P0.'append'($P1)
+	goto flatten_reclist
+
+push_reclist:
+	.tailcall stack.'push'($P0 :flat)
+	
+bad_list:
+	$P0 = new 'Exception'
+	$P0 = "The given list is invalid."
+	throw $P0
+.end
+
 =item binrec
 
  [P] [T] [R1] [R2]  ->  ...
