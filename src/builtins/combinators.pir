@@ -140,13 +140,16 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 
 .sub 'linrec'
 	.local pmc stack
+	.local pmc reclist
 	.local pmc p, t, r1, r2
 	stack = get_global 'funstack'
 	r2 = stack.'pop'('List')
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
 	p = stack.'pop'('List')
+	reclist = new 'List'
 	
+recurse:
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
@@ -158,17 +161,12 @@ NOTE: C<P> is executed within a new continuation, so that the test gobbles no va
 	stack.'push'($P0 :flat)
 	stack.'run'()
 	
-	stack.'push'(p, t, r1, r2)
-	'linrec'()
-	
 	$P0 = '!@deepcopy'(r2)
-	stack.'push'($P0 :flat)
-	stack.'run'()
-	.return()
+	splice reclist, $P0, 0, 0
+	goto recurse
 	
 do_true:
-	stack.'push'(t :flat)
-	stack.'run'()
+	.tailcall stack.'push'(t :flat, reclist :flat)
 .end
 
 =item condlinrec
@@ -226,22 +224,14 @@ default:
 	unless testit goto terminal_cond
 	
 	$P0 = shift testit
-	reclist.'unshift'($P0)
+	$P0 = '!@deepcopy'($P0)
+	splice reclist, $P0, 0, 0
+	
 	goto recurse
 	
 terminal_cond:
-	#Now get the list of r2's and push them on the stack, flattened, in order.
-	$P1 = new 'List'
+	.tailcall stack.'push'(reclist :flat)
 
-flatten_reclist:
-	unless reclist goto push_reclist
-	$P1 = shift reclist
-	$P0.'append'($P1)
-	goto flatten_reclist
-
-push_reclist:
-	.tailcall stack.'push'($P0 :flat)
-	
 bad_list:
 	$P0 = new 'Exception'
 	$P0 = "The given list is invalid."
