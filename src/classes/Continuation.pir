@@ -90,8 +90,9 @@ stack_empty:
 
 .sub 'run' :method
 	.local pmc stack
+	.local pmc value
 	stack = getattribute self, 'stack'
-
+	
 run_down:
 	#Test to see if we can just pop.
 	$I0 = stack
@@ -106,16 +107,15 @@ run_down:
 
 	#Tests cleared, we grab the value copy:
 	dec mypos
-	$P0 = parent.'getat'(mypos)
-	$S0 = typeof $P0
+	value = parent.'getat'(mypos)
+	$S0 = typeof value
 	if $S0 == 'Sub' goto runval
 	if $S0 == 'Closure' goto runval
 	if $S0 == 'DelayedSub' goto runval
-	stack.'push'($P0)
+	stack.'push'(value)
 	.return(0)
 	
 just_run:
-	.local pmc value
 	value = stack[-1]
 	if null value goto undefined_func
 	$S0 = typeof value
@@ -192,7 +192,6 @@ stack_empty:
 
 .sub 'getat' :method
 	.param int pos
-	
 	$P0 = getattribute self, 'position'
 	$I0 = $P0
 	if pos < $I0 goto walk_down

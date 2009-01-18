@@ -192,9 +192,11 @@ For the latter executes R1, recurses, executes R2.
 	condlist = stack.'pop'('List')
 	unless condlist goto bad_list
 	
+	reclist = new 'List'
+	
 recurse:
 	condit = iter condlist
-
+	
 iter_condlist:
 	$P0 = shift condit
 	$S0 = typeof $P0
@@ -214,7 +216,7 @@ default:
 	$I0 = testit
 	if $I0 == 1 goto terminal_cond
 	if $I0 != 2 goto bad_list
-
+	
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)

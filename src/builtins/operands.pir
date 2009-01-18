@@ -22,7 +22,7 @@ K is the result of adding J to I.
 	.local pmc stack
 	stack = get_global 'funstack'
 	($P0, $S0) = stack.'pop'('Integer', 'Float', 'Char')
-		
+	
 	if $S0 == 'Float' goto addfloat
 	if $S0 == 'Char' goto addchar
 
