@@ -213,21 +213,23 @@ iter_condlist:
 	if $I0 == 0 goto iter_condlist
 
 default:
+	#Change this to >2 if parrot fixes get_integer on iterators.
 	$I0 = testit
-	if $I0 == 1 goto terminal_cond
-	if $I0 != 2 goto bad_list
+	if $I0 > 3 goto bad_list
+
+	#So just see if you can shift twice to determine if its recursive or not.
 	
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)
+
+	unless testit goto terminal_cond
 	
 	$P0 = shift testit
 	reclist.'unshift'($P0)
 	goto recurse
 	
 terminal_cond:
-	$P0 = shift testit
-	stack.'push'($P0)
 	#Now get the list of r2's and push them on the stack, flattened, in order.
 	$P1 = new 'List'
 
