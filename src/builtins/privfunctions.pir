@@ -99,9 +99,9 @@ format_list:
 follow_list:
 	it = iter value
 	ret .= "["
+	unless it goto list_next
 	
 iter_loop:
-	unless it goto list_next
 	$P0 = shift it
 	type = typeof $P0
 	if type == 'Boolean' goto iter_format_bool
@@ -133,9 +133,12 @@ iter_next:
 list_next:
 	ret .= "]"
 	unless llist goto finish
-	ret .=  " "
 	#Restore the old iter from the prior list.
 	it = llist.'pop'()
+	#Is the previous iter done? No need to go to iter_loop.
+	unless it goto list_next
+	#Print a space if theres more iterating to do.
+	ret .=  " "
 	goto iter_loop
 
 finish:
