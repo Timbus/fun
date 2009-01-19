@@ -129,12 +129,12 @@ loop_end:
 
 =item linrec
 
- [P] [T] [R1] [R2]  ->  ...
+ [B] [T] [R1] [R2]  ->  ...
 
-Executes C<P>. If that yields true, executes C<T>.
+Executes C<B>. If that yields true, executes C<T>.
 Else executes C<R1>, recurses, executes C<R2>.
 
-NOTE: C<P> is executed within a new continuation, so that the test gobbles no value(s).
+NOTE: C<B> is executed within a new continuation, so that the test gobbles no value(s).
 
 =cut
 
@@ -240,13 +240,13 @@ bad_list:
 
 =item binrec
 
- [P] [T] [R1] [R2]  ->  ...
+ [B] [T] [R1] [R2]  ->  ...
 
 Executes C<P>. If that yields true, executes C<T>.
 Else uses C<R1> to produce two intermediates, recurses twice,
 then executes C<R2> (usually to combine their results).
 
-NOTE: C<P> is executed within a new continuation, so that the test gobbles no value(s).
+NOTE: C<B> is executed within a new continuation, so that the test gobbles no value(s).
 
 =cut
 
@@ -291,14 +291,13 @@ do_true:
 
 =item tailrec
 
- [P] [T] [R1]  ->  ...
+ [B] [T] [R1]  ->  ...
 
 Executes P. If that yields true, executes T.
 Else executes R1, recurses.
 
 =cut
 
-#Ironically, the implementation is not recursive.
 .sub 'tailrec'
 	.local pmc stack
 	.local pmc p, t, r1
@@ -327,7 +326,7 @@ do_true:
 
 =item genrec
 
- [P] [T] [R1] [R2]  ->  ...
+ [B] [T] [R1] [R2]  ->  ...
 
 Executes C<P>, if that yields true executes C<T>.
 Else executes C<R1> and then C<[[P] [T] [R1] [R2] genrec] R2>.
