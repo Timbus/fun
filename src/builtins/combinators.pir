@@ -373,8 +373,7 @@ do_true:
 
  [P]  ->  R
 
-Begins a new continuation, then executes the list C<P>.
-The result of C<P> is copied back to the prior continuation.
+Begins a new continuation, then executes the list C<P>. The result of C<P> is copied back to the prior continuation.
 The end result is that nothing is removed from the stack.
 
 =cut
@@ -395,8 +394,7 @@ The end result is that nothing is removed from the stack.
 
  X [P]  ->  R
 
-Begins a new continuation, copies C<X> over to it, then executes the list C<P>.
-The result of C<P> is copied back to the prior continuation.
+Begins a new continuation, copies C<X> over to it, then executes the list C<P>. The result of C<P> is copied back to the prior continuation.
 C<X> will always be removed.
 
 =cut
@@ -419,8 +417,7 @@ C<X> will always be removed.
 
  X Y [P]  ->  R
 
-Begins a new continuation, copies C<X Y> over to it, then executes the list C<P>.
-The result of C<P> is copied back to the prior continuation.
+Begins a new continuation, copies C<X Y> over to it, then executes the list C<P>. The result of C<P> is copied back to the prior continuation.
 C<X> and C<Y> will always be removed.
 
 =cut
@@ -443,8 +440,7 @@ C<X> and C<Y> will always be removed.
 
  X Y Z [P]  ->  R
 
-Begins a new continuation, copies C<X Y Z> over to it, then executes the list C<P>.
-The result of C<P> is copied back to the prior continuation.
+Begins a new continuation, copies C<X Y Z> over to it, then executes the list C<P>. The result of C<P> is copied back to the prior continuation.
 C<X>, C<Y> and C<Z> will always be removed.
 
 =cut

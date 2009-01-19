@@ -72,57 +72,73 @@ iter_end:
 	.return(valcpy)
 .end
 
+#Frankly this should just be removed and replaced with proper get_string methods on every pmc. Effort..
 .sub '!@mkstring'
 	.param pmc value
-	.local string type, ret
+	.local string type
+	
 	type = typeof value
-	if type == 'Boolean' goto ret_bool
-	if type == 'List' goto ret_array
+	if type == 'List' goto format_list
+	if type == 'Boolean' goto format_bool
 	
-	#Otherwise it'll translate just fine as-is.
-	.return(value)
+	$S0 = value
+	.return($S0)
 	
-ret_bool:
-	if value == 1 goto ret_true
+format_bool:
+	if value == 1 goto str_true
 	.return("false")
-ret_true:
+  str_true:
 	.return("true")
-	
-	
-ret_array:
-	.local pmc it
+
+
+format_list:
+	.local string ret
+	.local pmc llist, it
+	llist = new 'List'
+
+follow_list:
 	it = iter value
-	ret = "["
-	unless it goto iter_end
+	ret .= "["
+	
 iter_loop:
+	unless it goto list_next
 	$P0 = shift it
 	type = typeof $P0
-	if type == 'Boolean' goto iter_retbool
-	if type == 'List' goto iter_retarray
+	if type == 'Boolean' goto iter_format_bool
+	if type != 'List' goto iter_format_normal
 	
+	#Save the iter position.
+	llist.'push'(it)
+	value = $P0
+	goto follow_list
+
+iter_format_normal:
 	$S0 = $P0
 	ret .= $S0
 	goto iter_next
 	
-iter_retbool:
-	if $P0 == 1 goto iter_rettrue
+iter_format_bool:
+	if $P0 == 1 goto ret_str_true
 	ret .= "false"
 	goto iter_next
-iter_rettrue:
+  ret_str_true:
 	ret .= "true"
 	goto iter_next
 	
-iter_retarray:
-	$S0 = '!@mkstring'($P0) #Recursive way to follow lists
-	ret .= $S0
-	
 iter_next:
-	unless it goto iter_end
+	unless it goto list_next
 	ret .= " "
 	goto iter_loop
 
-iter_end:
+list_next:
 	ret .= "]"
+	unless llist goto finish
+	ret .=  " "
+	#Restore the old iter from the prior list.
+	it = llist.'pop'()
+	goto iter_loop
+
+finish:
 	.return(ret)
 .end
 
