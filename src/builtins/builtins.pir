@@ -65,9 +65,9 @@ Creates an aggregate A containing the program's command line arguments.
 
 =item getenv
 
- V  ->  S
+ S  ->  V
 
-Retrieves the string value S of the named environment variable V.
+Retrieves the string value V of the named environment variable S.
 
 =cut
 
@@ -79,6 +79,23 @@ Retrieves the string value S of the named environment variable V.
 	$S0 = $P0[$S0]
 
 	.tailcall stack.'push'($S0)
+.end
+
+=item system
+
+ S ->
+
+Escapes to shell, executes string S. The string may cause execution of another program. 
+When execution has finished, the process returns to Joy.
+
+=cut
+
+.sub 'system'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = stack.'pop'('String')
+	
+	$I0 = spawnw $S0
 .end
 
 =item time
@@ -337,6 +354,20 @@ Pushes largest integer possible.
 	.tailcall stack.'push'($I0)
 .end
 
+=item quit
+
+  ->
+
+Exit from Fun.
+
+=cut
+
+.sub 'quit'
+	end
+.end
+.sub 'q'
+	end
+.end
 
 =item typeof
 
@@ -535,4 +566,5 @@ The function everyone wants implemented.
 .end
 
 =back
+=cut
 
