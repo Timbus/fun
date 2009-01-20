@@ -52,7 +52,6 @@ BUILTINS_PIR = \
 	src/builtins/operands.pir \
 	src/builtins/io.pir \
 	src/builtins/codeflow.pir \
-	src/builtins/listmanip.pir \
 	src/builtins/sequences.pir \
 	src/builtins/math.pir \
 	src/builtins/predicates.pir \

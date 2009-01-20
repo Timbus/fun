@@ -643,6 +643,47 @@ Executes C<P1> and C<P2>, each with C<X> on top, producing two results.
 	stack.'push'(r1, r2)
 .end
 
+=item treestep
+
+ T [P]  ->  ...
+
+Recursively traverses leaves of tree T, executes P for each leaf.
+
+=cut
+
+.sub 'treestep'
+	.local pmc stack
+	.local pmc p, t, tlist
+	stack = get_global 'funstack'
+	
+	p = stack.'pop'('List')
+	t = stack.'pop'('List')
+	tlist = new "List"
+	
+loop:
+	unless t goto travel_up
+	$P0 = t.'shift'()
+	
+	$S0 = typeof $P0
+	if $S0 == 'List' goto travel_down
+
+	$P1 = '!@deepcopy'(p)
+	stack.'push'($P0, $P1 :flat)
+	goto loop
+
+travel_down:
+	tlist.'push'(t)
+	t = $P0
+	goto loop
+
+travel_up:
+	unless tlist goto end_loop
+	t = tlist.'pop'()
+	goto loop
+	
+end_loop:
+.end
+
 =item treerec
 
  T [O] [C]  ->  ...
@@ -678,6 +719,27 @@ T is a tree. If T is a leaf, executes O1.
 Else executes O2 and then [[O1] [O2] [C] treegenrec] C.
 
 =cut
+
+.sub 'treegenrec'
+	.local pmc stack
+	.local pmc t, o1, o2, c
+	stack = get_global 'funstack'
+	c = stack.'pop'('List')
+	o2 = stack.'pop'('List')
+	o1 = stack.'pop'('List')
+	(t, $S0) = stack.'pop'()
+	
+	if $S0 == 'List' goto recurse
+	$P0 = '!@deepcopy'(o1)
+	.tailcall stack.'push'(t, $P0 :flat)
+	
+recurse:
+	$P0 = get_global "treegenrec"
+	$P0 = '!@mklist'(o1, o2, c, $P0)
+	$P1 = '!@deepcopy'(c)
+	$P2 = '!@deepcopy'(o2)
+	.tailcall stack.'push'(t, o2 :flat, $P0, $P1 :flat)
+.end
 
 =back
 =cut
