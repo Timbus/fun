@@ -360,7 +360,7 @@ The char C will be written to the current position of stream S
 	.tailcall stack.'push'($P0)
 .end
 
-=item fputchars
+=item fputs
 
  S L  ->  S
 
@@ -368,7 +368,7 @@ The string L will be written to the current position of stream S
 
 =cut
 
-.sub 'fputchars'
+.sub 'fputs'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')

@@ -55,16 +55,21 @@ Alts:
 
   - some: 'any'
     rationale: Any/all 'feels' more right to me.
+  
+  - putchars: 'puts'
+    rationale: Shorter, more common name.
+  - fputchars: 'fputs'
+    rationale: Consistant with the putchars change.
     
-  - fputstring: 'fputchars'
-    rationale: Unneeded duplicate function.
+  - fputstring: 'fputs'
+    rationale: Duplicate of a depreciated function.
     
   - app2: 'unary2'
-    rationale: Unneeded duplicate function.
+    rationale: Duplicate function.
   - app3: 'unary3'
-    rationale: Unneeded duplicate function.
+    rationale: Duplicate function.
   - app4: 'unary4'
-    rationale: Unneeded duplicate function.
+    rationale: Duplicate function.
 
   - formatf: 'format'
     rationale: It was trivial to make format also take a float. formatf is a confusing function name anyway.
