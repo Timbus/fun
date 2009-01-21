@@ -22,12 +22,12 @@ Pushes a random integer.
 	.local pmc stack
 	stack = get_global 'funstack'
 	
-	$P0 = get_global '!rand'
+	$P0 = get_global '^rand'
 	unless null $P0 goto ret_rand
 	$P0 = new 'Random'
 	$I0 = time
 	$P0 = $I0
-	set_global '!rand', $P0
+	set_global '^rand', $P0
 ret_rand:
 	$I0 = $P0
 	.tailcall stack.'push'($I0)
@@ -47,10 +47,10 @@ Takes an integer to set the random generator seed.
 	
 	seed = stack.'pop'('Integer')
 	
-	$P0 = get_global '!rand'
+	$P0 = get_global '^rand'
 	unless null $P0 goto set_rand
 	$P0 = new 'Random'
-	set_global '!rand', $P0
+	set_global '^rand', $P0
 set_rand:
 	$P0 = seed
 .end

@@ -109,6 +109,7 @@ run_down:
 	dec mypos
 	value = parent.'getat'(mypos)
 	$S0 = typeof value
+	if $S0 == 'EOSMarker' goto stack_empty
 	if $S0 == 'Sub' goto runval
 	if $S0 == 'Closure' goto runval
 	if $S0 == 'DelayedSub' goto runval
@@ -117,8 +118,8 @@ run_down:
 	
 just_run:
 	value = stack[-1]
-	if null value goto undefined_func
 	$S0 = typeof value
+	if $S0 == 'EOSMarker' goto stack_empty_pop
 	if $S0 == 'Sub' goto pre_runval
 	if $S0 == 'Closure' goto pre_runval
 	if $S0 == 'DelayedSub' goto pre_runval
@@ -133,15 +134,17 @@ runval:
 	value()
 	pop_eh
 	goto run_down
-	
+
+stack_empty_pop:
+	stack.'pop'()
 stack_empty:
 	.return(1)
 	
-undefined_func:
-	$P0 = new 'Exception'
-	$P0 = "Undefined symbol hit.\nPerhaps you misspelled a function name?"
-	throw $P0
-	.return()
+#undefined_func:
+#	$P0 = new 'Exception'
+#	$P0 = "Undefined symbol hit.\nPerhaps you misspelled a function name?"
+#	throw $P0
+#	.return()
 	
 run_error:
 	.local pmc exception

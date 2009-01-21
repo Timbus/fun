@@ -23,10 +23,22 @@ In the future, the result behaviour of the dot may be customizable, which is why
 	isempty = stack.'run'()
 	if isempty goto finish
 	
-	##Make this a hook or something? Dunno. 
-	#Consider: What would the hook be written in? C? pir? fun?
-	'put'()
+	#~ 'put'()
+	$P0 = new 'EOSMarker'
+	$P1 = stack.'pop'()
+	$P2 = get_hll_global '^dothook'
+	stack.'makecc'()
+	stack.'push'($P0, $P1, $P2 :flat)
+	isempty = stack.'run'()
+	if isempty goto hookexit
 	
+	$P0 = stack.'pop'()
+	stack.'exitcc'()
+	.tailcall stack.'push'($P0)
+
+hookexit:	
+	.tailcall stack.'exitcc'()
+
 finish:
 .end
 
@@ -434,6 +446,43 @@ not_found:
 	die $S1
 .end
 
+=item get
+
+  -> sym
+
+Reads a symbol from input and pushes it onto stack. Will only work for individual symbols, not code.
+
+=cut
+
+#Basically gets+intern
+.sub 'get'
+	.local pmc stack
+	.local string str, lastchar
+	stack = get_global 'funstack'
+	$P0 = getstdin
+	str = readline $P0
+	
+	#Chomp code pretty much stolen from perl6.
+	#Plz dont sue, guys :(
+	lastchar = substr str, -1
+	if lastchar != "\n" goto done
+	chopn str, 1
+	lastchar = substr str, -1
+	if lastchar != "\r" goto done
+	chopn str, 1
+done:
+
+	$P0 = get_global str
+	if null $P0 goto not_found
+	.tailcall stack.'push'($P0)
+	
+not_found:
+	$S1 = "Symbol '"
+	$S1 .= str
+	$S1 .= "' is undefined."
+	die $S1
+.end
+
 =item body
 
  U  ->  [P]
@@ -443,14 +492,15 @@ Quotation [P] is the body of user-defined symbol U.
 =cut
 
 .sub 'body'
-	.local pmc stack, symbol
+	.local pmc stack
+	.local pmc symbol
 	stack = get_global 'funstack'
 	
 	#We need to grab the symbol -without- evaluating it.
 	symbol = stack.'pop_raw'()
 	symbol('build' => 1)
 	$S0 = symbol
-	$S0 = concat '!usrfnlist', $S0
+	$S0 = concat '^usrfnlist', $S0
 	$P0 = get_global $S0
 	stack.'push'($P0)
 .end
@@ -547,6 +597,32 @@ This is done to allow for precompiled modules.
 	.local pmc compiler
 	compiler = compreg 'fun'
 	.tailcall compiler.'evalfiles'(realfilename)
+.end
+
+=item sethook
+
+ F -> 
+
+Sets the desired action of the 'dot' to the given list C<F>. By default, the dot will call 'put'. You can pass an epty list for the dot to simply leave the resulting value on the stack.
+
+=cut
+
+.sub 'sethook'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('List')
+	set_global '^dothook', $P0
+.end
+
+=item gethook
+
+ -> F
+
+Gets the hook assigned to the 'dot' to the given function. By default, the dot will call 'put', so this will return [put].
+
+=cut
+
+.sub 'gethook'
 .end
 
 =item ban-space-kimchi

@@ -1,0 +1,11 @@
+#include "parrot/parrot.h"
+
+pmclass EOSMarker
+	dynpmc 
+	group fun_group 
+	hll fun
+{
+	VTABLE STRING *get_string() {
+		return CONST_STRING(INTERP, "Stop Marker");
+	}
+}

@@ -48,8 +48,8 @@ to the fun compiler.
 	
 	set_hll_global "args", args
 	
-    $P0 = compreg 'fun'
-    $P1 = $P0.'command_line'(args)
+	$P0 = compreg 'fun'
+	$P1 = $P0.'command_line'(args)
 .end
 
 .include 'src/gen_objects.pir'
@@ -61,7 +61,11 @@ to the fun compiler.
 
 .sub 'mkstack' :init :anon
 	$P0 = new 'Stack'
-	set_global 'funstack', $P0
+	set_hll_global 'funstack', $P0
+	
+	$P0 = get_hll_global "put"
+	$P0 = '!@mklist'($P0)
+	set_hll_global "^dothook", $P0
 .end
 
 =back

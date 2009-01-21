@@ -16,6 +16,8 @@ Ignore:
   app11: Also broken in joy, seems to serve no real purpose.
   app12: Confusing and could just as well be done using [unary2 pop].
   ferror: Parrot handles filehandle errors with exceptions.
+  setecho: Print source as you run? Seriously? I don't even know if this would work very well in fun.
+  echo: Naw dude. Naw.
 
 Alts:
   - compare: 'cmp'
