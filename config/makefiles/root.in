@@ -23,7 +23,7 @@ RECONFIGURE   = $(PERL) $(BUILD_DIR)/tools/dev/reconfigure.pl
 ## places to look for things
 PARROT_DYNEXT = $(BUILD_DIR)/runtime/parrot/dynext
 PGE_LIBRARY   = $(BUILD_DIR)/runtime/parrot/library/PGE
-PERL6GRAMMAR  = $(PGE_LIBRARY)/Perl6Grammar.pbc
+PERL6GRAMMAR  = $(PGE_LIBRARY)/Perl6Grammar.pbc 
 NQP           = $(BUILD_DIR)/compilers/nqp/nqp.pbc
 PCT           = $(BUILD_DIR)/runtime/parrot/library/PCT.pbc
 PMC_DIR       = src/pmc
@@ -75,7 +75,7 @@ PMC_SOURCES = \
 fun.pbc: $(PARROT) $(SOURCES)
 	$(PARROT) $(PARROT_ARGS) -o fun.pbc fun.pir
 
-src/gen_grammar.pir: $(PERL6GRAMMAR) src/gen_builtins.pir
+src/gen_grammar.pir: $(PERL6GRAMMAR) src/gen_builtins.pir src/parser/grammartt.pg
 	$(PERL) tools/gengrammar.pl
 	$(PARROT) $(PARROT_ARGS) $(PERL6GRAMMAR) \
 	    --output=src/gen_grammar.pir \

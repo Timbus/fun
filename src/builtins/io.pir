@@ -43,7 +43,7 @@ Prints C<X> to stdout. Does not add a newline
 .end
 
 
-=item putchars
+=item puts
 
  S ->  
 
@@ -51,13 +51,39 @@ Prints the string C<S> to stdout.
 
 =cut
 
-.sub 'putchars'
+.sub 'puts'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$S0 = stack.'pop'('String')
 	say $S0
 .end
 
+=item gets
+
+ -> S
+
+Reads a line from stdin. Chomps the trailing newline.
+
+=cut
+
+.sub 'gets'
+	.local pmc stack
+	.local string str, lastchar
+	stack = get_global 'funstack'
+	$P0 = getstdin
+	str = readline $P0
+	
+	#Chomp code pretty much stolen from perl6.
+	#Plz dont sue, guys :(
+	lastchar = substr str, -1
+	if lastchar != "\n" goto done
+	chopn str, 1
+	lastchar = substr str, -1
+	if lastchar != "\r" goto done
+	chopn str, 1
+done:
+	.tailcall stack.'push'(str)
+.end
 
 =item stdin
 

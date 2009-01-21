@@ -65,7 +65,6 @@ to the fun compiler.
 .end
 
 =back
-
 =cut
 
 # Local Variables:
