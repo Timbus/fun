@@ -14,10 +14,10 @@ rule TOP {
 	{*}
 }
 
-##  this <ws> rule treats # as "comment to eol"
-##  you may want to replace it with something appropriate
+##This ws rule will treat anything wrapped in '(*' and '*)' as a block comment.
+##It will also treat a '#' as a single line comment.
 token ws {
-    <!ww>
+	<!ww>
 	[
 	| '(*' [ <-[(]> | '(' <!before '*'> | <.ws> ]*? '*)'
 	| '#' \N* \n? 
@@ -43,13 +43,13 @@ rule expr {
 
 ##Built in functions
 	| <builtins> {*} #= builtins
-	
+
 ##Possibly a user function call (this is the 'last resort' match)
 	|| <userfunccall>	{*} #= userfunccall
 }
 
 ##The function is trechnically a list, but "<ident> == <list>" adds an extra (unnecessary) layer,
-##because I have to dig <expr> out of the <list>
+##because I'd have to dig <expr> out of the <list>
 rule func {
 	| [ '[' ~ ']' <expr>* ] <funcname> '==' {*}
 	| <funcname> [ '[' ~ ']' <expr>* ] '==' {*}
