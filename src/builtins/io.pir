@@ -85,6 +85,23 @@ done:
 	.tailcall stack.'push'(str)
 .end
 
+=item getch
+
+ -> C
+
+Reads a single character from stdin.
+
+=cut
+
+.sub 'getch'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$S0 = read 1
+	$P0 = new 'Char'
+	$P0 = $S0
+	.tailcall stack.'push'($P0)
+.end
+
 =item stdin
 
   ->  S
