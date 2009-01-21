@@ -75,3 +75,8 @@ Alts:
 
   - formatf: 'format'
     rationale: It was trivial to make format also take a float. formatf is a confusing function name anyway.
+    
+  - setautoput: 'setdot'
+    rationale: Being able to set the action of the dot makes autoput unneeded.
+  - autoput: 'getdot'
+    rationale: Since autoput doesn't exist the best you can do is get the function the dot uses.

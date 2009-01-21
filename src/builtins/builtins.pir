@@ -599,30 +599,35 @@ This is done to allow for precompiled modules.
 	.tailcall compiler.'evalfiles'(realfilename)
 .end
 
-=item sethook
+=item setdot
 
  F -> 
 
-Sets the desired action of the 'dot' to the given list C<F>. By default, the dot will call 'put'. You can pass an epty list for the dot to simply leave the resulting value on the stack.
+Sets the desired action of the 'dot' to the given list C<F>. By default, the dot will call 'put'. You can pass an empty list for the dot to simply leave the resulting value on the stack.
 
 =cut
 
-.sub 'sethook'
+.sub 'setdot'
 	.local pmc stack
 	stack = get_global 'funstack'
 	$P0 = stack.'pop'('List')
 	set_global '^dothook', $P0
 .end
 
-=item gethook
+=item getdot
 
  -> F
 
-Gets the hook assigned to the 'dot' to the given function. By default, the dot will call 'put', so this will return [put].
+Gets the action of the 'dot'. By default, the dot will call 'put', so this will return [put].
 
 =cut
 
-.sub 'gethook'
+.sub 'getdot'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = get_global '^dothook'
+	$P0 = '!@deepcopy'($P0)
+	.tailcall stack.'push'($P0)
 .end
 
 =item ban-space-kimchi
