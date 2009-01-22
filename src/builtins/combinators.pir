@@ -127,6 +127,62 @@ times_loop:
 loop_end:
 .end
 
+=item primrec
+
+ X [I] [C]  ->  R
+
+Executes I to obtain an initial value R0.
+For integer X uses increasing positive integers to X, combines by C for new R.
+For aggregate X uses successive members and combines by C for new R.
+
+=cut
+
+.sub 'primrec'
+	.local pmc stack
+	.local pmc i, c, x
+	.local string type
+	.local int count
+	count = 0
+	stack = get_global 'funstack'
+	c = stack.'pop'('List')
+	i = stack.'pop'('List')
+	(x, type) = stack.'pop'('Integer', 'List', 'String')
+	if type == 'List' goto list_loop
+	if type == 'String' goto str_loop
+
+int_loop:
+	unless x > 0 goto combine
+	inc count
+	$I0 = x
+	stack.'push'($I0)
+	dec x
+	goto int_loop
+
+str_loop:
+	x = '!@str2list'(x)
+list_loop:
+	unless x goto combine
+	inc count
+	$P0 = shift x
+	stack.'push'($P0)
+	goto list_loop
+
+combine:
+	stack.'push'(i :flat)
+combine_loop:
+	unless count > 0 goto finish
+	$P0 = '!@deepcopy'(c)
+	stack.'push'($P0 :flat)
+	dec count
+	goto combine_loop
+
+finish:
+.end
+
+#~ .sub 'primrec'
+	
+#~ .end
+
 =item linrec
 
  [B] [T] [R1] [R2]  ->  ...

@@ -3,7 +3,7 @@ use strict;
 use v5.10;
 use YAML::Tiny;
 
-my $yaml = YAML::Tiny->read('funcs.yaml') or die "Could not open funcs.yaml: $!";
+my $yaml = YAML::Tiny->read('changes.yml') or die "Could not open funcs.yaml: $!";
 
 my %joybuiltins;
 open my $fh, "<", "plain-manual.html"
