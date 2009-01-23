@@ -12,8 +12,7 @@ General purpose functions
 
 =item '.'
 
-The dot. This is the only function that is not pushed into the stack. When a '.' is hit in your program, the stack will execute down and functions will be ran as they are hit. By default, the remaining value left on the stack once execution is halted will be popped off and printed to stdout, followed by a newline.
-In the future, the result behaviour of the dot may be customizable, which is why it is not in the IO section.
+The dot. This is the only function that is not pushed into the stack. When a '.' is hit in your program, the stack will execute down and functions will be ran as they are hit. By default, the remaining value left on the stack once execution is halted will be popped off and printed to stdout, followed by a newline. This behaviour can be changed using setdot.
 
 =cut
 

@@ -67,37 +67,70 @@ Saves C<X>, executes C<P>, pushes C<X> back.
 
  .. X Y Z  ->  .. X Y Z [Z Y X ..]
 
-Pushes the stack as a list.
+Pushes the current continutations' stack as a list. The top of the stack will be at the head of the list.
 
 =cut
 
 .sub 'stack'
-	.local pmc stack, stacklist
+	.local pmc stack
+	.local pmc stacklist
 	stack = get_global 'funstack'
-	#TODO: Fix this to work with continuations.
+	#Getstack uses getat(), which makes a copy of each element, so no need to make any copies.
 	stacklist = stack.'getstack'()
+	stacklist = '!@deepcopy'(stacklist)
 	stack.'push'(stacklist)
-	'reverse'()
 .end
 
 =item unstack
 
  [X Y Z ..]  ->  .. Z Y X
 
-The list C<[X Y Z ..]> becomes the new stack.
-Be wary of using this.
+The list C<[X Y Z ..]> becomes the new stack. Setting a new stack inside a continuation will only make the continuation stack change.
+Be wary when using this. 
 
 =cut
 
 .sub 'unstack'
-	.local pmc stack, stacklist, newstack
+	.local pmc stack
+	.local pmc newstack
 	stack = get_global 'funstack'
 	
-	'reverse'()
 	newstack = stack.'pop'('List')
-	
-	##May as well manipulate the stack directly.
 	.tailcall stack.'setstack'(newstack)
+.end
+
+=item infra
+
+ L1 [P]  ->  L2
+
+Using list L1 as stack, executes P and returns a new list L2.
+The first element of L1 is used as the top of stack, and after execution of P the top of stack becomes the first element of L2.
+
+=cut
+
+.sub 'infra'
+	.local pmc stack
+	.local pmc p, li
+	stack = get_global 'funstack'
+	p  = stack.'pop'('List')
+	li = stack.'pop'('List')
+	
+	$P0 = new 'EOSMarker'
+	li.'push'($P0)
+	
+	stack.'makecc'()
+	stack.'setstack'(li)
+	stack.'push'(p :flat)
+	stack.'run'()
+	li = stack.'getstack'()
+	stack.'exitcc'()
+
+	$P0 = li[-1]
+	$S0 = typeof $P0
+	if $S0 != "EOSMarker" goto just_push
+	li.'pop'()
+just_push:
+	.tailcall stack.'push'(li)
 .end
 
 =item times

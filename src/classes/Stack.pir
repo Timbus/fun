@@ -110,26 +110,39 @@ just_one:
 .end
 
 .sub 'getstack' :method
-	.local pmc topcc, flatstack
-	topcc = getattribute self, 'topcc'
-	flatstack = new 'List'
-	
-	$I0 = topcc
+	.local pmc retstack
+	retstack = new 'List'
+
+	$P0 = getattribute self, 'topcc'
+	$P0 = $P0.'getstack'()
+
+	.local pmc it
+	it = iter $P0
+	it = 4 ##runtime/parrot/include/iterator.pasm:.macro_const ITERATE_FROM_END	4
 iter_loop:
-	dec $I0
-	unless $I0 >= 0 goto done
-	$P0 = topcc.'getat'($I0)
-	flatstack.'push'($P0)
+	unless it goto done
+	$P0 = pop it
+	retstack.'push'($P0)
 	goto iter_loop
 done:
-	.return (flatstack)
+	.return(retstack)
 .end
 
 .sub 'setstack' :method
 	.param pmc newstack
+	.local pmc revlist
+	revlist = new 'List'
+	
+iter:
+	unless newstack goto assign_stack
+	$P0 = newstack.'pop'()
+	revlist.'push'($P0)
+	goto iter
+
+assign_stack:
 	$P0 = getattribute self, 'topcc'
 	$P0 = $P0.'getstack'()
-	assign $P0, newstack
+	assign $P0, revlist
 .end
 
 ## Continuation-related stuff: ##
