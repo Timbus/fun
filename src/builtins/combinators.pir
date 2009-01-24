@@ -133,6 +133,54 @@ just_push:
 	.tailcall stack.'push'(li)
 .end
 
+=item construct
+
+ [P] [[P1] [P2] ..]  ->  R1 R2 ..
+
+Makes a new contination and then executes [P] in it.
+Each [Pi] will then be executed in its own continuation on top of the [P] continuation, giving the single value Ri, which will be saved and pushed onto the original stack.
+
+=cut
+
+.sub 'construct'
+	.local pmc stack
+	.local pmc p, plist, rlist
+	stack = get_global 'funstack'
+	plist = stack.'pop'('List')
+	p = stack.'pop'('List')
+	
+	rlist = new 'List'
+	
+	stack.'makecc'()
+	stack.'push'(p :flat)
+	
+ploop:
+	unless plist goto finish
+	$P0 = plist.'shift'()
+	$S0 = typeof $P0
+	unless $S0 == 'List' goto type_error
+	
+	stack.'makecc'()
+	stack.'push'($P0 :flat)
+	$P0 = stack.'pop'()
+	rlist.'push'($P0)
+	stack.'exitcc'()
+	goto ploop
+
+finish:
+	stack.'exitcc'()
+	.tailcall stack.'push'(rlist :flat)
+
+type_error:
+	$P0 = new 'Exception'
+	.local string errmsg
+	errmsg = "Bad type '"
+	errmsg .= $S0
+	errmsg .= "' popped from the stack.\nWas expecting type 'List'."
+	$P0 = errmsg
+	throw $P0
+.end
+
 =item times
 
  N [P]  ->  ...
