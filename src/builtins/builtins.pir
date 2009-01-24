@@ -518,9 +518,9 @@ Initiates garbage collection.
 
 =item include
 
- "filename"  ->
+ S  ->
 
-Loads and runs a joy source file with the name "filename". You do not need to specify the filename extension if it is of the type .fun, .pir, or .pbc
+Loads and runs a joy source file with the name S. You do not need to specify the filename extension if it is of the type .fun, .pir, or .pbc
 This is done to allow for precompiled modules.
 
 =cut
@@ -600,7 +600,7 @@ This is done to allow for precompiled modules.
 
 =item setdot
 
- F -> 
+ F  -> 
 
 Sets the desired action of the 'dot' to the given list C<F>. By default, the dot will call 'put'. You can pass an empty list for the dot to simply leave the resulting value on the stack.
 
@@ -615,7 +615,7 @@ Sets the desired action of the 'dot' to the given list C<F>. By default, the dot
 
 =item getdot
 
- -> F
+ ->  F
 
 Gets the action of the 'dot'. By default, the dot will call 'put', so this will return [put].
 
@@ -629,9 +629,40 @@ Gets the action of the 'dot'. By default, the dot will call 'put', so this will 
 	.tailcall stack.'push'($P0)
 .end
 
+=item getundeferror
+
+  -> B
+
+Pushes the boolean value of the flag that indicates if an error will be thrown when an undefined symbol is called.
+
+=cut
+
+.sub 'getundeferror'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = get_hll_global '^undeferror'
+	$P0 = '@!deepcopy'($P0)
+	stack.'push'($P0)
+.end
+
+=item setundeferror
+
+ B -> 
+
+Will take a boolean value and use it to set the flag controlling the behaviour of undefined symbols.
+
+=cut
+
+.sub 'setundeferror'
+	.local pmc stack
+	stack = get_global 'funstack'
+	$P0 = stack.'pop'('Boolean')
+	set_hll_global '^undeferror', $P0
+.end
+
 =item ban-space-kimchi
 
- ->  S
+  -> S
 
 The function everyone wants implemented.
 
@@ -640,9 +671,8 @@ The function everyone wants implemented.
 .sub 'ban-space-kimchi'
 	.local pmc stack
 	stack = get_global 'funstack'
-	$P0 = new 'String'
-	$P0 = "He sucks."
-	stack.'push'($P0)
+	$S0 = "He sucks."
+	stack.'push'($S0)
 .end
 
 =back

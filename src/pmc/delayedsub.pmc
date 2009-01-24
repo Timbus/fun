@@ -115,8 +115,6 @@ Throws an exception if the sub cannot be found.
 		PMC *P0;
 		STRING *subname = PMC_str_val(SELF);
 		PMC *sub = Parrot_find_name_op(INTERP, subname, next);
-		
-		/*fprintf(stderr, "Invoke called! Name of the sub being looked for: %s\n", subname->strstart);*/
 
 		if (PMC_IS_NULL(sub)) {
 			Parrot_ex_throw_from_c_args(

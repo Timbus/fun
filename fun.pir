@@ -59,7 +59,7 @@ to the fun compiler.
 
 .namespace []
 
-.sub 'mkstack' :init :anon
+.sub 'initfun' :init :anon
 	$P0 = new 'Stack'
 	set_hll_global 'funstack', $P0
 	
@@ -67,6 +67,12 @@ to the fun compiler.
 	$P0 = '!@mklist'($P0)
 	set_hll_global "^dothook", $P0
 .end
+
+.sub '@!fndispatch'
+	.param string fname
+	get_hll_global ['funcs']
+.end
+
 
 =back
 =cut
