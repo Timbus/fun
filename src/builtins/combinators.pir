@@ -192,7 +192,7 @@ int_loop:
 	goto int_loop
 
 str_loop:
-	x = '!@str2list'(x)
+	x = '!@str2chars'(x)
 list_loop:
 	unless x goto combine
 	inc count

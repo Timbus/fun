@@ -14,10 +14,13 @@ Ignore:
   putch: Feels out of place. just use 'chr print'
   app1: Same as unary, and broken in joy. If someone give me a good reason to add this I will.
   app11: Also broken in joy, seems to serve no real purpose.
-  app12: Confusing and could just as well be done using [unary2 pop].
+  app12: Confusing and could just as well be done using [unary2 rolldownd pop].
   ferror: Parrot handles filehandle errors with exceptions.
   setecho: Print source as you run? Seriously? I don't even know if this would work very well in fun.
   echo: Naw dude. Naw.
+  undefs: This doesn't seem useful?
+  clock: Any kind of hi-res time should be handled better than using c's std clock.
+  
 
 Alts:
   - compare: 'cmp'
@@ -62,7 +65,6 @@ Alts:
     rationale: Shorter, more common name.
   - fputchars: 'fputs'
     rationale: Consistant with the putchars change.
-    
   - fputstring: 'fputs'
     rationale: Duplicate of a depreciated function.
     
