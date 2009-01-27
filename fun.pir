@@ -68,11 +68,6 @@ to the fun compiler.
 	set_hll_global "^dothook", $P0
 .end
 
-.sub '@!fndispatch'
-	.param string fname
-	get_hll_global ['funcs']
-.end
-
 
 =back
 =cut
