@@ -45,9 +45,8 @@ to the fun compiler.
 
 .sub 'main' :main
     .param pmc args
-	
-	set_hll_global "args", args
-	
+	#Put the arguments into the private namespace for argc/argv to use.
+	set_hll_global ['private'], 'args', args
 	$P0 = compreg 'fun'
 	$P1 = $P0.'command_line'(args)
 .end
@@ -61,20 +60,23 @@ to the fun compiler.
 
 .sub 'initfun' :init :anon
 	$P0 = new 'Stack'
-	set_hll_global 'funstack', $P0
+	set_hll_global ['private'], 'funstack', $P0
 	
 	$P0 = get_hll_global "put"
 	$P1 = new 'List'
 	$P1.'push'($P0)
-	set_hll_global "^dothook", $P1
+	set_hll_global ['private'], 'dothook', $P1
 .end
 
 .sub '@!fndispatch'
 	.param string fname
-	$P0 = get_hll_global ['fun' ; 'usrfuncs'], fname
-	if null $P0 goto error
+	.local pmc stack
 	
+	#Consider removing DelayedSub and adding error checking for a null sub here.
+	$P0 = get_hll_global ['usrfuncs'], fname
+	$P1 = get_hll_global ['private'], 'funstack'
 	
+
 .end
 
 

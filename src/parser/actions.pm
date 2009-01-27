@@ -3,6 +3,12 @@
 class fun::Grammar::Actions;
 
 method TOP($/) {
+	my $initblock := 
+		PAST::Block.new(
+			:blocktype('declaration'), 
+			:node( $/ ),
+		);
+
 	my $past := 
 		PAST::Block.new(
 			:blocktype('declaration'), 
