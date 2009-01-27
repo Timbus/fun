@@ -64,13 +64,17 @@ to the fun compiler.
 	set_hll_global 'funstack', $P0
 	
 	$P0 = get_hll_global "put"
-	$P0 = '!@mklist'($P0)
-	set_hll_global "^dothook", $P0
+	$P1 = new 'List'
+	$P1.'push'($P0)
+	set_hll_global "^dothook", $P1
 .end
 
 .sub '@!fndispatch'
 	.param string fname
-	get_hll_global ['funcs']
+	$P0 = get_hll_global ['fun' ; 'usrfuncs'], fname
+	if null $P0 goto error
+	
+	
 .end
 
 

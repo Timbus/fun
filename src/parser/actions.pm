@@ -176,7 +176,7 @@ method userfunccall($/) {
 				:node($/),
 			),
 		),
-		#If it's null make a function that will throw an error. If the correct function is loaded later, it will override this.
+		#If it's null make a DelayedSub. Otherwise just push the symbol.
 		PAST::Val.new(
 			:value( "\""~$<funcname>~"\"" ),
 			:returns('DelayedSub'),

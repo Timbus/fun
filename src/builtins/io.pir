@@ -459,11 +459,11 @@ Removes the file or empty directory specified by the path P. B is a boolean indi
 	pop_eh
 	
 	ret = 1
-	.tailcall stack.'push'($P0)
+	.tailcall stack.'push'(ret)
 	
 rm_fail:
 	ret = 0
-	.tailcall stack.'push'($P0)
+	.tailcall stack.'push'(ret)
 .end
 
 =item frename
@@ -488,11 +488,11 @@ The file system object with pathname P1 is renamed to P2. B is a boolean indicat
 	pop_eh
 	
 	ret = 1
-	.tailcall stack.'push'($P0)
+	.tailcall stack.'push'(ret)
 	
 mv_fail:
 	ret = 0
-	.tailcall stack.'push'($P0)
+	.tailcall stack.'push'(ret)
 	
 .end
 
