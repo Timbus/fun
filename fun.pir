@@ -70,13 +70,13 @@ to the fun compiler.
 
 .sub '@!fndispatch'
 	.param string fname
-	.local pmc stack
-	
+	.local pmc stack, fnlist
+	stack = get_hll_global ['private'], 'funstack'
 	#Consider removing DelayedSub and adding error checking for a null sub here.
-	$P0 = get_hll_global ['usrfuncs'], fname
-	$P1 = get_hll_global ['private'], 'funstack'
+	fnlist = get_hll_global ['usrfuncs'], fname
 	
-
+	fnlist = '@!deepcopy'(fnlist)
+	stack.'push'(fnlist :flat)
 .end
 
 
