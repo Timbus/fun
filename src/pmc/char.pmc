@@ -28,11 +28,11 @@ Class method to construct an Integer from the string representation C<rep>.
 	}
 
 	VTABLE STRING *get_string() {
-		return string_chr(INTERP, (UINTVAL)SELF.get_integer());
+		return string_chr(INTERP, PMC_int_val(SELF));
 	}
 
 	VTABLE STRING *get_repr() {
-		return string_chr(INTERP, (UINTVAL)SELF.get_integer());
+		return string_chr(INTERP, PMC_int_val(SELF));
 	}
 
 	VTABLE void set_string_native(STRING *value) {

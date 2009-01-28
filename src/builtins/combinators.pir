@@ -323,7 +323,7 @@ For the latter executes R1, recurses, executes R2.
 	.local pmc stack
 	.local pmc condlist, reclist
 	.local pmc condit, testit
-	stack = get_hll_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	condlist = stack.'pop'('List')
 	unless condlist goto bad_list
 	
