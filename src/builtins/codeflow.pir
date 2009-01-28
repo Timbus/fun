@@ -19,7 +19,7 @@ If B is true, then X = T else X = F.
 
 .sub 'choice'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
 	
@@ -42,7 +42,7 @@ If B is true, then executes T else executes F.
 
 .sub 'branch'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -67,7 +67,7 @@ Executes B within a continuation. If that yields true, then executes T else exec
 
 .sub 'ifte'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -100,7 +100,7 @@ If no C<Bi> yields true, executes default C<D>.
 	.local pmc stack, condlist 
 	.local pmc b, t
 	
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	condlist = stack.'pop'('List')
 	unless condlist goto bad_list
 
@@ -145,7 +145,7 @@ Note: Uses '=' not 'equals' to check for a matching index. I<Do not> use lists (
 .sub 'case'
 	.local pmc stack
 	.local pmc caselist, x, xs
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	caselist = stack.'pop'('List')
 	unless caselist goto bad_list
 
@@ -186,7 +186,7 @@ Defaults to the last case if no match found.
 	.local pmc stack
 	.local pmc caselist, xs
 	.local string x
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	caselist = stack.'pop'('List')
 	unless caselist goto bad_list
 
@@ -225,7 +225,7 @@ If X is an integer, executes T else executes E.
 
 .sub 'ifint'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -250,7 +250,7 @@ If X is a logical or truth value, executes T else executes E.
 
 .sub 'ifbool'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -275,7 +275,7 @@ If X is a string, executes T else executes E.
 
 .sub 'ifstr'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -300,7 +300,7 @@ If X is a char, executes T else executes E.
 
 .sub 'ifchar'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -325,7 +325,7 @@ If X is a list, executes T else executes E.
 
 .sub 'iflist'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -350,7 +350,7 @@ If X is a float, executes T else executes E.
 
 .sub 'ifnum'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')
@@ -375,7 +375,7 @@ If X is a file, executes T else executes E.
 
 .sub 'iffile'
 	.local pmc stack, ifcnd, then, else
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	else = stack.'pop'('List')
 	then = stack.'pop'('List')

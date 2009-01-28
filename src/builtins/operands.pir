@@ -20,7 +20,7 @@ K is the result of adding J to I.
 
 .sub '+'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('Integer', 'Float', 'Char')
 	
 	if $S0 == 'Float' goto addfloat
@@ -52,7 +52,7 @@ K is the result of subtracting J from I.
 
 .sub '-'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('Integer', 'Float', 'Char')
 	
 	if $S0 == 'Float' goto subfloat
@@ -84,7 +84,7 @@ K is the result of multiplying I by J.
 
 .sub '*'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float')
 	$P1 = stack.'pop'('Integer', 'Float')
 	$P1 *= $P0
@@ -101,7 +101,7 @@ K is the result of dividing I by J.
 
 .sub '/'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float')
 	$P1 = stack.'pop'('Integer', 'Float')
 	$P1 /= $P0
@@ -118,7 +118,7 @@ Gives the numeric successor of N.
 
 .sub '++'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	inc $P0
 	.tailcall stack.'push'($P0)
@@ -134,7 +134,7 @@ Gives the numeric predecessor of N.
 
 .sub '--'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	dec $P0
 	.tailcall stack.'push'($P0)
@@ -150,7 +150,7 @@ Integer K is the remainder of dividing I by J.
 
 .sub 'mod'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float')
 	$P1 = stack.'pop'('Integer', 'Float')
 	
@@ -172,7 +172,7 @@ Integers K and L are the quotient and remainder of dividing I by J.
 
 .sub 'div'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float')
 	$I1 = stack.'pop'('Integer', 'Float')
 	
@@ -192,7 +192,7 @@ S is the sign (-1 or 0 or +1) of numeric N
 
 .sub 'sign'
 	.local pmc stack, val
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	val = stack.'pop'('Integer', 'Float')
 	
 	if val < 0 goto negative
@@ -220,7 +220,7 @@ Returns the absolute value of numeric N
 
 .sub 'abs'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float')
 	abs $I0
 	.tailcall stack.'push'($I0)
@@ -236,7 +236,7 @@ Returns the negative value of numeric N
 
 .sub 'neg'
 	.local pmc stack, val
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	val = stack.'pop'('Integer', 'Float')
 	val = val * -1
 	.tailcall stack.'push'($P0)
@@ -252,7 +252,7 @@ N is the maximum of numeric values N1 and N2.  Also supports char.
 
 .sub 'max'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'Char')
 	
@@ -272,7 +272,7 @@ N is the minimum of numeric values N1 and N2.  Also supports char.
 
 .sub 'min'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'Char')
 	

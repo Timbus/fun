@@ -20,7 +20,7 @@ Prints C<X> to stdout.
 
 .sub 'put'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$S0 = '!@mkstring'($P0)
 	say $S0
@@ -36,7 +36,7 @@ Prints C<X> to stdout. Does not add a newline
 
 .sub 'print'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$S0 = '!@mkstring'($P0)
 	print $S0
@@ -53,7 +53,7 @@ Prints the string C<S> to stdout.
 
 .sub 'puts'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	say $S0
 .end
@@ -69,7 +69,7 @@ Reads a line from stdin. Chomps the trailing newline.
 .sub 'gets'
 	.local pmc stack
 	.local string str, lastchar
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = getstdin
 	str = readline $P0
 	
@@ -95,7 +95,7 @@ Reads a single character from stdin.
 
 .sub 'getch'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = read 1
 	$P0 = new 'Char'
 	$P0 = $S0
@@ -112,7 +112,7 @@ Pushes the standard input stream.
 
 .sub 'stdin'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = getstdin
 	stack.'push'($P0)
 .end
@@ -127,7 +127,7 @@ Pushes the standard output stream.
 
 .sub 'stdout'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = getstdout
 	stack.'push'($P0)
 .end
@@ -142,7 +142,7 @@ Pushes the standard error stream.
 
 .sub 'stderr'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = getstderr
 	stack.'push'($P0)
 .end
@@ -157,7 +157,7 @@ The file system object with pathname P is opened with mode M (a char, or string 
 
 .sub 'fopen'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String', 'Char')
 	$S1 = stack.'pop'('String')
 	
@@ -175,7 +175,7 @@ Stream S is closed and removed from the stack.
 
 .sub 'fclose'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	close $P0
 .end
@@ -191,7 +191,7 @@ Stream S is repositioned to position P relative to the point W (0 for the start 
 .sub 'fseek'
 	.local pmc stack
 	.local pmc w, p, fh
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	w = stack.'pop'('Integer')
 	p = stack.'pop'('Integer')
 	fh = stack.'pop'('FileHandle')
@@ -210,7 +210,7 @@ I is the current position of stream S.
 
 .sub 'ftell'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	
 	$I0 = tell $P0
@@ -227,7 +227,7 @@ C is the next available character from stream S.
 
 .sub 'fgetch'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = read $P0, 1
 	$P1 = new 'Char'
@@ -245,7 +245,7 @@ L is the next available line (as a string) from stream S.
 
 .sub 'fgets'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = readline $P0
 	.tailcall stack.'push'($P0, $S0)
@@ -261,7 +261,7 @@ I bytes are read from the current position of stream S and returned as a string 
 
 .sub 'fgetchars'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = read $P0, $I0
@@ -278,7 +278,7 @@ I bytes are read from the current position of stream S and returned as the list 
 
 .sub 'fread'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = stack.'pop'('FileHandle')
 	$S0 = read $P0, $I0
@@ -296,7 +296,7 @@ Flush stream S, forcing all buffered output to be written.
 
 .sub 'fflush'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$P0.'flush'()
 	.tailcall stack.'push'($P0)
@@ -312,7 +312,7 @@ B is the end-of-file status of stream S.
 
 .sub 'feof'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('FileHandle')
 	$I0 = $P0.'eof'()
 	$P1 = new 'Boolean'
@@ -330,7 +330,7 @@ The item X will be written to the current position of stream S.
 
 .sub 'fprint'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$S0 = '!@mkstring'($P0)
 	$P0 = stack.'pop'('FileHandle')
@@ -349,7 +349,7 @@ The item X will be written to the current position of stream S, with an added tr
 
 .sub 'fput'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$S0 = '!@mkstring'($P0)
 	$P0 = stack.'pop'('FileHandle')
@@ -369,7 +369,7 @@ The char C will be written to the current position of stream S
 
 .sub 'fputch'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('Char')
 	$P0 = stack.'pop'('FileHandle')
 	
@@ -387,7 +387,7 @@ The string L will be written to the current position of stream S
 
 .sub 'fputs'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = stack.'pop'('FileHandle')
 	
@@ -407,7 +407,7 @@ A list of integers or charcters are written as bytes to the current position of 
 	.local pmc stack
 	.local pmc l, fh
 	.local string result
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	l = stack.'pop'('List')
 	fh = stack.'pop'('FileHandle')
 	
@@ -449,7 +449,7 @@ Removes the file or empty directory specified by the path P. B is a boolean indi
 .sub 'fremove'
 	.local pmc stack
 	.local pmc os, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	os = new 'OS'
 	ret = new 'Boolean'
@@ -477,7 +477,7 @@ The file system object with pathname P1 is renamed to P2. B is a boolean indicat
 .sub 'frename'
 	.local pmc stack
 	.local pmc file, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('string')
 	$S1 = stack.'pop'('string')
 	file = new 'File'

@@ -66,19 +66,16 @@ to the fun compiler.
 	$P1 = new 'List'
 	$P1.'push'($P0)
 	set_hll_global ['private'], 'dothook', $P1
-.end
-
-.sub '@!fndispatch'
-	.param string fname
-	.local pmc stack, fnlist
-	stack = get_hll_global ['private'], 'funstack'
-	#Consider removing DelayedSub and adding error checking for a null sub here.
-	fnlist = get_hll_global ['usrfuncs'], fname
 	
-	fnlist = '@!deepcopy'(fnlist)
-	stack.'push'(fnlist :flat)
+	$P0 = new 'Boolean'
+	$P0 = 1
+	set_hll_global ['private'], 'undeferror', $P0
+	
+	#I dont really see any case where the following code would be needed.
+	#It's here in case I add a function that needs to get the userfuncs namespace but no user functions exist.
+	#$P0 = get_hll_namespace
+	#$P0.'add_namespace'('userfuncs')
 .end
-
 
 =back
 =cut

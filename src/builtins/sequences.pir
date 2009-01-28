@@ -18,7 +18,7 @@ Aggregate A is aggregate XS with a new member X at the front.
 
 .sub 'cons'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('List', 'String')
 	
 	if $S0 == 'String' goto cons_string
@@ -44,7 +44,7 @@ X and XS are the first and the rest of non-empty aggregate A.
 
 .sub 'uncons'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('List', 'String')
 
 	if $S0 == 'String' goto uncons_string
@@ -69,7 +69,7 @@ Aggregate B is A with a new member X at the front.
 
 .sub 'swons'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	#This isnt normally a good idea but it sure is for this situation.
 	swap()
@@ -98,7 +98,7 @@ R and F are the rest and the first of non-empty aggregate A.
 
 .sub 'unswons'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	swap()
 	
@@ -126,7 +126,7 @@ F is the first member of the non-empty aggregate A.
 
 .sub 'first'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('List', 'String')
 	
 	if $S0 == 'String' goto first_string
@@ -152,7 +152,7 @@ R is the non-empty aggregate A with its first member removed.
 
 .sub 'rest'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('List', 'String')
 	
 	if $S0 == 'String' goto rest_string
@@ -176,7 +176,7 @@ Sequentially pushes members of aggregate A onto the stack and executes P for eac
 .sub 'step'
 	.local pmc stack
 	.local pmc p, a
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	p = stack.'pop'('List')
 	(a, $S0) = stack.'pop'('List', 'String')
@@ -205,7 +205,7 @@ Starting with value V0, sequentially pushes members of aggregate A, and executes
 .sub 'fold'
 	.local pmc stack
 	.local pmc a, v0, p
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	p = stack.'pop'('List')
 	v0 = stack.'pop'()
@@ -237,7 +237,7 @@ Executes P on each member of aggregate A, collects results in sametype aggregate
 	.local pmc stack
 	.local pmc p, a, b
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	(a, type) = stack.'pop'('List', 'String')
 	b = new 'List'
@@ -287,7 +287,7 @@ Uses test P to split aggregate A into sametype aggregates A1 and A2.
 	.local pmc stack
 	.local pmc a, p, x1, x2
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	(a, type) = stack.'pop'('List', 'String')
 	x1 = new 'List'
@@ -336,7 +336,7 @@ Uses test P to filter aggregate A producing sametype aggregate B.
 	.local pmc stack
 	.local pmc a, p, b
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	(a, type) = stack.'pop'('List', 'String')
 	b = new 'List'
@@ -380,7 +380,7 @@ Applies test P to members of aggregate A, X = true if any pass.
 	.local pmc stack
 	.local pmc a, p, x
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	p = stack.'pop'('List')
 	(a, type) = stack.'pop'('List', 'String')
@@ -417,7 +417,7 @@ Applies test P to members of aggregate A, X = true if all pass.
 	.local pmc stack
 	.local pmc a, p, x
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	p = stack.'pop'('List')
 	(a, type) = stack.'pop'('List', 'String')
@@ -455,7 +455,7 @@ Aggregate B is the result of deleting the first N elements of A.
 	.local pmc a
 	.local int n
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	n = stack.'pop'('Integer')
 	if n < 0 goto drop_negative
 	
@@ -493,7 +493,7 @@ Aggregate B is the result of retaining just the first N elements of A.
 	.local pmc a
 	.local int n
 	.local string type
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	n = stack.'pop'('Integer')
 	if n < 0 goto take_negative
 	
@@ -530,7 +530,7 @@ Integer I is the number of elements of aggregate A.
 
 .sub 'size'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('String', 'List')
 	if $S0 == 'String' goto ret_strlen
 	$I0 = $P0
@@ -552,7 +552,7 @@ Sequence U is the concatenation of same type sequences S and T.
 
 .sub 'concat'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('String', 'List')
 	$P1 = stack.'pop'($S0)
 
@@ -578,7 +578,7 @@ Equivalent to [swapd cons concat]
 
 .sub 'enconcat'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('String', 'List')
 	$P1 = stack.'pop'($S0)
 	
@@ -609,7 +609,7 @@ Sequence R is the reverse of sequence S.
 .sub 'reverse'
 	.local pmc stack, value
 	.local int isstr
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	(value, $S0) = stack.'pop'('String', 'List')
 	if $S0 == 'List' goto reverse_array
 	isstr = 1
@@ -643,7 +643,7 @@ X is the member of sequence S at position I.
 
 .sub 'at'
 	.local pmc stack, value, pos
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	pos = stack.'pop'('Integer')
 	(value, $S0) = stack.'pop'('String', 'List')
 	if $S0 == 'String' goto at_string
@@ -671,7 +671,7 @@ X is the I-th member of aggregate S.
 
 .sub 'of'
 	.local pmc stack, value, pos
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	(value, $S0) = stack.'pop'('String', 'List')
 	pos = stack.'pop'('Integer')
 
@@ -701,7 +701,7 @@ C can also be a string, and the first letter of the given string will be convert
 
 .sub 'ord'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'('String', 'Char')
 	if $S0 == 'Char' goto push_char
 	
@@ -724,7 +724,7 @@ Char C is the character whose ascii value is I.
 
 .sub 'chr'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = new 'Char'
 	$P0 = $I0

@@ -19,7 +19,7 @@ Pushes an extra copy of X onto stack.
 
 .sub 'dup'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = '!@deepcopy'($P0)
 	stack.'push'($P0, $P1)
@@ -35,7 +35,7 @@ As if defined by:   dupd  ==  [dup] dip
 
 .sub 'dupd'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
 	$P2 = '!@deepcopy'($P1)
@@ -53,7 +53,7 @@ Interchanges X and Y on top of the stack.
 
 .sub 'swap'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
 	
@@ -70,7 +70,7 @@ Equivalent to [swap] dip
 
 .sub 'swapd'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$P1 = stack.'pop'()
 	$P2 = stack.'pop'()
@@ -87,7 +87,7 @@ Removes X from top of the stack.
 
 .sub 'pop'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	stack.'pop'()
 .end
 
@@ -101,7 +101,7 @@ Equivalent to [pop] dip
 
 .sub 'popd'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	stack.'pop'()
 	stack.'push'($P0)
@@ -118,7 +118,7 @@ Moves X and Y up, moves Z down
 .sub 'rollup'
 	.local pmc stack
 	.local pmc x, y, z
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	z = stack.'pop'()
 	y = stack.'pop'()
 	x = stack.'pop'()
@@ -137,7 +137,7 @@ Moves Y and Z down, moves X up
 .sub 'rolldown'
 	.local pmc stack
 	.local pmc x, y, z
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	z = stack.'pop'()
 	y = stack.'pop'()
 	x = stack.'pop'()
@@ -155,7 +155,7 @@ Equivalent to [rollup] dip
 .sub 'rollupd'
 	.local pmc stack
 	.local pmc x, y, z, w
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	w = stack.'pop'()
 	z = stack.'pop'()
 	y = stack.'pop'()
@@ -175,7 +175,7 @@ Equivalent to [rolldown] dip
 .sub 'rolldownd'
 	.local pmc stack
 	.local pmc x, y, z, w
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	w = stack.'pop'()
 	z = stack.'pop'()
 	y = stack.'pop'()
@@ -194,7 +194,7 @@ Interchanges X and Z
 .sub 'rotate'
 	.local pmc stack
 	.local pmc x, y, z
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	z = stack.'pop'()
 	y = stack.'pop'()
 	x = stack.'pop'()
@@ -212,7 +212,7 @@ Equivalent to [rotate] dip
 .sub 'rotated'
 	.local pmc stack
 	.local pmc x, y, z, w
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	w = stack.'pop'()
 	z = stack.'pop'()
 	y = stack.'pop'()
