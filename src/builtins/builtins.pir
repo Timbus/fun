@@ -18,14 +18,14 @@ The dot. This is the only function that is not pushed into the stack. When a '.'
 
 .sub '.'
 	.local pmc stack, isempty
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	isempty = stack.'run'()
 	if isempty goto finish
 	
 	#~ 'put'()
 	$P0 = new 'EOSMarker'
 	$P1 = stack.'pop'()
-	$P2 = get_hll_global '^dothook'
+	$P2 = get_hll_global ['private'], 'dothook'
 	stack.'makecc'()
 	stack.'push'($P0, $P1, $P2 :flat)
 	isempty = stack.'run'()
@@ -51,7 +51,7 @@ Pushes the number of arguments passed to the program.
 
 .sub 'argc'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = get_global 'args'
 	$I0 = $P0
 	stack.'push'($I0)
@@ -67,7 +67,7 @@ Creates an aggregate A containing the program's command line arguments.
 
 .sub 'argv'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = get_global 'args'
 	$P1 = new 'List'
 	$P1.'append'($P0)
@@ -84,7 +84,7 @@ Retrieves the string value V of the named environment variable S.
 
 .sub 'getenv'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = new 'Env'
 	$S0 = $P0[$S0]
@@ -103,7 +103,7 @@ When execution has finished, the process returns to Joy.
 
 .sub 'system'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	
 	$I0 = spawnw $S0
@@ -119,7 +119,7 @@ Pushes the integer value of time in seconds since the epoch.
 
 .sub 'time'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = time
 	stack.'push'($I0)
 .end
@@ -136,7 +136,7 @@ Month is 1 = January ... 12 = December; isdst is a Boolean flagging daylight sav
 
 .sub 'localtime'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = decodelocaltime $I0
 	#P0 is a Array, we need to turn it into a List
@@ -162,7 +162,7 @@ Month is 1 = January ... 12 = December; isdst is false; weekday is 0..6, where 0
 
 .sub 'gmtime'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = decodetime $I0
 	#P0 is a Array, we need to turn it into a List
@@ -186,7 +186,7 @@ Converts a list T representing local time into a time I. T is in the format gene
 
 .sub 'mktime'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('List')
 	$I0 = $P0
 	if $I0 < 9 goto list_too_small
@@ -209,7 +209,7 @@ This currently uses the C function strftime, so please make sure that the format
 #TODO: Consider turning this into a pure pir function instead of using the C std.
 .sub 'strftime'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = stack.'pop'('List')
 	$I0 = $P0
@@ -233,7 +233,7 @@ The format string is the same as used by sprintf. Length specifiers are not requ
 .sub 'format'
 	.local pmc stack
 	.local string formatstr
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	formatstr = stack.'pop'('String')
 	($P0, $S0) = stack.'pop'('List', 'Integer', 'Float')
 	
@@ -259,7 +259,7 @@ If you don't need any kind of special base for conversion, consider using L<toin
 
 .sub 'strtol'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$P0 = stack.'pop'('String')
 	$I0 = $P0.'to_int'($I0)
@@ -276,7 +276,7 @@ String S is converted to the float F
 
 .sub 'strtod'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	$N0 = $S0
 	.tailcall stack.'push'($N0)
@@ -292,7 +292,7 @@ X is converted to the integer I.
 
 .sub 'toint'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$I0 = $P0
 	.tailcall stack.'push'($I0)
@@ -308,7 +308,7 @@ X is converted to the float F.
 
 .sub 'tonum'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$N0 = $P0
 	.tailcall stack.'push'($N0)
@@ -325,7 +325,7 @@ X is converted to the string S.
 
 .sub 'tostr'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$S0 = '!@mkstring'($P0)
 	.tailcall stack.'push'($S0)
@@ -342,7 +342,7 @@ A list or string will be converted by getting the length, and converting it to a
 
 .sub 'tochar'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'()
 	$I0 = $P0
 	$P0 = new 'Char'
@@ -360,7 +360,7 @@ Pushes largest integer possible.
 
 .sub 'maxint'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = maxint
 	.tailcall stack.'push'($I0)
 .end
@@ -390,7 +390,7 @@ Value X is popped from the stack and the string representation of its type is pu
 
 .sub 'typeof'
 	.local pmc stack, symbol
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	($P0, $S0) = stack.'pop'()
 	stack.'push'($S0)
 .end
@@ -406,7 +406,7 @@ Because it has to directly pop a function without evaluating it, it currently do
 
 .sub 'name'
 	.local pmc stack, symbol
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	#We need to grab the symbol -without- evaluating it.
 	symbol = stack.'pop_raw'()
 	
@@ -432,7 +432,7 @@ Pushes the item whose name is "sym". Will only work for individual symbols, not 
 
 .sub 'intern'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = stack.'pop'('String')
 	$P0 = get_global $S0
 	if null $P0 goto not_found
@@ -457,7 +457,7 @@ Reads a symbol from input and pushes it onto stack. Will only work for individua
 .sub 'get'
 	.local pmc stack
 	.local string str, lastchar
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = getstdin
 	str = readline $P0
 	
@@ -493,14 +493,13 @@ Quotation [P] is the body of user-defined symbol U.
 .sub 'body'
 	.local pmc stack
 	.local pmc symbol
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	#We need to grab the symbol -without- evaluating it.
 	symbol = stack.'pop_raw'()
-	symbol('build' => 1)
+	
 	$S0 = symbol
-	$S0 = concat '^usrfnlist', $S0
-	$P0 = get_global $S0
+	$P0 = get_hll_global ['userfuncs'], $S0
 	stack.'push'($P0)
 .end
 
@@ -527,7 +526,7 @@ This is done to allow for precompiled modules.
 
 .sub 'include'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 
 	.local int iscompiled, noext
 	iscompiled = 1
@@ -608,9 +607,9 @@ Sets the desired action of the 'dot' to the given list C<F>. By default, the dot
 
 .sub 'setdot'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('List')
-	set_global '^dothook', $P0
+	set_hll_global ['private'], 'dothook', $P0
 .end
 
 =item getdot
@@ -623,8 +622,8 @@ Gets the action of the 'dot'. By default, the dot will call 'put', so this will 
 
 .sub 'getdot'
 	.local pmc stack
-	stack = get_global 'funstack'
-	$P0 = get_global '^dothook'
+	stack = get_hll_global ['private'], 'funstack'
+	$P0 = get_hll_global ['private'], 'dothook'
 	$P0 = '!@deepcopy'($P0)
 	.tailcall stack.'push'($P0)
 .end
@@ -639,9 +638,9 @@ Pushes the boolean value of the flag that indicates if an error will be thrown w
 
 .sub 'getundeferror'
 	.local pmc stack
-	stack = get_global 'funstack'
-	$P0 = get_hll_global '^undeferror'
-	$P0 = '@!deepcopy'($P0)
+	stack = get_hll_global ['private'], 'funstack'
+	$P0 = get_hll_global ['private'], 'undeferror'
+	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0)
 .end
 
@@ -655,9 +654,9 @@ Will take a boolean value and use it to set the flag controlling the behaviour o
 
 .sub 'setundeferror'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Boolean')
-	set_hll_global '^undeferror', $P0
+	set_hll_global ['private'], 'undeferror', $P0
 .end
 
 =item ban-space-kimchi
@@ -670,7 +669,7 @@ The function everyone wants implemented.
 
 .sub 'ban-space-kimchi'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$S0 = "He sucks."
 	stack.'push'($S0)
 .end

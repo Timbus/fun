@@ -7,85 +7,39 @@ method TOP($/) {
 		PAST::Block.new(
 			:blocktype('declaration'), 
 			:node( $/ ),
+			:pirflags( ':load' ),
 		);
 	
 	for $<func> {
 		my $name := $_<funcname>;
 		
-		#Generate the function as a pmc array
+		#Turn the user function into a pmc array
 		my $fnlist := PAST::Op.new( :name('!@mklist'), :pasttype('call'), :node($/) );
-
 		for $_<expr> {
 			$fnlist.push( $($_) );
 		}
-		
-		#Then create a method that creates and runs the function list (by inserting it onto the stack)
+
+		#Now put the list in the user function namespace.
 		$past.push(
-			PAST::Block.new(
-				:name($name), 
-				:blocktype('declaration'),
-				:node( $/ ),
-				#Test to see if the list exists.
-				PAST::Op.new(
-					:pasttype('if'),
-					:node($/),
-					PAST::Op.new(
-						:pirop('isnull'),
-						:node($/),
-						PAST::Var.new(
-							:name('!usrfnlist'~$name),
-							:scope('package'),
-							:node($/),
-						),
-					),
-					#If the list is null, create it.
-					PAST::Op.new(
-						:pasttype('bind'),
-						:node($/),
-						
-						PAST::Var.new(
-							:name('!usrfnlist'~$name),
-							:viviself('List'),
-							:scope('package'),
-							:isdecl(1),
-							:lvalue(1),
-						),
-						$fnlist,
-					),
+			PAST::Op.new(
+				:pasttype('bind'),
+				:node($/),
+
+				PAST::Var.new(
+					:name(~$name),
+					:viviself('List'),
+					:scope('package'),
+					:namespace('userfuncs'),
+					:isdecl(1),
+					:lvalue(1),
 				),
-				#Check if the 'build' param was called
-				PAST::Op.new(
-					:pasttype('unless'),
-					:node($/),
-					PAST::Var.new(
-						:name('build'),
-						:scope('parameter'),
-						:viviself('Integer'),
-						:node($/),
-					),
-					#If not, clone the function list then push the func on the stack to be ran.
-					PAST::Op.new(
-						:name('push'), :pasttype('callmethod'), :node($/),
-						PAST::Var.new(
-							:name('funstack'),
-							:scope('package'),
-						),
-						PAST::Op.new(
-							:flat(1),
-							:name('!@deepcopy'),
-							PAST::Var.new(
-								:name('!usrfnlist'~$name),
-								:scope('package'),
-							),
-						),
-					),
-				)
-			)
+				$fnlist,
+			),
 		);
 	}
 	
 	#A stack is a list. The list ends when you hit a dot.
-	#We can just build a large list and then push it all in one go when we hit a dot
+	#We can just build a large list and then push it all in one go when we hit a dot.
 	my $stacklist := 0;
 	
 	for $<expr> {
@@ -103,7 +57,7 @@ method TOP($/) {
 			if !$stacklist {
 				$stacklist := PAST::Op.new( 
 					:name('push'), :pasttype('callmethod'), :node($/),
-					PAST::Var.new( :name('funstack'), :scope('package') ),
+					PAST::Var.new( :name('funstack'), :scope('package'), :namespace('private') ),
 				);
 			}
 			#Add the expr to the stacklist.
@@ -162,30 +116,10 @@ method builtins($/) {
 	);
 }
 
-#Change this, probably make it use inline pir for the ifnull bit
 method userfunccall($/) {
-	make PAST::Op.new(
-		:pasttype('if'),
+	make PAST::Val.new(
+		:value( "\""~$<funcname>~"\"" ),
+		:returns('DelayedSub'),
 		:node($/),
-		PAST::Op.new(
-			:pirop('isnull'),
-			:node($/),
-			PAST::Var.new(
-				:name($<funcname>),
-				:scope('package'),
-				:node($/),
-			),
-		),
-		#If it's null make a function that will throw an error. If the correct function is loaded later, it will override this.
-		PAST::Val.new(
-			:value( "\""~$<funcname>~"\"" ),
-			:returns('DelayedSub'),
-			:node($/),
-		),
-		PAST::Var.new(
-			:name($<funcname>),
-			:scope('package'),
-			:node($/),
-		),
-	)
+	);
 }

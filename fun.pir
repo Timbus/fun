@@ -45,9 +45,8 @@ to the fun compiler.
 
 .sub 'main' :main
     .param pmc args
-	
-	set_hll_global "args", args
-	
+	#Put the arguments into the private namespace for argc/argv to use.
+	set_hll_global ['private'], 'args', args
 	$P0 = compreg 'fun'
 	$P1 = $P0.'command_line'(args)
 .end
@@ -61,13 +60,22 @@ to the fun compiler.
 
 .sub 'initfun' :init :anon
 	$P0 = new 'Stack'
-	set_hll_global 'funstack', $P0
+	set_hll_global ['private'], 'funstack', $P0
 	
 	$P0 = get_hll_global "put"
-	$P0 = '!@mklist'($P0)
-	set_hll_global "^dothook", $P0
+	$P1 = new 'List'
+	$P1.'push'($P0)
+	set_hll_global ['private'], 'dothook', $P1
+	
+	$P0 = new 'Boolean'
+	$P0 = 1
+	set_hll_global ['private'], 'undeferror', $P0
+	
+	#I dont really see any case where the following code would be needed.
+	#It's here in case I add a function that needs to get the userfuncs namespace but no user functions exist.
+	#$P0 = get_hll_namespace
+	#$P0.'add_namespace'('userfuncs')
 .end
-
 
 =back
 =cut

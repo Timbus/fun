@@ -16,9 +16,9 @@ Initializes the string.
 
 */
 
-    VTABLE void init() {
-        PMC_str_val(SELF) = string_make_empty(INTERP, enum_stringrep_one, 0);
-    }
+	VTABLE void init() {
+		PMC_str_val(SELF) = string_make_empty(INTERP, enum_stringrep_one, 0);
+	}
 
 /*
 
@@ -30,10 +30,10 @@ Marks the string as live.
 
 */
 
-    VTABLE void mark() {
-        if (PMC_str_val(SELF))
-            pobject_lives(INTERP, (PObj *)PMC_str_val(SELF));
-    }
+	VTABLE void mark() {
+		if (PMC_str_val(SELF))
+			pobject_lives(INTERP, (PObj *)PMC_str_val(SELF));
+	}
 
 /*
 
@@ -45,12 +45,12 @@ Creates a copy of the string.
 
 */
 
-    VTABLE PMC *clone() {
-        PMC * const dest = pmc_new_noinit(INTERP, SELF->vtable->base_type);
-        PObj_custom_mark_SET(dest);
-        PMC_str_val(dest) = string_copy(INTERP, SELF.get_string());
-        return dest;
-    }
+	VTABLE PMC *clone() {
+		PMC * const dest = pmc_new_noinit(INTERP, SELF->vtable->base_type);
+		PObj_custom_mark_SET(dest);
+		PMC_str_val(dest) = string_copy(INTERP, SELF.get_string());
+		return dest;
+	}
 
 /*
 
@@ -62,10 +62,10 @@ Returns the string itself.
 
 */
 
-    VTABLE STRING *get_string() {
-        STRING * const s = PMC_str_val(SELF);
-        return s ? string_copy(INTERP, s) : NULL;
-    }
+	VTABLE STRING *get_string() {
+		STRING * const s = PMC_str_val(SELF);
+		return s ? string_copy(INTERP, s) : NULL;
+	}
 
 /*
 
@@ -77,14 +77,14 @@ Sets the value of the string to that of the specified C<string>.
 
 */
 
-    VTABLE void set_string_native(STRING *value) {
-        /* Only allow constant PMCs to embed constant strings */
-        if (PObj_constant_TEST(SELF) && !PObj_constant_TEST(value)) {
-             const char *copy = string_to_cstring(INTERP, value);
-             value            = const_string(INTERP, copy);
-        }
-        PMC_str_val(SELF) = value;
-    }
+	VTABLE void set_string_native(STRING *value) {
+		/* Only allow constant PMCs to embed constant strings */
+		if (PObj_constant_TEST(SELF) && !PObj_constant_TEST(value)) {
+			const char *copy = string_to_cstring(INTERP, value);
+			value            = const_string(INTERP, copy);
+		}
+		PMC_str_val(SELF) = value;
+	}
 
 /*
 
@@ -96,13 +96,15 @@ Sets the value of the string to a copy of the specified C<string>.
 
 */
 
-    VTABLE void assign_string_native(STRING *value) {
-        PMC_str_val(SELF) = string_set(INTERP, PMC_str_val(SELF), value);
-    }
+	VTABLE void assign_string_native(STRING *value) {
+		PMC_str_val(SELF) = string_set(INTERP, PMC_str_val(SELF), value);
+	}
 
 /*
 
 =item C<opcode_t* invoke(void* next)>
+
+B<NOT USED AT THE MOMENT-- I DON'T KNOW ENOUGH ABOUT PARROT INTERNALS>
 
 Finds and calls the subroutine that matches the name assigned to the PMC. 
 Throws an exception if the sub cannot be found.
@@ -110,13 +112,28 @@ Throws an exception if the sub cannot be found.
 =cut
 
 */
+/*
+	I need to push PMC_str_val(SELF) as an argument somehow before I call userdispatch
+	I don't know how to do this, so this entire function does not work :(
+	
+	VTABLE opcode_t *invoke(void *next) {
+		PMC * const hll_ns = Parrot_get_ctx_HLL_namespace(INTERP);
+		PMC * const userfn_ns = 
+			Parrot_get_namespace_keyed_str(
+				INTERP, 
+				hll_ns, 
+				CONST_STRING(INTERP, "userfuncs")
+			);
 
-	VTABLE opcode_t *invoke(void *next) {       
-		PMC *P0;
-		STRING *subname = PMC_str_val(SELF);
-		PMC *sub = Parrot_find_name_op(INTERP, subname, next);
+		PMC * const dispatchsub = 
+			Parrot_find_global_op(
+				INTERP, 
+				userfn_ns, 
+				CONST_STRING(INTERP, "!@userdispatch"), 
+				next
+			);
 
-		if (PMC_IS_NULL(sub)) {
+		if (PMC_IS_NULL(dispatchsub)) {
 			Parrot_ex_throw_from_c_args(
 				INTERP,
 				next,
@@ -124,7 +141,7 @@ Throws an exception if the sub cannot be found.
 				"Function is undefined"
 			);
 		}
-		return VTABLE_invoke(INTERP, sub, next);
+		return VTABLE_invoke(INTERP, dispatchsub, next);
 	}
-
+*/
 }

@@ -20,14 +20,14 @@ Pushes a random integer.
 
 .sub 'rand'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
-	$P0 = get_global '^rand'
+	$P0 = get_hll_global ['private'], 'rand'
 	unless null $P0 goto ret_rand
 	$P0 = new 'Random'
 	$I0 = time
 	$P0 = $I0
-	set_global '^rand', $P0
+	set_hll_global ['private'], 'rand', $P0
 ret_rand:
 	$I0 = $P0
 	.tailcall stack.'push'($I0)
@@ -43,14 +43,14 @@ Takes an integer to set the random generator seed.
 
 .sub 'srand'
 	.local pmc stack, seed
-	stack = get_global 'funstack'
-	
+	stack = get_hll_global ['private'], 'funstack'
+
 	seed = stack.'pop'('Integer')
-	
-	$P0 = get_global '^rand'
+
+	$P0 = get_hll_global ['private'], 'rand'
 	unless null $P0 goto set_rand
 	$P0 = new 'Random'
-	set_global '^rand', $P0
+	set_hll_global ['private'], 'rand', $P0
 set_rand:
 	$P0 = seed
 .end
@@ -65,7 +65,7 @@ G is the arc cosine of F.
 
 .sub 'acos'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = acos $N0
 	.tailcall stack.'push'($N0)
@@ -81,7 +81,7 @@ G is the arc sine of F.
 
 .sub 'asin'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = asin $N0
 	.tailcall stack.'push'($N0)
@@ -97,7 +97,7 @@ G is the arc tangent of F.
 
 .sub 'atan'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = atan $N0
 	.tailcall stack.'push'($N0)
@@ -113,7 +113,7 @@ H is the arc tangent of F / G.
 
 .sub 'atan2'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N1 = stack.'pop'('Float', 'Integer')
 	$N0 = atan $N1, $N0
@@ -130,7 +130,7 @@ G is the float ceiling of F.
 
 .sub 'ceil'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = ceil $N0
 	.tailcall stack.'push'($N0)
@@ -146,7 +146,7 @@ G is the cosine of F.
 
 .sub 'cos'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = cos $N0
 	.tailcall stack.'push'($N0)
@@ -162,7 +162,7 @@ G is the hyperbolic cosine of F.
 
 .sub 'cosh'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = cosh $N0
 	.tailcall stack.'push'($N0)
@@ -178,7 +178,7 @@ G is e (2.718281828...) raised to the Fth power.
 
 .sub 'exp'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = exp $N0
 	.tailcall stack.'push'($N0)
@@ -194,7 +194,7 @@ G is the floor of F.
 
 .sub 'floor'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = floor $N0
 	.tailcall stack.'push'($N0)
@@ -211,7 +211,7 @@ Unless F = 0, 0.5 <= abs(G) < 1.0.
 
 .sub 'frexp'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')	
 	$N0 = frexp $N0, $I0
 	.tailcall stack.'push'($N0, $I0)
@@ -227,7 +227,7 @@ G is F times 2 to the Ith power.
 
 .sub 'ldexp'
 	.local pmc stack, cfrexp
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer')
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N1 = pow 2, $I0
@@ -245,7 +245,7 @@ G is the natural logarithm of F.
 
 .sub 'log'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = log2 $N0
 	.tailcall stack.'push'($N0)
@@ -261,7 +261,7 @@ G is the common logarithm of F.
 
 .sub 'log10'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = log10 $N0
 	.tailcall stack.'push'($N0)
@@ -277,7 +277,7 @@ G is the fractional part and H is the integer part (expressed as a float) of F.
 
 .sub 'modf'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$I0 = $N0
 	$N1 = $N0 - $I0
@@ -295,7 +295,7 @@ H is F raised to the Gth power.
 
 .sub 'pow'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N1 = stack.'pop'('Float', 'Integer')
 	$N0 = pow $N1, $N0
@@ -312,7 +312,7 @@ G is the sine of F.
 
 .sub 'sin'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = sin $N0
 	.tailcall stack.'push'($N0)
@@ -328,7 +328,7 @@ G is the hyperbolic sine of F.
 
 .sub 'sinh'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = sinh $N0
 	.tailcall stack.'push'($N0)
@@ -344,7 +344,7 @@ G is the square root of F.
 
 .sub 'sqrt'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = sqrt $N0
 	.tailcall stack.'push'($N0)
@@ -360,7 +360,7 @@ G is the tangent of F.
 
 .sub 'tan'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = tan $N0
 	.tailcall stack.'push'($N0)
@@ -376,7 +376,7 @@ G is the hyperbolic tangent of F.
 
 .sub 'tanh'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$N0 = tanh $N0
 	.tailcall stack.'push'($N0)
@@ -392,7 +392,7 @@ I is an integer equal to the truncated float F.
 
 .sub 'trunc'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$N0 = stack.'pop'('Float', 'Integer')
 	$I0 = $N0
 	.tailcall stack.'push'($I0)

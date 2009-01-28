@@ -6,7 +6,7 @@ A collection of predicates used to compare and test values and value types.
 
 .sub '<'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -23,7 +23,7 @@ true:
 
 .sub '>'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -40,7 +40,7 @@ true:
 
 .sub '='
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -57,7 +57,7 @@ true:
 
 .sub '!='
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -75,7 +75,7 @@ true:
 
 .sub '<='
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -93,7 +93,7 @@ true:
 
 .sub '>='
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Char')
 	$P2 = new 'Boolean'
@@ -112,7 +112,7 @@ true:
 
 .sub 'or'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 	
@@ -126,7 +126,7 @@ true:
 
 .sub 'and'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 
@@ -140,7 +140,7 @@ true:
 
 .sub 'xor'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 	$I1 = stack.'pop'('Integer', 'Float', 'Boolean', 'List', 'String')
 
@@ -154,7 +154,7 @@ true:
 
 .sub 'small'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('List', 'Integer', 'String') #TODO: Reconsider int being here?
 	
 	abs $I0
@@ -168,7 +168,7 @@ true:
 
 .sub 'null'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'('List', 'String')
 	
 	abs $I0
@@ -182,7 +182,7 @@ true:
 
 .sub 'not'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$I0 = stack.'pop'()
 	not $I0
 	$P0 = new 'Boolean'
@@ -193,7 +193,7 @@ true:
 
 .sub 'equal'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -223,7 +223,7 @@ false:
 
 .sub 'cmp'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('Integer', 'Float', 'String', 'Boolean', 'Char')
 	$P1 = stack.'pop'('Integer', 'Float', 'String', 'Boolean', 'Char')
 	
@@ -241,7 +241,7 @@ Tests whether aggregate A has X as a member.
 
 .sub 'has'
 	.local pmc stack, x, a
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	(x, $S0) = stack.'pop'()
 	(a, $S1) = stack.'pop'('List', 'String')
 	
@@ -282,7 +282,7 @@ Tests whether X is a member of aggregate A.
 
 .sub 'in'
 	.local pmc stack, x, a
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	(a, $S1) = stack.'pop'('List', 'String')
 	(x, $S0) = stack.'pop'()
 	
@@ -323,7 +323,7 @@ Tests whether X is a floating point number.
 
 .sub 'num?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -346,7 +346,7 @@ Tests whether X is an integer.
 
 .sub 'int?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -369,7 +369,7 @@ Tests whether X is a boolean.
 
 .sub 'bool?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -392,7 +392,7 @@ Tests whether X is a string.
 
 .sub 'str?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -415,7 +415,7 @@ Tests whether X is a char.
 
 .sub 'char?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -438,7 +438,7 @@ Tests whether X is a list.
 
 .sub 'list?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -461,7 +461,7 @@ Tests whether X is not a list.
 
 .sub 'leaf?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -484,7 +484,7 @@ Tests whether X is a file stream.
 
 .sub 'file?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop'()
@@ -508,7 +508,7 @@ NOTE: Keep in mind this function requires a value to be removed from the stack w
 
 .sub 'user?'
 	.local pmc stack, ret
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	ret = new 'Boolean'
 	
 	($P0, $S0) = stack.'pop_raw'()

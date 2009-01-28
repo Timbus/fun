@@ -91,12 +91,13 @@ stack_empty:
 .sub 'run' :method
 	.local pmc stack
 	.local pmc value
+	.local int stacksz
 	stack = getattribute self, 'stack'
 	
 run_down:
 	#Test to see if we can just pop.
-	$I0 = stack
-	if $I0 goto just_run
+	stacksz = stack
+	if stacksz goto just_run
 
 	#If we need to walk down the continuation list, need to test a couple things
 	.local pmc mypos, parent
@@ -112,7 +113,7 @@ run_down:
 	if $S0 == 'EOSMarker' goto stack_empty
 	if $S0 == 'Sub' goto runval
 	if $S0 == 'Closure' goto runval
-	if $S0 == 'DelayedSub' goto runval
+	if $S0 == 'DelayedSub' goto usrfnc_runval
 	stack.'push'(value)
 	.return(0)
 	
@@ -122,18 +123,33 @@ just_run:
 	if $S0 == 'EOSMarker' goto stack_empty_pop
 	if $S0 == 'Sub' goto pre_runval
 	if $S0 == 'Closure' goto pre_runval
-	if $S0 == 'DelayedSub' goto pre_runval
+	if $S0 == 'DelayedSub' goto pre_usrfnc_runval
 	.return(0)
 
 pre_runval:
 	#This is popping from the continuation pmcarray, not the stack.
 	#Don't confuse yourself
-	stack.'pop'()
+	#stack.'pop'()
+	
+	#Optimized? Test it out later.
+	$I0 = stacksz - 1
+	stack = $I0 
 runval:
 	push_eh run_error
 	value()
 	pop_eh
 	goto run_down
+
+#Okay, I know theres a more elegant solution to all this code re-use.
+#Maybe maually setting up the function calls would help in some way.. Something to ponder.
+pre_usrfnc_runval:
+	#stack.'pop'()
+	$I0 = stacksz - 1
+	stack = $I0 
+usrfnc_runval:
+	'!@userdispatch'(value, stack)
+	goto run_down
+
 
 stack_empty_pop:
 	stack.'pop'()
@@ -210,3 +226,30 @@ walk_down:
 	.tailcall $P0.'getat'(pos)
 .end
 
+.namespace []
+#I do not like this being here at all, but I cant figure out how to make an invokable DelayedSub.
+.sub '!@userdispatch'
+	.param string fname
+	.param pmc stack
+	.local pmc fnlist
+
+	fnlist = get_global ['userfuncs'], fname
+	if null fnlist goto null_sub
+
+	fnlist = '!@deepcopy'(fnlist)
+	stack.'append'(fnlist)
+	.return()
+
+null_sub:
+	.local pmc errorflag
+	errorflag = get_hll_global ['private'], 'undeferror'
+	unless errorflag goto ignore_error
+
+	errorflag = get_global ['usrfuncs'], fname
+	$S0 = "Error: '"
+	$S0 .= fname
+	$S0 .= "' is not defined. Perhaps you misspelled a symbol?"
+	die $S0
+
+ignore_error:
+.end

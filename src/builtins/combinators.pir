@@ -21,7 +21,7 @@ Executes the list C<P>
 .sub 'i'
 	.local pmc list, stack
 	
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	list = stack.'pop'('List')
 	stack.'push'(list :flat)
 
@@ -38,7 +38,7 @@ Executes the list C<P> without removing it from the stack
 .sub 'x'
 	.local pmc list, listcpy, stack
 	
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	list = stack.'pop'('List')
 	listcpy = '!@deepcopy'(list)
 	stack.'push'(list, listcpy :flat)
@@ -55,7 +55,7 @@ Saves C<X>, executes C<P>, pushes C<X> back.
 
 .sub 'dip'
 	.local pmc stack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	$P0 = stack.'pop'('List')
 	$P1 = stack.'pop'()
 	
@@ -74,7 +74,7 @@ Pushes the current continutations' stack as a list. The top of the stack will be
 .sub 'stack'
 	.local pmc stack
 	.local pmc stacklist
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	#Getstack uses getat(), which makes a copy of each element, so no need to make any copies.
 	stacklist = stack.'getstack'()
 	stacklist = '!@deepcopy'(stacklist)
@@ -93,7 +93,7 @@ Be wary when using this.
 .sub 'unstack'
 	.local pmc stack
 	.local pmc newstack
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	newstack = stack.'pop'('List')
 	.tailcall stack.'setstack'(newstack)
@@ -111,7 +111,7 @@ The first element of L1 is used as the top of stack, and after execution of P th
 .sub 'infra'
 	.local pmc stack
 	.local pmc p, li
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p  = stack.'pop'('List')
 	li = stack.'pop'('List')
 	
@@ -145,7 +145,7 @@ Each [Pi] will then be executed in its own continuation on top of the [P] contin
 .sub 'construct'
 	.local pmc stack
 	.local pmc p, plist, rlist
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	plist = stack.'pop'('List')
 	p = stack.'pop'('List')
 	
@@ -193,7 +193,7 @@ Executes C<P>, C<N> times
 	.local pmc stack
 	.local pmc p
 	.local int n
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	n = stack.'pop'('Integer')
 	
@@ -224,7 +224,7 @@ For aggregate X uses successive members and combines by C for new R.
 	.local string type
 	.local int count
 	count = 0
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	c = stack.'pop'('List')
 	i = stack.'pop'('List')
 	(x, type) = stack.'pop'('Integer', 'List', 'String')
@@ -279,7 +279,7 @@ NOTE: C<B> is executed within a new continuation, so that the test gobbles no va
 	.local pmc stack
 	.local pmc reclist
 	.local pmc p, t, r1, r2
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	r2 = stack.'pop'('List')
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
@@ -390,7 +390,7 @@ NOTE: C<B> is executed within a new continuation, so that the test gobbles no va
 .sub 'binrec'
 	.local pmc stack
 	.local pmc p, t, r1, r2
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	r2 = stack.'pop'('List')
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
@@ -438,7 +438,7 @@ Else executes R1, recurses.
 .sub 'tailrec'
 	.local pmc stack
 	.local pmc p, t, r1
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
 	p = stack.'pop'('List')
@@ -473,7 +473,7 @@ Else executes C<R1> and then C<[[P] [T] [R1] [R2] genrec] R2>.
 .sub 'genrec'
 	.local pmc stack
 	.local pmc p, t, r1, r2
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	r2 = stack.'pop'('List')
 	r1 = stack.'pop'('List')
@@ -517,7 +517,7 @@ The end result is that nothing is removed from the stack.
 .sub 'nullary'
 	.local pmc stack
 	.local pmc p
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	stack.'makecc'()
 	stack.'push'(p :flat)
@@ -538,7 +538,7 @@ C<X> will always be removed.
 .sub 'unary'
 	.local pmc stack
 	.local pmc p, x
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	x = stack.'pop'()
 	stack.'makecc'()
@@ -561,7 +561,7 @@ C<X> and C<Y> will always be removed.
 .sub 'binary'
 	.local pmc stack
 	.local pmc p, x, y
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	y = stack.'pop'()
 	x = stack.'pop'()
@@ -584,7 +584,7 @@ C<X>, C<Y> and C<Z> will always be removed.
 .sub 'ternary'
 	.local pmc stack
 	.local pmc p, x, y, z
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	z = stack.'pop'()
 	y = stack.'pop'()
@@ -607,7 +607,7 @@ Executes P twice, with X1 and X2 on top of the stack. Returns the two values R1 
 .sub 'unary2'
 	.local pmc stack
 	.local pmc p, pc, x1, x2
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	x2 = stack.'pop'()
 	x1 = stack.'pop'()
@@ -639,7 +639,7 @@ Executes P three times, with Xi, returns Ri (i = 1..3).
 .sub 'unary3'
 	.local pmc stack
 	.local pmc p, pc, x1, x2, x3
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	x3 = stack.'pop'()
 	x2 = stack.'pop'()
@@ -679,7 +679,7 @@ Executes P four times, with Xi, returns Ri (i = 1..4).
 .sub 'unary4'
 	.local pmc stack
 	.local pmc p, pc, x1, x2, x3, x4
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p = stack.'pop'('List')
 	x4 = stack.'pop'()
 	x3 = stack.'pop'()
@@ -727,7 +727,7 @@ While executing C<B> yields true executes C<D>.
 .sub 'while'
 	.local pmc stack
 	.local pmc b, d
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	d = stack.'pop'('List')
 	b = stack.'pop'('List')
 
@@ -758,7 +758,7 @@ Executes C<P1> and C<P2>, each with C<X> on top, producing two results.
 .sub 'cleave'
 	.local pmc stack
 	.local pmc x, p1, p2, r1, r2
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	p2 = stack.'pop'('List')
 	p1 = stack.'pop'('List')
 	x = stack.'pop'()
@@ -791,7 +791,7 @@ Recursively traverses leaves of tree T, executes P for each leaf.
 .sub 'treestep'
 	.local pmc stack
 	.local pmc p, t, tlist
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	
 	p = stack.'pop'('List')
 	t = stack.'pop'('List')
@@ -832,7 +832,7 @@ T is a tree. If T is a leaf, executes O. Else executes [[O] [C] treerec] C.
 .sub 'treerec'
 	.local pmc stack
 	.local pmc t, o, c
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	c = stack.'pop'('List')
 	o = stack.'pop'('List')
 	(t, $S0) = stack.'pop'()
@@ -860,7 +860,7 @@ Else executes O2 and then [[O1] [O2] [C] treegenrec] C.
 .sub 'treegenrec'
 	.local pmc stack
 	.local pmc t, o1, o2, c
-	stack = get_global 'funstack'
+	stack = get_hll_global ['private'], 'funstack'
 	c = stack.'pop'('List')
 	o2 = stack.'pop'('List')
 	o1 = stack.'pop'('List')
