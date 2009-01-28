@@ -12,7 +12,7 @@ The functions in this section are specifically made for manipulating sequences/a
 
  X XS  ->  A
 
-Aggregate A is aggregate XS with a new member X at the front.
+Aggregate C<A> is aggregate C<XS> with a new member C<X> at the front.
 
 =cut
 
@@ -38,7 +38,7 @@ cons_string:
 
  A  ->  X XS
 
-X and XS are the first and the rest of non-empty aggregate A.
+C<X> and C<XS> are the first and the rest of non-empty aggregate C<A>.
 
 =cut
 
@@ -61,9 +61,9 @@ uncons_string:
 
 =item swons
 
- A X  ->  B
+ XS X  ->  A
 
-Aggregate B is A with a new member X at the front.
+Aggregate C<A> is aggregate C<XS> with a new member C<X> at the front.
 
 =cut
 
@@ -90,9 +90,9 @@ swons_string:
 
 =item unswons
 
- A  ->  R F
+ A  ->  XS X
 
-R and F are the rest and the first of non-empty aggregate A.
+C<X> and C<XS> are the first and the rest of non-empty aggregate C<A>.
 
 =cut
 
@@ -118,9 +118,9 @@ unswons_string:
 
 =item first
 
- A  ->  F
+ A  ->  X
 
-F is the first member of the non-empty aggregate A.
+X is the first member of the non-empty aggregate A.
 
 =cut
 
@@ -144,9 +144,9 @@ first_string:
 
 =item rest
 
- A  ->  R
+ A  ->  XS
 
-R is the non-empty aggregate A with its first member removed.
+XS is the non-empty aggregate A with its first member removed.
 
 =cut
 

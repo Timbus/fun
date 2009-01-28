@@ -497,10 +497,9 @@ Quotation [P] is the body of user-defined symbol U.
 	
 	#We need to grab the symbol -without- evaluating it.
 	symbol = stack.'pop_raw'()
-	symbol('build' => 1)
+	
 	$S0 = symbol
-	$S0 = concat '^usrfnlist', $S0
-	$P0 = get_global $S0
+	$P0 = get_hll_global ['userfuncs'], $S0
 	stack.'push'($P0)
 .end
 
