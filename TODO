@@ -1,4 +1,3 @@
-Add more builtins, I guess
 Binrec sucks. Look into ways to make it nonrecursive.
 W/R/T [P] calls: Look into all the deepcopy calls you make. There are far too many, and I'm sure a lot can be removed.
 Look into adding a .const pmc for the stack instead of using get_global. It should be a lot faster. <-- Maybe give up on this one.

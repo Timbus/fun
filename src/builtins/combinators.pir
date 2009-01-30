@@ -260,10 +260,6 @@ combine_loop:
 finish:
 .end
 
-#~ .sub 'primrec'
-	
-#~ .end
-
 =item linrec
 
  [B] [T] [R1] [R2]  ->  ...
@@ -296,6 +292,7 @@ recurse:
 
 	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
+	#THis keeps the stack smaller.. makes functions run more 'in order' too for what that is worth..
 	stack.'run'()
 	
 	$P0 = '!@deepcopy'(r2)
@@ -379,7 +376,7 @@ bad_list:
 
  [B] [T] [R1] [R2]  ->  ...
 
-Executes C<P>. If that yields true, executes C<T>.
+Executes C<B>. If that yields true, executes C<T>.
 Else uses C<R1> to produce two intermediates, recurses twice,
 then executes C<R2> (usually to combine their results).
 
@@ -390,12 +387,17 @@ NOTE: C<B> is executed within a new continuation, so that the test gobbles no va
 .sub 'binrec'
 	.local pmc stack
 	.local pmc p, t, r1, r2
+	.local pmc vallist, reclist
 	stack = get_hll_global ['private'], 'funstack'
 	r2 = stack.'pop'('List')
 	r1 = stack.'pop'('List')
 	t = stack.'pop'('List')
 	p = stack.'pop'('List')
 	
+	reclist = new 'List'
+	vallist = new 'List'
+
+recurse_one:
 	stack.'makecc'()
 	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
@@ -408,22 +410,33 @@ NOTE: C<B> is executed within a new continuation, so that the test gobbles no va
 	stack.'push'($P0 :flat)
 	#Save the second of the values to use after the first recursion halts.
 	$P0 = stack.'pop'()
-
-	stack.'push'(p, t, r1, r2)
-	'binrec'()
+	vallist.'push'($P0)
 	
-	stack.'push'($P0, p, t, r1, r2)
-	'binrec'()
+	#~ stack.'push'(p, t, r1, r2)
+	#~ 'binrec'()
+	goto recurse_one
 
+recurse_two:
+	unless vallist goto rec_done
+	$P0 = vallist.'pop'()
+	#~ stack.'push'($P0, p, t, r1, r2)
+	#~ 'binrec'()
+	stack.'push'($P0)
+	stack.'dump'()
 	$P0 = '!@deepcopy'(r2)
-	stack.'push'($P0 :flat)
+	splice reclist, $P0, 0, 0
+	goto recurse_one
+	
+rec_done:
+	stack.'push'(reclist :flat)
+	stack.'dump'()
 	stack.'run'()
 	.return()
 	
 do_true:
 	$P0 = '!@deepcopy'(t)
 	stack.'push'($P0 :flat)
-	stack.'run'()
+	goto recurse_two
 .end
 
 =item tailrec
