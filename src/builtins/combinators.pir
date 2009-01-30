@@ -412,25 +412,19 @@ recurse_one:
 	$P0 = stack.'pop'()
 	vallist.'push'($P0)
 	
-	#~ stack.'push'(p, t, r1, r2)
-	#~ 'binrec'()
 	goto recurse_one
 
 recurse_two:
 	unless vallist goto rec_done
 	$P0 = vallist.'pop'()
-	#~ stack.'push'($P0, p, t, r1, r2)
-	#~ 'binrec'()
 	stack.'push'($P0)
-	stack.'dump'()
+	
 	$P0 = '!@deepcopy'(r2)
 	splice reclist, $P0, 0, 0
 	goto recurse_one
 	
 rec_done:
 	stack.'push'(reclist :flat)
-	stack.'dump'()
-	stack.'run'()
 	.return()
 	
 do_true:
