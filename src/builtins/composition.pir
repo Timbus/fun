@@ -162,7 +162,7 @@ Equivalent to [rollup] dip
 	x = stack.'pop'()
 	stack.'push'(z, x, y, w)
 .end
-#,,
+#=
 
 =item rolldownd
 
@@ -182,6 +182,7 @@ Equivalent to [rolldown] dip
 	x = stack.'pop'()
 	stack.'push'(y, z, x, w)
 .end
+#=
 
 =item rotate
 
@@ -200,6 +201,7 @@ Interchanges X and Z
 	x = stack.'pop'()
 	stack.'push'(z, y, x)
 .end
+#,,
 
 =item rotated
 
@@ -219,7 +221,7 @@ Equivalent to [rotate] dip
 	x = stack.'pop'()
 	stack.'push'(z, y, x, w)
 .end
-#,
+#=
 
 =back
 =cut
