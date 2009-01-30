@@ -59,6 +59,9 @@ to the fun compiler.
 .namespace []
 
 .sub 'initfun' :init :anon
+	$P0 = getinterp
+	$P0.'recursion_limit'(100000)
+
 	$P0 = new 'Stack'
 	set_hll_global ['private'], 'funstack', $P0
 	

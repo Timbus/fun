@@ -414,7 +414,10 @@ recurse_one:
 	
 	goto recurse_one
 
-recurse_two:
+do_true:
+	$P0 = '!@deepcopy'(t)
+	stack.'push'($P0 :flat)
+
 	unless vallist goto rec_done
 	$P0 = vallist.'pop'()
 	stack.'push'($P0)
@@ -425,12 +428,6 @@ recurse_two:
 	
 rec_done:
 	stack.'push'(reclist :flat)
-	.return()
-	
-do_true:
-	$P0 = '!@deepcopy'(t)
-	stack.'push'($P0 :flat)
-	goto recurse_two
 .end
 
 =item tailrec
