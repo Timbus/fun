@@ -365,16 +365,22 @@ default:
 	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)
 
-	unless testit goto terminal_cond
+	unless testit goto reclist_push
 	
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
-	splice reclist, $P0, 0, 0
+	reclist.'push'($P0)
 	
 	goto recurse
-	
-terminal_cond:
-	.tailcall stack.'push'(reclist :flat)
+
+reclist_push:
+	unless reclist goto finish
+	$P0 = reclist.'shift'()
+	stack.'push'($P0 :flat)
+	stack.'run'()
+	goto reclist_push
+finish:
+	.return()
 
 bad_list:
 	$P0 = new 'Exception'
@@ -428,7 +434,7 @@ do_true:
 	$P0 = '!@deepcopy'(t)
 	stack.'push'($P0 :flat)
 
-	unless vallist goto rec_done
+	unless vallist goto reclist_push
 	$P0 = vallist.'pop'()
 	stack.'push'($P0)
 	
@@ -436,16 +442,12 @@ do_true:
 	reclist.'push'($P0)
 	goto recurse_one
 	
-rec_done:
-	$I0 = 0
 reclist_push:
 	unless reclist goto finish
 	$P0 = reclist.'shift'()
 	stack.'push'($P0 :flat)
-	inc $I0
-	if $I0 < 5 goto reclist_push
 	stack.'run'()
-	goto rec_done
+	goto reclist_push
 
 finish:
 .end
