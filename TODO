@@ -3,4 +3,4 @@ Add objects.
 W/R/T [P] calls: Look into all the deepcopy calls you make. There are far too many, and I'm sure a lot can be removed.
 
 Maybe roll your own strftime
-Make an interface to declare and call c functions <- holy freakin crap this is going to suck so bad
+Make an interface to declare and call c functions <- just use parrots NCI and hope the jit can do it.

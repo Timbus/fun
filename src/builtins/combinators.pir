@@ -199,7 +199,7 @@ Executes C<P>, C<N> times
 	
 	$I0 = 0
 times_loop:
-	if $I0 >= n goto loop_end
+	if $I0 == n goto loop_end
 	$P0 = '!@deepcopy'(p)
 	stack.'push'($P0 :flat)
 	stack.'run'()
@@ -292,15 +292,25 @@ recurse:
 
 	$P0 = '!@deepcopy'(r1)
 	stack.'push'($P0 :flat)
-	#THis keeps the stack smaller.. makes functions run more 'in order' too for what that is worth..
+	#This keeps the stack smaller.. makes functions run more 'in order' too for what that is worth..
 	stack.'run'()
 	
 	$P0 = '!@deepcopy'(r2)
-	splice reclist, $P0, 0, 0
+	reclist.'push'($P0)
 	goto recurse
 	
 do_true:
-	.tailcall stack.'push'(t :flat, reclist :flat)
+	stack.'push'(t :flat)
+	stack.'run'()
+
+push_reclist:
+	unless reclist goto finish
+	$P0 = reclist.'shift'()
+	stack.'push'($P0 :flat)
+	stack.'run'()
+	goto push_reclist
+
+finish:
 .end
 
 =item condlinrec
@@ -423,11 +433,21 @@ do_true:
 	stack.'push'($P0)
 	
 	$P0 = '!@deepcopy'(r2)
-	splice reclist, $P0, 0, 0
+	reclist.'push'($P0)
 	goto recurse_one
 	
 rec_done:
-	stack.'push'(reclist :flat)
+	$I0 = 0
+reclist_push:
+	unless reclist goto finish
+	$P0 = reclist.'shift'()
+	stack.'push'($P0 :flat)
+	inc $I0
+	if $I0 < 5 goto reclist_push
+	stack.'run'()
+	goto rec_done
+
+finish:
 .end
 
 =item tailrec

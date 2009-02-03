@@ -20,3 +20,9 @@ fib [
 	] while
 	pop pop
 ] ==
+
+factorial [
+	[small] []
+	[dup --] [*]
+	linrec
+] ==

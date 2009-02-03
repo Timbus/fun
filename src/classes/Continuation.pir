@@ -129,11 +129,7 @@ just_run:
 pre_runval:
 	#This is popping from the continuation pmcarray, not the stack.
 	#Don't confuse yourself
-	#stack.'pop'()
-	
-	#Optimized? Test it out later.
-	$I0 = stacksz - 1
-	stack = $I0 
+	stack.'pop'()
 runval:
 	push_eh run_error
 	value()
@@ -143,9 +139,7 @@ runval:
 #Okay, I know theres a more elegant solution to all this code re-use.
 #Maybe maually setting up the function calls would help in some way.. Something to ponder.
 pre_usrfnc_runval:
-	#stack.'pop'()
-	$I0 = stacksz - 1
-	stack = $I0 
+	stack.'pop'()
 usrfnc_runval:
 	'!@userdispatch'(value, stack)
 	goto run_down
