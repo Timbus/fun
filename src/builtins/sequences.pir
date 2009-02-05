@@ -165,6 +165,61 @@ rest_string:
 	.tailcall stack.'push'($S0)
 .end
 
+=item range
+
+ I  ->  A
+
+Creates the aggregate A, filled with sequential integers starting from 1, going up to (and including) I
+
+=cut
+
+.sub 'range'
+	.local pmc stack
+	.local pmc genrange
+	.local int i
+	stack = get_hll_global ['private'], 'funstack'
+	i = stack.'pop'('Integer')
+	genrange = new 'List'
+	
+	$I0 = 1
+gen_loop:
+	if $I0 > i goto finish
+	genrange.'push'($I0)
+	$I0 += 1
+	goto gen_loop
+	
+finish:
+	.tailcall stack.'push'(genrange)
+.end
+
+=item genrange
+
+ I J  ->  A
+
+Creates the aggregate A, filled with sequential integers starting from I, going up to (and including) J
+
+=cut
+
+.sub 'genrange'
+	.local pmc stack
+	.local pmc genrange
+	.local int i, j
+	stack = get_hll_global ['private'], 'funstack'
+	j = stack.'pop'('Integer')
+	i = stack.'pop'('Integer')
+	genrange = new 'List'
+	
+	$I0 = i
+gen_loop:
+	if $I0 > j goto finish
+	genrange.'push'($I0)
+	$I0 += 1
+	goto gen_loop
+	
+finish:
+	.tailcall stack.'push'(genrange)
+.end
+
 =item step
 
  A [P]  ->  ...

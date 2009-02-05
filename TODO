@@ -4,3 +4,6 @@ W/R/T [P] calls: Look into all the deepcopy calls you make. There are far too ma
 
 Maybe roll your own strftime
 Make an interface to declare and call c functions <- just use parrots NCI and hope the jit can do it.
+
+CONSIDER: All functions with a continuation-based predicate suck. It's inconsistant, it takes overhead that could be avoided using dup. I don't see why it needs to stay.
+CONSIDER: A way to make list copies take less overhead. Lazy copies might work if data was actually immutable.

@@ -254,6 +254,7 @@ combine_loop:
 	unless count > 0 goto finish
 	$P0 = '!@deepcopy'(c)
 	stack.'push'($P0 :flat)
+	stack.'run'()
 	dec count
 	goto combine_loop
 
@@ -364,13 +365,13 @@ default:
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
 	stack.'push'($P0 :flat)
-
+	stack.'run'()
 	unless testit goto reclist_push
 	
 	$P0 = shift testit
 	$P0 = '!@deepcopy'($P0)
 	reclist.'push'($P0)
-	
+	stack.'run'()
 	goto recurse
 
 reclist_push:

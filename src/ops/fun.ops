@@ -53,7 +53,7 @@ inline op strftime(out STR, in STR, in PMC) :base_core {
 		);
 	}
 	
-	$1 = string_from_cstring(interp, buf, strlen(buf));
+	$1 = Parrot_str_new(interp, buf, strlen(buf));
 	mem_sys_free(buf);
 }
 
