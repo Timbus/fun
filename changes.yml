@@ -82,3 +82,6 @@ Alts:
     rationale: Being able to set the action of the dot makes autoput unneeded.
   - autoput: 'getdot'
     rationale: Since autoput doesn't exist the best you can do is get the function the dot uses.
+
+  - undeferror: 'getundeferror'
+    rationale: Since everything selse uses get/set this may as well too.
