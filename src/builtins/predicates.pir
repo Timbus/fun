@@ -138,6 +138,56 @@ true:
 	.return()
 .end
 
+.sub 'lor'
+	.local pmc stack
+	stack = get_hll_global ['private'], 'funstack'
+	$P0 = stack.'pop'('List')
+	$P1 = stack.'pop'('List')
+	
+	stack.'push'($P1 :flat)
+	$P1 = stack.'pop'()
+	if $P1 goto pushtrue
+	
+checktwo:
+	stack.'push'($P0 :flat)
+	$P0 = stack.'pop'()
+	if $P0 goto pushtrue
+
+	$P0 = new 'Boolean'
+	$P0 = 0
+	.tailcall stack.'push'($P0)
+
+pushtrue:
+	$P0 = new 'Boolean'
+	$P0 = 1
+	.tailcall stack.'push'($P0)
+.end
+
+.sub 'land'
+	.local pmc stack
+	stack = get_hll_global ['private'], 'funstack'
+	$P0 = stack.'pop'('List')
+	$P1 = stack.'pop'('List')
+	
+	stack.'push'($P1 :flat)
+	$P1 = stack.'pop'()
+	unless $P1 goto pushfalse
+	
+checktwo:
+	stack.'push'($P0 :flat)
+	$P0 = stack.'pop'()
+	unless $P0 goto pushfalse
+
+	$P0 = new 'Boolean'
+	$P0 = 1
+	.tailcall stack.'push'($P0)
+
+pushfalse:
+	$P0 = new 'Boolean'
+	$P0 = 0
+	.tailcall stack.'push'($P0)
+.end
+
 .sub 'xor'
 	.local pmc stack
 	stack = get_hll_global ['private'], 'funstack'
