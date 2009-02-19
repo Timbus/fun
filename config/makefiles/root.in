@@ -30,10 +30,10 @@ PCT           = $(BUILD_DIR)/runtime/parrot/library/PCT.pbc
 OPSDIR        = src/ops
 PMC_DIR       = src/pmc
 
-FUN_OPS       = src/ops/fun_ops$(LOAD_EXT)
+FUN_OPS       = $(OPSDIR)/fun_ops$(LOAD_EXT)
 FUN_GROUP     = $(PMC_DIR)/fun_group$(LOAD_EXT)
 
-all: fun.pbc $(FUN_OPS) $(FUN_GROUP)
+all: $(FUN_OPS) $(FUN_GROUP) fun.pbc
 
 SOURCES = fun.pir \
   src/gen_grammar.pir \
