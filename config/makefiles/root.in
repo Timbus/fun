@@ -1,8 +1,7 @@
 ## $Id$
 
 ## arguments we want to run parrot with
-PARROT_ARGS = 
-
+PARROT_ARGS   =
 
 ## configuration settings
 BUILD_DIR     = @build_dir@
@@ -10,69 +9,70 @@ LOAD_EXT      = @load_ext@
 O             = @o@
 
 ## Setup some commands
-LN_S          = @lns@
 PERL          = @perl@
-RM_RF         = @rm_rf@
+RM_F          = @rm_f@
 CP            = @cp@
+CAT           = @cat@
 PARROT        = ../../parrot@exe@
-CAT           = $(PERL) -MExtUtils::Command -e cat
 BUILD_DYNPMC  = $(PERL) $(BUILD_DIR)/tools/build/dynpmc.pl
 BUILD_DYNOPS  = $(PERL) $(BUILD_DIR)/tools/build/dynoplibs.pl
-RECONFIGURE   = $(PERL) $(BUILD_DIR)/tools/dev/reconfigure.pl
+#IF(darwin):
+#IF(darwin):# MACOSX_DEPLOYMENT_TARGET must be defined for OS X compilation/linking
+#IF(darwin):export MACOSX_DEPLOYMENT_TARGET := @osx_version@
 
 ## places to look for things
 PARROT_DYNEXT = $(BUILD_DIR)/runtime/parrot/dynext
 PGE_LIBRARY   = $(BUILD_DIR)/runtime/parrot/library/PGE
-PERL6GRAMMAR  = $(PGE_LIBRARY)/Perl6Grammar.pbc 
+PERL6GRAMMAR  = $(PGE_LIBRARY)/Perl6Grammar.pbc
 NQP           = $(BUILD_DIR)/compilers/nqp/nqp.pbc
 PCT           = $(BUILD_DIR)/runtime/parrot/library/PCT.pbc
-PMC_DIR       = src/pmc
 
 OPSDIR        = src/ops
-OPSLIB        = fun
-OPS_FILE      = src/ops/fun.ops
+PMC_DIR       = src/pmc
 
-all: fun.pbc
+FUN_OPS       = src/ops/fun_ops$(LOAD_EXT)
+FUN_GROUP     = $(PMC_DIR)/fun_group$(LOAD_EXT)
 
-FUN_GROUP = $(PMC_DIR)/fun_group$(LOAD_EXT)
+all: fun.pbc $(FUN_OPS) $(FUN_GROUP)
 
 SOURCES = fun.pir \
-	src/gen_grammar.pir \
-	src/gen_actions.pir \
-	src/gen_builtins.pir \
-	src/gen_objects.pir \
-	src/ops/fun_ops$(LOAD_EXT) \
-	$(FUN_GROUP)
+  src/gen_grammar.pir \
+  src/gen_actions.pir \
+  src/gen_builtins.pir \
+  src/gen_objects.pir
 
 BUILTINS_PIR = \
-	src/builtins/builtins.pir \
-	src/builtins/privfunctions.pir \
-	src/builtins/combinators.pir \
-	src/builtins/composition.pir \
-	src/builtins/operands.pir \
-	src/builtins/io.pir \
-	src/builtins/codeflow.pir \
-	src/builtins/sequences.pir \
-	src/builtins/math.pir \
-	src/builtins/predicates.pir \
+  src/builtins/builtins.pir \
+  src/builtins/privfunctions.pir \
+  src/builtins/combinators.pir \
+  src/builtins/composition.pir \
+  src/builtins/operands.pir \
+  src/builtins/io.pir \
+  src/builtins/codeflow.pir \
+  src/builtins/sequences.pir \
+  src/builtins/math.pir \
+  src/builtins/predicates.pir
 
 CLASSES_PIR = \
-	src/classes/Stack.pir \
-	src/classes/Continuation.pir \
+  src/classes/Stack.pir \
+  src/classes/Continuation.pir
 
-	
+OPSLIB = fun
+
+OPS_SOURCES = src/ops/fun.ops
+
 PMCS = \
-	list \
-	delayedsub \
-	char \
-	eosmarker
-	
+  list \
+  delayedsub \
+  char \
+  eosmarker
+
 PMC_SOURCES = \
-	$(PMC_DIR)/list.pmc \
-	$(PMC_DIR)/delayedsub.pmc \
-	$(PMC_DIR)/char.pmc \
-	$(PMC_DIR)/eosmarker.pmc 
-	
+  $(PMC_DIR)/list.pmc \
+  $(PMC_DIR)/delayedsub.pmc \
+  $(PMC_DIR)/char.pmc \
+  $(PMC_DIR)/eosmarker.pmc
+
 # the default target
 fun.pbc: $(PARROT) $(SOURCES)
 	$(PARROT) $(PARROT_ARGS) -o fun.pbc fun.pir
@@ -92,8 +92,8 @@ src/gen_builtins.pir: $(BUILTINS_PIR)
 
 src/gen_objects.pir: $(CLASSES_PIR)
 	$(CAT) $(CLASSES_PIR) >src/gen_objects.pir
-	
-src/ops/fun_ops$(LOAD_EXT) : $(OPS_FILE)
+
+$(FUN_OPS) : $(PARROT) $(OPS_SOURCES)
 	@cd $(OPSDIR) && $(BUILD_DYNOPS) generate $(OPSLIB)
 	@cd $(OPSDIR) && $(BUILD_DYNOPS) compile $(OPSLIB)
 	@cd $(OPSDIR) && $(BUILD_DYNOPS) linklibs $(OPSLIB)
@@ -107,7 +107,7 @@ $(FUN_GROUP): $(PARROT) $(PMC_SOURCES)
 
 # regenerate the Makefile
 Makefile: config/makefiles/root.in
-	cd $(BUILD_DIR) && $(RECONFIGURE) --step=gen::languages --languages=fun
+	$(PERL) Configure.pl
 
 # This is a listing of all targets, that are meant to be called by users
 help:
@@ -136,30 +136,47 @@ test: all
 testclean:
 
 CLEANUPS = \
-	fun.pbc \
-	src/gen_*.pir \
-	src/parser/grammar.pg \
-	$(OPSDIR)/*.c \
-	$(OPSDIR)/*.h \
-	$(OPSDIR)/*.dump \
-	$(OPSDIR)/*$(O) \
-	$(OPSDIR)/*$(LOAD_EXT) \
-	$(PMC_DIR)/*.h \
-	$(PMC_DIR)/*.c \
-	$(PMC_DIR)/*.dump \
-	$(PMC_DIR)/*$(O) \
-	$(PMC_DIR)/*$(LOAD_EXT) \
-	$(PMC_DIR)/*.exp \
-	$(PMC_DIR)/*.ilk \
-	$(PMC_DIR)/*.manifest \
-	$(PMC_DIR)/*.pdb \
-	$(PMC_DIR)/*.lib \
+  fun.pbc \
+  "src/gen_*.pir" \
+  src/parser/grammar.pg
+
+OPS_CLEANUPS = \
+  $(OPSDIR)/*.c \
+  $(OPSDIR)/*.h \
+  $(OPSDIR)/*.dump \
+  $(OPSDIR)/*$(O) \
+#IF(win32):  "$(OPSDIR)/*.exp" \
+#IF(win32):  "$(OPSDIR)/*.ilk" \
+#IF(win32):  "$(OPSDIR)/*.manifest" \
+#IF(win32):  "$(OPSDIR)/*.pdb" \
+#IF(win32):  "$(OPSDIR)/*.lib" \
+  $(OPSDIR)/*$(LOAD_EXT)
+
+PMC_CLEANUPS = \
+  "$(PMC_DIR)/*.h" \
+  "$(PMC_DIR)/*.c" \
+  "$(PMC_DIR)/*.dump" \
+  "$(PMC_DIR)/*$(O)" \
+#IF(win32):  "$(PMC_DIR)/*.exp" \
+#IF(win32):  "$(PMC_DIR)/*.ilk" \
+#IF(win32):  "$(PMC_DIR)/*.manifest" \
+#IF(win32):  "$(PMC_DIR)/*.pdb" \
+#IF(win32):  "$(PMC_DIR)/*.lib" \
+  "$(PMC_DIR)/*$(LOAD_EXT)"
 
 
-clean:
-	$(RM_RF) $(CLEANUPS)
+clean: testclean
+	$(RM_F) $(CLEANUPS)
+	$(RM_F) $(OPS_CLEANUPS)
+	$(RM_F) $(PMC_CLEANUPS)
 
 realclean: clean
-	$(RM_RF) Makefile
+	$(RM_F) Makefile
 
 distclean: realclean
+
+# Local variables:
+#   mode: makefile
+# End:
+# vim: ft=make:
+
