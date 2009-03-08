@@ -25,11 +25,7 @@ Ignore:
 Alts:
   - compare: 'cmp'
     rationale: Shorter, more common.
-  - succ: '++'
-    rationale: Shorter, more common.
-  - pred: '--'
-    rationale: Shorter, more common.
-    
+
   - ifinteger: 'ifint'
     rationale: Shorter type name. 
   - iffloat: 'ifnum'
@@ -38,7 +34,7 @@ Alts:
     rationale: Shorter type name.
   - iflogical: 'ifbool'
     rationale: Shorter type name.
-    
+
   - integer: 'int?'
     rationale: More apparant it is a predicate.
   - float: 'num?'
@@ -60,14 +56,14 @@ Alts:
 
   - some: 'any'
     rationale: Any/all 'feels' more right to me.
-  
+
   - putchars: 'puts'
     rationale: Shorter, more common name.
   - fputchars: 'fputs'
     rationale: Consistant with the putchars change.
   - fputstring: 'fputs'
     rationale: Duplicate of a depreciated function.
-    
+
   - app2: 'unary2'
     rationale: Duplicate function.
   - app3: 'unary3'
@@ -77,7 +73,7 @@ Alts:
 
   - formatf: 'format'
     rationale: It was trivial to make format also take a float. formatf is a confusing function name anyway.
-    
+
   - setautoput: 'setdot'
     rationale: Being able to set the action of the dot makes autoput unneeded.
   - autoput: 'getdot'

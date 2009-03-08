@@ -123,6 +123,9 @@ Gives the numeric successor of N.
 	inc $P0
 	.tailcall stack.'push'($P0)
 .end
+.sub 'succ'
+	.tailcall '++'()
+.end
 
 =item --
 
@@ -138,6 +141,9 @@ Gives the numeric predecessor of N.
 	$P0 = stack.'pop'('Integer', 'Float', 'Char')
 	dec $P0
 	.tailcall stack.'push'($P0)
+.end
+.sub 'pred'
+	.tailcall '--'()
 .end
 
 =item mod

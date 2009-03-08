@@ -1,0 +1,119 @@
+## $Id$
+
+# values from parrot_config
+VERSION_DIR   := @versiondir@
+INCLUDE_DIR   := @includedir@$(VERSION_DIR)
+LIB_DIR       := @libdir@$(VERSION_DIR)
+SRC_DIR       := @srcdir@$(VERSION_DIR)
+TOOLS_DIR     := @libdir@$(VERSION_DIR)/tools/lib
+STAGING_DIR   := ../../dynext
+#STAGING_DIR   := @build_dir@/runtime/parrot/dynext
+#INSTALL_DIR   := $(LIB_DIR)/languages/fun/dynext
+INSTALL_DIR   := $(LIB_DIR)/dynext
+
+# Set up extensions
+LOAD_EXT      := @load_ext@
+O             := @o@
+
+# Setup some commands
+PERL          := @perl@
+RM_F          := @rm_f@
+CHMOD         := @chmod@
+CP            := @cp@
+MKPATH        := @mkpath@
+CC            := @cc@ -c
+LD            := @ld@
+LDFLAGS       := @ldflags@ @ld_debug@
+LD_LOAD_FLAGS := @ld_load_flags@
+CFLAGS        := @ccflags@ @cc_shared@ @cc_debug@ @ccwarn@ @cc_hasjit@ @cg_flag@ @gc_flag@
+CC_OUT        := @cc_o_out@
+LD_OUT        := @ld_out@
+#IF(parrot_is_shared):LIBPARROT     := @libparrot_ldflags@
+#ELSE:LIBPARROT     :=
+
+PMC2C_INCLUDES  := --include $(SRC_DIR) --include $(SRC_DIR)/pmc
+PMC2C           := $(PERL) $(LIB_DIR)/tools/build/pmc2c.pl
+PMC2CD          := $(PMC2C) --dump $(PMC2C_INCLUDES)
+PMC2CC          := $(PMC2C) --c $(PMC2C_INCLUDES)
+
+INCLUDES        := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/pmc
+LINKARGS        := $(LDFLAGS) $(LD_LOAD_FLAGS) $(LIBPARROT)
+
+FUN_GROUP := fun_group
+
+PMC_SOURCES := \
+  list.pmc \
+  delayedsub.pmc \
+  char.pmc \
+  eosmarker.pmc
+
+OBJS := \
+  lib-$(FUN_GROUP)$(O) \
+  list$(O) \
+  delayedsub$(O) \
+  char$(O) \
+  eosmarker$(O)
+
+CLEANUPS := \
+  "*$(LOAD_EXT)" \
+  "*$(O)" \
+  "*.c" \
+  "*.h" \
+  "*.dump" \
+#IF(win32):  "*.exp" \
+#IF(win32):  "*.ilk" \
+#IF(win32):  "*.manifext" \
+#IF(win32):  "*.pdb" \
+#IF(win32):  "*.lib" \
+  $(STAGING_DIR)/$(FUN_GROUP)$(LOAD_EXT)
+
+
+all: staging
+
+generate: $(PMC_SOURCES)
+	$(PMC2CD) list.pmc
+	$(PMC2CD) delayedsub.pmc
+	$(PMC2CD) char.pmc
+	$(PMC2CD) eosmarker.pmc
+	$(PMC2CC) list.pmc
+	$(PMC2CC) delayedsub.pmc
+	$(PMC2CC) char.pmc
+	$(PMC2CC) eosmarker.pmc
+	$(PMC2C) --library $(FUN_GROUP) --c $(PMC_SOURCES)
+
+compile: generate
+	$(CC) $(CC_OUT)list$(O) $(INCLUDES) $(CFLAGS) list.c
+	$(CC) $(CC_OUT)delayedsub$(O) $(INCLUDES) $(CFLAGS) delayedsub.c
+	$(CC) $(CC_OUT)char$(O) $(INCLUDES) $(CFLAGS) char.c
+	$(CC) $(CC_OUT)eosmarker$(O) $(INCLUDES) $(CFLAGS) eosmarker.c
+	$(CC) $(CC_OUT)lib-$(FUN_GROUP)$(O) $(INCLUDES) $(CFLAGS) $(FUN_GROUP).c
+
+linklibs: compile
+	$(LD) $(LD_OUT)$(FUN_GROUP)$(LOAD_EXT) $(OBJS) $(LINKARGS)
+
+staging: linklibs
+#IF(cygwin or hpux):	CHMOD 0775 "*$(LOAD_EXT)"
+	$(MKPATH) $(STAGING_DIR)
+	$(CP) "*$(LOAD_EXT)" $(STAGING_DIR)
+
+install:
+#IF(cygwin or hpux):	CHMOD 0775 "*$(LOAD_EXT)"
+	$(CP) "*$(LOAD_EXT)" $(INSTALL_DIR)
+
+uninstall:
+	$(RM_F) $(INSTALL_DIR)/$(FUN_GROUP)$(LOAD_EXT)
+
+Makefile: ../../config/makefiles/pmc.in
+	cd ../.. && $(PERL) Configure.pl
+
+clean:
+	$(RM_F) $(CLEANUPS)
+
+realclean:
+	$(RM_F) $(CLEANUPS) Makefile
+
+# Local variables:
+#   mode: makefile
+# End:
+# vim: ft=make:
+

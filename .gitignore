@@ -1,7 +1,19 @@
 Makefile
+
 *.pbc
+*.c
+*.o
+*.obj
+*.exe
+*.iss
+fun
+installable_fun
+
 *.patch
 *.gz
+
+man
+*.tmp
 
 src/gen_*.pir
 src/parser/grammar.pg
