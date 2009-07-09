@@ -14,7 +14,7 @@ Functions for math type things
 
  ->  I
 
-Pushes a random integer.
+Pushes a random integer. Will seed the generator if it's not already seeded.
 
 =cut
 
@@ -22,12 +22,14 @@ Pushes a random integer.
 	.local pmc stack
 	stack = get_hll_global ['private'], 'funstack'
 	
-	$P0 = get_hll_global ['private'], 'rand'
+	$P0 = get_hll_global ['Math'; 'Rand'], 'rand'
 	unless null $P0 goto ret_rand
-	$P0 = new 'Random'
+	load_bytecode 'library/Math/Rand.pbc'
+	$P0 = get_hll_global ['Math'; 'Rand'], 'srand'
 	$I0 = time
-	$P0 = $I0
-	set_hll_global ['private'], 'rand', $P0
+	$P0($I0)
+	#Rand should now exist.
+	$P0 = get_hll_global ['Math'; 'Rand'], 'rand'
 ret_rand:
 	$I0 = $P0
 	.tailcall stack.'push'($I0)
@@ -47,12 +49,12 @@ Takes an integer to set the random generator seed.
 
 	seed = stack.'pop'('Integer')
 
-	$P0 = get_hll_global ['private'], 'rand'
+	$P0 = get_hll_global ['private'], 'srand'
 	unless null $P0 goto set_rand
-	$P0 = new 'Random'
-	set_hll_global ['private'], 'rand', $P0
+	load_bytecode 'library/Math/Rand.pbc'
+	$P0 = get_hll_global ['Math'; 'Rand'], 'srand'
 set_rand:
-	$P0 = seed
+	$P0(seed)
 .end
 
 =item acos

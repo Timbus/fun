@@ -17,26 +17,41 @@ Class method to construct an Integer from the string representation C<rep>.
 =cut
 
 */
-	VTABLE PMC *new_from_string(STRING *rep, INTVAL flags) {
-		const INTVAL type = SELF->vtable->base_type;
-		PMC * const  res  = (flags & PObj_constant_FLAG)
-			? constant_pmc_new(INTERP, type)
-			: pmc_new(INTERP, type);
+    VTABLE PMC *instantiate_str(STRING *rep, INTVAL flags) {
+        const INTVAL type = SELF->vtable->base_type;
+        PMC * const  res  = (flags & PObj_constant_FLAG)
+            ? constant_pmc_new(INTERP, type)
+            : pmc_new(INTERP, type);
 
-		PMC_int_val(res) = string_ord(INTERP, rep, 0);
-		return res;
-	}
+        /* Parrot_str_to_int catches overflow automatically, so we don't need to
+           worry about it here. */
+        VTABLE_set_integer_native(INTERP, res, string_ord(INTERP, rep, 0));
+        return res;
+    }
+
+    VTABLE void set_integer_same(PMC *value) {
+        SELF.set_integer_native(VTABLE_get_integer(INTERP, value));
+    }
+
+
+    VTABLE void set_integer_native(INTVAL value) {
+        SET_ATTR_iv(INTERP, SELF, value);
+    }
 
 	VTABLE STRING *get_string() {
-		return string_chr(INTERP, PMC_int_val(SELF));
+		INTVAL iv;
+		GET_ATTR_iv(INTERP, SELF, iv);
+		return string_chr(INTERP, iv);
 	}
 
 	VTABLE STRING *get_repr() {
-		return string_chr(INTERP, PMC_int_val(SELF));
+		INTVAL iv;
+		GET_ATTR_iv(INTERP, SELF, iv);
+		return string_chr(INTERP, iv);
 	}
 
 	VTABLE void set_string_native(STRING *value) {
-		PMC_int_val(SELF) = string_ord(INTERP, value, 0);
+		SET_ATTR_iv(INTERP, SELF, string_ord(INTERP, value, 0));
 	}
 
 

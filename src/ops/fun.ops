@@ -2,7 +2,6 @@
 #include <time.h>
 
 #include "parrot/dynext.h"
-#include "parrot/resources.h"
 #include "../../../../src/pmc/pmc_object.h"
 VERSION = PARROT_VERSION;
 
