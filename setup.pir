@@ -1,5 +1,4 @@
 #!/usr/bin/env parrot
-# $Id$
 
 =head1 NAME
 
@@ -66,14 +65,15 @@ PMCS
 
     $P7 = new 'Hash'
     $P8 = split "\n", <<'SOURCES'
-fun.pir
+src/fun.pir
 src/gen_grammar.pir
 src/gen_actions.pir
 src/gen_builtins.pir
 src/gen_objects.pir
 SOURCES
     $S0 = pop $P8
-    $P7['fun.pbc'] = $P8
+    $P7['fun/fun.pbc'] = $P8
+    $P7['fun.pbc'] = 'fun.pir'
     $P0['pbc_pir'] = $P7
 
     $P9 = new 'Hash'
@@ -84,6 +84,9 @@ SOURCES
     $S0 = get_parrot()
     $S0 .= ' fun.pbc'
     $P0['prove_exec'] = $S0
+
+    # install
+    $P0['inst_lang'] = 'fun/fun.pbc'
 
     # dist
     $P10 = glob('src/parser/grammartt.pg src/builtins/*.pir src/classes/*.pir tools/*.pl examples/*.fun changes.yml plain-manual.html')
