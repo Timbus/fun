@@ -37,3 +37,5 @@ src/pmc/*.o
 src/pmc/*.obj
 src/pmc/*.pdb
 src/pmc/*.so
+
+/MANIFEST
