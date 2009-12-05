@@ -59,14 +59,14 @@ inline op strftime(out STR, in STR, in PMC) :base_core {
 inline op mktime(out INT, in PMC) :base_core {
 	struct tm timeinfo;
 	
-	timeinfo.tm_sec = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 0));
-	timeinfo.tm_min = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 1));
-	timeinfo.tm_hour = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 2));
-	timeinfo.tm_mday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 3));
-	timeinfo.tm_mon = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 4)) - 1;
-	timeinfo.tm_year = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 5)) - 1900;
-	timeinfo.tm_wday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 6));
-	timeinfo.tm_yday = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 7));
+	timeinfo.tm_sec   = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 0));
+	timeinfo.tm_min   = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 1));
+	timeinfo.tm_hour  = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 2));
+	timeinfo.tm_mday  = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 3));
+	timeinfo.tm_mon   = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 4)) - 1;
+	timeinfo.tm_year  = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 5)) - 1900;
+	timeinfo.tm_wday  = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 6));
+	timeinfo.tm_yday  = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 7));
 	timeinfo.tm_isdst = VTABLE_get_integer(interp, VTABLE_get_pmc_keyed_int(interp, $2, 8));
 
 	$1 = mktime(&timeinfo);
