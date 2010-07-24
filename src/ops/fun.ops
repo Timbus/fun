@@ -3,7 +3,7 @@
 
 #include "parrot/dynext.h"
 #include "../../../../src/pmc/pmc_object.h"
-VERSION = PARROT_VERSION;
+/*VERSION = PARROT_VERSION;*/
 
 inline op frexp(out NUM, in NUM, out INT) :base_core {
 	int exp;

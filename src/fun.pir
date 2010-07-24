@@ -26,7 +26,11 @@ object.
 
 .loadlib 'fun_group'
 .loadlib 'fun_ops'
-
+.loadlib 'sys_ops'
+.loadlib 'io_ops'
+.loadlib 'math_ops'
+.loadlib 'trans_ops'
+ 
 .sub 'onload' :anon :load
     load_bytecode 'PCT.pbc'
 

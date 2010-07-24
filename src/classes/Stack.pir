@@ -164,7 +164,7 @@ assign_stack:
 	
 	$P0 = getattribute self, 'topcc'
 	$P0 = $P0.'getparent'()
-	if_null $P0, no_stack
+	if null $P0 goto no_stack
 	setattribute self, 'topcc', $P0
 	.return()
 

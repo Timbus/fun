@@ -2,6 +2,7 @@
 
 pmclass List 
 	need_ext 
+	auto_attrs 
 	dynpmc 
 	group fun_group 
 	hll fun 

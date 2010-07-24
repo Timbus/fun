@@ -167,7 +167,9 @@ run_error:
 	errstr = "Error in function '"
 	errstr .= $S0
 	errstr .= "': "
-	printerr errstr
+	
+	$P0 = getstderr
+	print $P0, errstr
 	exception['type'] = -1
 	
 error_exit:

@@ -77,10 +77,10 @@ Reads a line from stdin. Chomps the trailing newline.
 	#Plz dont sue, guys :(
 	lastchar = substr str, -1
 	if lastchar != "\n" goto done
-	chopn str, 1
+	str = chopn str, 1
 	lastchar = substr str, -1
 	if lastchar != "\r" goto done
-	chopn str, 1
+	str = chopn str, 1
 done:
 	.tailcall stack.'push'(str)
 .end

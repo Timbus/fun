@@ -21,17 +21,7 @@ Pushes a random integer. Will seed the generator if it's not already seeded.
 .sub 'rand'
 	.local pmc stack
 	stack = get_hll_global ['private'], 'funstack'
-	
-	$P0 = get_hll_global ['Math'; 'Rand'], 'rand'
-	unless null $P0 goto ret_rand
-	load_bytecode 'library/Math/Rand.pbc'
-	$P0 = get_hll_global ['Math'; 'Rand'], 'srand'
-	$I0 = time
-	$P0($I0)
-	#Rand should now exist.
-	$P0 = get_hll_global ['Math'; 'Rand'], 'rand'
-ret_rand:
-	$I0 = $P0
+	$I0 = rand
 	.tailcall stack.'push'($I0)
 .end
 
@@ -44,17 +34,13 @@ Takes an integer to set the random generator seed.
 =cut
 
 .sub 'srand'
-	.local pmc stack, seed
+	.local pmc stack
+	.local int seed
 	stack = get_hll_global ['private'], 'funstack'
 
 	seed = stack.'pop'('Integer')
 
-	$P0 = get_hll_global ['private'], 'srand'
-	unless null $P0 goto set_rand
-	load_bytecode 'library/Math/Rand.pbc'
-	$P0 = get_hll_global ['Math'; 'Rand'], 'srand'
-set_rand:
-	$P0(seed)
+	srand seed
 .end
 
 =item acos

@@ -2,10 +2,15 @@
 
 pmclass DelayedSub 
 	dynpmc
+	auto_attrs
 	need_ext
 	group fun_group 
 	extends String
 {
+
+}
+
+/*
 
 =item C<opcode_t* invoke(void* next)>
 
@@ -48,6 +53,5 @@ Throws an exception if the sub cannot be found.
 		}
 		return VTABLE_invoke(INTERP, dispatchsub, next);
 	}
-*/
-
 }
+*/

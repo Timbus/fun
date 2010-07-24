@@ -465,10 +465,10 @@ Reads a symbol from input and pushes it onto stack. Will only work for individua
 	#Plz dont sue, guys :(
 	lastchar = substr str, -1
 	if lastchar != "\n" goto done
-	chopn str, 1
+	str = chopn str, 1
 	lastchar = substr str, -1
 	if lastchar != "\r" goto done
-	chopn str, 1
+	str = chopn str, 1
 done:
 
 	$P0 = get_global str
